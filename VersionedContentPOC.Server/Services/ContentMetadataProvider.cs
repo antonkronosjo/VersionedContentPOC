@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Requests;
 
 namespace VersionedContentPOC.Server.Services;
@@ -14,10 +15,28 @@ public static class ContentMetadataProvider
     {
         return new CreateContentRequest
         {
-            ContentTypeName = contentType.Name,
-            Language = language,
+            Metadata = new CreateContentRequestMetadata
+            {
+                ContentTypeName = contentType.Name,
+                Language = language,
+            },
             PropertiesSchema = GetPropertySchema(contentType)
         };  
+    }
+
+    public static UpdateContentRequest GetUpdateSchema(Content content)
+    {
+        return new UpdateContentRequest
+        {
+            Metadata = new UpdateContentRequestMetadata {
+                ContentId = content.ContentId,
+                CurrentVersionId = content.VersionId,
+                Language = content.Language,
+            },
+            PropertiesSchema = GetPropertySchema(content.GetType())
+                .Where(x => x.Value.IsRequired == false)
+                .ToDictionary()
+        };
     }
 
     public static IDictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType)
@@ -37,27 +56,12 @@ public static class ContentMetadataProvider
             );
     }
 
-    /// <summary>
-    /// Validates schema so that types actually is the same as intended to avoid remote code execution
-    /// </summary>
-    public static void ValidateSchema(Type type, IDictionary<string, ContentPropertyValueDto> schema)
-    {
-        var originalSchema = GetPropertySchema(type);
-
-        // Reject unknown properties
-        if (schema.Keys.Except(originalSchema.Keys).Any())
-            throw new InvalidOperationException("Schema contains unknown properties.");
-
-
-        if (!schema.All(x => String.Equals(originalSchema[x.Key].PropertyTypeFullName, x.Value.PropertyTypeFullName, StringComparison.Ordinal)))
-            throw new InvalidOperationException("Schema validation not successfull!");
-    }
-
     private static bool HasContentMetaData(PropertyInfo property)
     {
         return property.IsDefined(typeof(ContentPropertyMetaDataAttribute), inherit: true);
     }
 
+    [ShouldBeRefactored("the RequiredMemberAttribute check does not seem to work")]
     public static bool IsRequired(PropertyInfo property)
     {
         var requiredAttr = property.GetCustomAttribute<ContentPropertyMetaDataAttribute>();

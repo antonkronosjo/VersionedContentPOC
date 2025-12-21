@@ -16,16 +16,7 @@ namespace VersionedContentPOC.Server.Services
                 throw new InvalidOperationException($"Type '{contentType.FullName}' does not inherit from {nameof(Content)}.");
 
             var instance = (Content?)Activator.CreateInstance(contentType, Guid.NewGuid(), language) ?? throw new InvalidOperationException("Failed to create content");
-
-            foreach (var (propertyName, dto) in properties)
-            {
-                var prop = contentType.GetProperty(propertyName);
-                if (prop == null || !prop.CanWrite)
-                    throw new ArgumentException($"Invalid property: {propertyName}");
-
-                ContentUpdater.SetValue(instance, prop, dto);
-            }
-
+            ContentUpdater.ApplyUpdates(instance, properties);
             return instance;
         }
     }

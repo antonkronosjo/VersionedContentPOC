@@ -2,6 +2,7 @@
 using VersionedContentPOC.Data;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Attributes;
 
 namespace VersionedContentPOC.Server.Services;
 
@@ -9,8 +10,8 @@ public interface IContentRepository
 {
     T? Get<T>(Guid contentId, Language language) where T : Content;
     T Create<T>(T content) where T : Content;
-    T Update<T>(Guid contentId, T contentVersion) where T : Content;
-    T Update<T>(Guid contentId, Language language, Dictionary<string, ContentPropertyValueDto> updates) where T : Content;
+    T Update<T>(Guid contentId, T contentVersion, bool forceUpdate = false) where T : Content;
+    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
     void Delete(Guid contentId);
     IQueryable<T> QueryActiveVersions<T>(Language languageBranch) where T : Content;
 }
@@ -74,9 +75,10 @@ public class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Updates content with new version
+    /// Updates content with new version. NOTE: Will throw exception if content.VersionId does not match currently active content version
     /// </summary>
-    public T Update<T>(Guid contentId, T updatedVersion) where T : Content
+    [ShouldBeRefactored("Refacotr this so that it makes sense regarding force update")]
+    public T Update<T>(Guid contentId, T updatedVersion, bool forceUpdate = false) where T : Content
     {
         using var transaction = _context.Database.BeginTransaction();
         try
@@ -93,7 +95,15 @@ public class ContentRepository : IContentRepository
                 _context.SaveChanges();
             }
 
+            
+
             var languageBranch = newLanguageBranch ?? root.LanguageBranches.Single(x => x.Language == updatedVersion.Language);
+
+            if (!forceUpdate && languageBranch.ActiveVersionId != updatedVersion.VersionId)
+                throw new Exception("You are trying to update someone elses work!");
+            else
+                updatedVersion.VersionId = Guid.NewGuid();
+
             languageBranch.AddVersion(updatedVersion);
 
             _context.Update(languageBranch);
@@ -111,18 +121,12 @@ public class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Updates content with new version based on key/values 
+    /// Updates content with new version based on key/values.
     /// </summary>
-    public T Update<T>(Guid contentId, Language language, Dictionary<string, ContentPropertyValueDto> updates) where T : Content
+    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content
     {
-        var content = Get<T>(contentId, language);
-        if (content == null)
-            throw new InvalidOperationException($"Content with id {contentId} does not exist for language {language}");
-
         ContentUpdater.ApplyUpdates(content, updates);
-        content.VersionId = Guid.NewGuid();
-
-        return Update(contentId, content);
+        return Update<T>(content.ContentId, content);
     }
 
     /// <summary>

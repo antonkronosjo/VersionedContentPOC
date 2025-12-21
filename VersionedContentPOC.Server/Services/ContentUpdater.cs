@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Models;
@@ -9,12 +7,14 @@ namespace VersionedContentPOC.Server.Services;
 
 public static class ContentUpdater
 {
-    public static void ApplyUpdates<T>(T content, Dictionary<string, ContentPropertyValueDto> updates) where T : class
+    public static void ApplyUpdates<T>(T content, IDictionary<string, ContentPropertyValueDto> updates) where T : class
     {
         if (!typeof(Content).IsAssignableFrom(content.GetType()))
             throw new InvalidOperationException($"Type '{content.GetType().Name}' does not inherit from {nameof(Content)}.");
 
-        var instanceProperties = typeof(T)
+        ValidateSchema(content.GetType(), updates);
+
+        var instanceProperties = content.GetType()
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanWrite && p.CanRead)
             .ToDictionary(p => p.Name, p => p);
@@ -32,7 +32,23 @@ public static class ContentUpdater
         }
     }
 
-    public static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
+    /// <summary>
+    /// Validates schema so that types actually is the same as intended to avoid remote code execution
+    /// </summary>
+    private static void ValidateSchema(Type type, IDictionary<string, ContentPropertyValueDto> schema)
+    {
+        var originalSchema = ContentMetadataProvider.GetPropertySchema(type);
+
+        // Reject unknown properties
+        if (schema.Keys.Except(originalSchema.Keys).Any())
+            throw new InvalidOperationException("Schema contains unknown properties.");
+
+
+        if (!schema.All(x => String.Equals(originalSchema[x.Key].PropertyTypeFullName, x.Value.PropertyTypeFullName, StringComparison.Ordinal)))
+            throw new InvalidOperationException("Schema validation not successfull!");
+    }
+
+    private static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
     {
         var value = dto.Value;
         var resolvedValue = ResolveValue(dto.PropertyTypeFullName, value);
