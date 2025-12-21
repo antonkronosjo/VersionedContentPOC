@@ -1,8 +1,11 @@
-﻿using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Repositories;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using VersionedContentPOC.Data.Enums;
+using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Data.Models;
+using VersionedContentPOC.Server.Requests;
+using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Controllers;
 
@@ -11,80 +14,77 @@ namespace VersionedContentPOC.Controllers;
 public class ContentController : ControllerBase
 {
     IContentRepository _contentRepository;
+    IContentFactory _contentFactory;
 
-    public ContentController(IContentRepository contentRepository)
+    public ContentController(IContentRepository contentRepository, IContentFactory contentFactory)
     {
         _contentRepository = contentRepository;
+        _contentFactory = contentFactory;
+    }
+
+    [HttpGet]
+    [Route("types")]
+    public IActionResult GetContentTypes()
+    {
+        var contentTypes = ContentTypeRegistry.GetRegisteredContentTypes()
+            .Select(x => x.Name)
+            .ToList();
+
+        return Ok(contentTypes);
+    }
+
+    [HttpGet]
+    [Route("creationschema")]
+    public IActionResult GetContentCreationSchema([FromQuery] string contentTypeName, [FromQuery] Language language)
+    {
+        try
+        {
+            var contentType = ContentTypeRegistry.GetRegisteredContentType(contentTypeName);
+            var creationSchema = ContentMetadataProvider.GetCreationSchema(contentType, language);
+            return Ok(creationSchema);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpPost]
-    [Route("news/create")]
-    public IActionResult AddNewsContent([FromQuery] string heading)
+    [Route("create")]
+    public IActionResult CreateContent([FromBody] CreateContentRequest request)
     {
-        var newsContent = new NewsContent(Guid.NewGuid(), Language.SV)
+        try
         {
-            Heading = heading,
-            Text = "News text"
-        };
-        var createdContent = _contentRepository.Create(newsContent);
-        return Ok(createdContent);
-    }
-
-    [HttpPost]
-    [Route("events/create")]
-    public IActionResult AddEventContent([FromQuery] string heading)
-    {
-        var newsContent = new EventContent(Guid.NewGuid(), Language.SV)
+            var contentType = ContentTypeRegistry.GetRegisteredContentType(request.ContentTypeName);
+            var contentInstance = _contentFactory.CreateInstance(contentType, request.Language, request.Properties);
+            var createdContent = _contentRepository.Create(contentInstance);
+            return CreatedAtAction(nameof(CreateContent), createdContent);
+        }
+        catch (ValidationException ex)
         {
-            Heading = heading,
-            StartDate = DateTime.Now,
-            EndDate = DateTime.Now
-        };
-        var createdContent = _contentRepository.Create(newsContent);
-        return Ok(createdContent);
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpPut]
     [Route("update")]
-    public IActionResult UpdateNewsContent([FromQuery]Guid contentId, [FromBody]Dictionary<string, string?> updates)
+    public IActionResult UpdateContent([FromBody] UpdateContentRequest request)
     {
-        var updatedContent = _contentRepository.Update<NewsContent>(contentId, Language.SV, updates);
+        var content = _contentRepository.Get<Content>(request.ContentId, request.Language);
+        if (content == null)
+            return NotFound();
 
-        // Can be used like this =>
-        //_contentRepository.Update<EventContent>(contentId, updates);
-        //_contentRepository.Update<ContentVersion>(contentId, updates);
-
+        var updatedContent = _contentRepository.Update<Content>(request.ContentId, request.Language, request.Updates);
         return Ok(updatedContent);
-    }
-
-    private IActionResult POC_API()
-    {
-        //Create
-        var firstVersion = new NewsContent(Guid.NewGuid(), Language.SV)
-        {
-            Heading = "News heading 1",
-            Text = "News text 1"
-        };
-        var createdContent = _contentRepository.Create(firstVersion);
-
-        //Update
-        var updatedContent = new NewsContent(Guid.NewGuid(), Language.SV)
-        {
-            Heading = "News heading 2",
-            Text = "News text 2"
-        };
-
-        _contentRepository.Update(createdContent.ContentId, updatedContent);
-
-        //Delete
-        _contentRepository.Delete(updatedContent.ContentId);
-
-        return Ok();
     }
 
     [HttpGet]
     [Route("all")]
-    public IActionResult GetNewsContent()
+    public IActionResult GetAllContent()
     {
         var news = _contentRepository
             .QueryActiveVersions<Content>(Language.SV)

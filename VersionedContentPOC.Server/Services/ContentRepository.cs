@@ -1,17 +1,16 @@
-﻿using VersionedContentPOC.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using VersionedContentPOC.Data;
 using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Extensions;
 using VersionedContentPOC.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
-namespace VersionedContentPOC.Repositories;
+namespace VersionedContentPOC.Server.Services;
 
 public interface IContentRepository
 {
     T? Get<T>(Guid contentId, Language language) where T : Content;
     T Create<T>(T content) where T : Content;
     T Update<T>(Guid contentId, T contentVersion) where T : Content;
-    T Update<T>(Guid contentId, Language language, Dictionary<string, string?> updates) where T : Content;
+    T Update<T>(Guid contentId, Language language, Dictionary<string, ContentPropertyValueDto> updates) where T : Content;
     void Delete(Guid contentId);
     IQueryable<T> QueryActiveVersions<T>(Language languageBranch) where T : Content;
 }
@@ -114,7 +113,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Updates content with new version based on key/values 
     /// </summary>
-    public T Update<T>(Guid contentId, Language language, Dictionary<string, string?> updates) where T : Content
+    public T Update<T>(Guid contentId, Language language, Dictionary<string, ContentPropertyValueDto?> updates) where T : Content
     {
         var activeVersion = Get<T>(contentId, language);
         if (activeVersion == null)

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Net.Mime;
+using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Extensions
 {
@@ -7,7 +7,7 @@ namespace VersionedContentPOC.Extensions
     {
         public static void RegisterContentTypes(this ModelBuilder modelBuilder)
         {
-            foreach (var type in DiscriminatorBuilderExtensions.GetAllContentTypes())
+            foreach (var type in ContentTypeRegistry.GetRegisteredContentTypes())
                 modelBuilder.Entity(type);
         }
     }

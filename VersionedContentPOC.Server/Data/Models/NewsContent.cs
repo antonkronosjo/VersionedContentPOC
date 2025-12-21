@@ -1,8 +1,9 @@
 ﻿using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Enums;
 using System.Text.Json.Serialization;
+using VersionedContentPOC.Data.Models;
 
-namespace VersionedContentPOC.Data.Models
+namespace VersionedContentPOC.Server.Data.Models
 {
     [JsonDerivedType(typeof(NewsContent), nameof(NewsContent))]
     [ContentType(ContentType.News)]

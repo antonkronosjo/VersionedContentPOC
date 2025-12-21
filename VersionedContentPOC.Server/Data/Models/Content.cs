@@ -1,5 +1,6 @@
 ﻿using VersionedContentPOC.Data.Enums;
 using System.Text.Json.Serialization;
+using VersionedContentPOC.Server.Data.Models;
 
 namespace VersionedContentPOC.Data.Models;
 

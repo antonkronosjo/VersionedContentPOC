@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using VersionedContentPOC.Data;
-using VersionedContentPOC.Repositories;
+using VersionedContentPOC.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddTransient<IContentRepository, ContentRepository>();
+builder.Services.AddTransient<IContentFactory, ContentFactory>();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<VersionedContentPOCContext>(options => options.UseSqlite("Data Source=app.db"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
