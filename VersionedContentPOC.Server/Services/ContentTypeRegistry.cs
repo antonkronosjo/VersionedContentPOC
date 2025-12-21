@@ -13,10 +13,9 @@ public static class ContentTypeRegistry
                 x.IsClass &&
                 !x.IsAbstract &&
                 typeof(Content).IsAssignableFrom(x) &&
-                x.IsDefined(typeof(ContentTypeAttribute), false))
-            .ToList();
+                x.IsDefined(typeof(ContentTypeAttribute), false));
     }
-
+    
     public static Type GetRegisteredContentType(string typeName)
     {
         var contentType = GetRegisteredContentTypes().SingleOrDefault(x => x.Name == typeName);

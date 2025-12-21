@@ -5,12 +5,12 @@ namespace VersionedContentPOC.Server.Services
 {
     public interface IContentFactory
     {
-        Content CreateInstance(Type contentType, Language language, Dictionary<string, ContentPropertyValueDto> properties);
+        Content CreateInstance(Type contentType, Language language, IDictionary<string, ContentPropertyValueDto> properties);
     }
 
     public class ContentFactory : IContentFactory
     {
-        public Content CreateInstance(Type contentType, Language language, Dictionary<string, ContentPropertyValueDto> properties)
+        public Content CreateInstance(Type contentType, Language language, IDictionary<string, ContentPropertyValueDto> properties)
         {
             if (!typeof(Content).IsAssignableFrom(contentType))
                 throw new InvalidOperationException($"Type '{contentType.FullName}' does not inherit from {nameof(Content)}.");

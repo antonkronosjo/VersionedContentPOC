@@ -113,16 +113,16 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Updates content with new version based on key/values 
     /// </summary>
-    public T Update<T>(Guid contentId, Language language, Dictionary<string, ContentPropertyValueDto?> updates) where T : Content
+    public T Update<T>(Guid contentId, Language language, Dictionary<string, ContentPropertyValueDto> updates) where T : Content
     {
-        var activeVersion = Get<T>(contentId, language);
-        if (activeVersion == null)
+        var content = Get<T>(contentId, language);
+        if (content == null)
             throw new InvalidOperationException($"Content with id {contentId} does not exist for language {language}");
 
-        var updatedVersion = activeVersion.ApplyUpdates(updates);
-        updatedVersion.VersionId = Guid.NewGuid();
+        ContentUpdater.ApplyUpdates(content, updates);
+        content.VersionId = Guid.NewGuid();
 
-        return Update(contentId, updatedVersion);
+        return Update(contentId, content);
     }
 
     /// <summary>

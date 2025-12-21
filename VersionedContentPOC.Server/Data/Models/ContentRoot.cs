@@ -1,16 +1,10 @@
 ﻿using VersionedContentPOC.Data.Enums;
-using System.Net.Mime;
 using System.Text.Json.Serialization;
 
 namespace VersionedContentPOC.Data.Models;
 
 public class ContentRoot
 {
-    public ContentRoot()
-    {
-        
-    }
-
     public ContentRoot(Guid contentId)
     {
         ContentId = contentId;
@@ -25,9 +19,6 @@ public class ContentRoot
     [JsonIgnore]
     public ICollection<LanguageBranch> LanguageBranches { get; set; } = new List<LanguageBranch>();
 
-    /// <summary>
-    /// Add content for given language. Returns language branch if it does not exist before.
-    /// </summary>
     public LanguageBranch? AddNewLanguageBranchIfNotExist(Language language)
     {
         var languageBranch = LanguageBranches.FirstOrDefault(x => x.Language == language);

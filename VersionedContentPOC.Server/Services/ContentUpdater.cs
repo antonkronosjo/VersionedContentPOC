@@ -1,14 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using VersionedContentPOC.Attributes;
+using VersionedContentPOC.Data.Models;
 
 namespace VersionedContentPOC.Server.Services;
 
 public static class ContentUpdater
 {
-    public static T ApplyUpdates<T>(this T content, Dictionary<string, ContentPropertyValueDto> updates) where T : class
+    public static void ApplyUpdates<T>(T content, Dictionary<string, ContentPropertyValueDto> updates) where T : class
     {
+        if (!typeof(Content).IsAssignableFrom(content.GetType()))
+            throw new InvalidOperationException($"Type '{content.GetType().Name}' does not inherit from {nameof(Content)}.");
+
         var instanceProperties = typeof(T)
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanWrite && p.CanRead)
@@ -17,7 +22,7 @@ public static class ContentUpdater
         foreach (var (propertyName, dto) in updates)
         {
             if (!instanceProperties.TryGetValue(propertyName, out var prop))
-                throw new KeyNotFoundException($"Content of type {typeof(T).Name} does not contain a property named \"{propertyName}\"");
+                throw new KeyNotFoundException($"Content of type {content.GetType().Name} does not contain a property named \"{propertyName}\"");
 
             var attr = prop.GetCustomAttribute<ContentPropertyMetaDataAttribute>(inherit: false);
             if (attr == null || !attr.Editable)
@@ -25,36 +30,27 @@ public static class ContentUpdater
 
             SetValue(content, prop, dto);
         }
-
-        return content;
     }
 
-    public static void SetValue<T>(T content, PropertyInfo prop, ContentPropertyValueDto dto) where T : class
+    public static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
     {
         var value = dto.Value;
+        var resolvedValue = ResolveValue(dto.PropertyTypeFullName, value);
+        prop.SetValue(content, resolvedValue);
+    }
 
-        if (value != null)
-        {
-            var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+    private static object? ResolveValue(string typeName, object? rawValue)
+    {
+        if (rawValue == null)
+            return null;
 
-            if (targetType.IsEnum)
-            {
-                var enumValue = Enum.Parse(targetType, value.ToString()!, ignoreCase: true);
-                prop.SetValue(content, enumValue);
-            }
-            else if (!targetType.IsPrimitive && !targetType.IsAssignableFrom(value.GetType()))
-            {
-                var obj = JsonSerializer.Deserialize(value.ToString()!, targetType);
-                prop.SetValue(content, obj);
-            }
-            else
-            {
-                prop.SetValue(content, Convert.ChangeType(value, targetType));
-            }
-        }
-        else if (ContentMetadataProvider.IsRequired(prop))
-        {
-            throw new ValidationException($"Property \"{prop.Name}\" is required.");
-        }
+        var type = Type.GetType(typeName, throwOnError: true);
+        if (type == null)
+            throw new InvalidOperationException("Type could not be resolved");
+
+        if (rawValue is JsonElement je)
+            return JsonSerializer.Deserialize(je.GetRawText(), type);
+
+        throw new InvalidOperationException($"Unexpected value type: {rawValue.GetType()}");
     }
 }

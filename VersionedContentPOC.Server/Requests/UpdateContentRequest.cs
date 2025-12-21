@@ -3,8 +3,12 @@ using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Server.Requests;
 
-public record UpdateContentRequest(
-    Guid ContentId,
-    Language Language,
-    Dictionary<string, ContentPropertyValueDto> Updates
-);
+public class UpdateContentRequest
+{
+    public required Guid ContentId { get; set; }
+    public required Language Language { get; set; }
+    public required Dictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
+}
+    
+
+

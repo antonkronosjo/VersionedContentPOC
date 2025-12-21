@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Data.Models;
+using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Requests;
 using VersionedContentPOC.Server.Services;
 
@@ -56,7 +56,8 @@ public class ContentController : ControllerBase
         try
         {
             var contentType = ContentTypeRegistry.GetRegisteredContentType(request.ContentTypeName);
-            var contentInstance = _contentFactory.CreateInstance(contentType, request.Language, request.Properties);
+            ContentMetadataProvider.ValidateSchema(contentType, request.PropertiesSchema);
+            var contentInstance = _contentFactory.CreateInstance(contentType, request.Language, request.PropertiesSchema);
             var createdContent = _contentRepository.Create(contentInstance);
             return CreatedAtAction(nameof(CreateContent), createdContent);
         }
@@ -72,13 +73,17 @@ public class ContentController : ControllerBase
 
     [HttpPut]
     [Route("update")]
+    [ShouldBeRefactored("Validation of schema should be a part of _contentRepository.Update")]
     public IActionResult UpdateContent([FromBody] UpdateContentRequest request)
     {
+        
         var content = _contentRepository.Get<Content>(request.ContentId, request.Language);
         if (content == null)
             return NotFound();
 
-        var updatedContent = _contentRepository.Update<Content>(request.ContentId, request.Language, request.Updates);
+        ContentMetadataProvider.ValidateSchema(typeof(Content), request.PropertiesSchema);
+
+        var updatedContent = _contentRepository.Update<Content>(request.ContentId, request.Language, request.PropertiesSchema);
         return Ok(updatedContent);
     }
 
@@ -96,15 +101,15 @@ public class ContentController : ControllerBase
 
     [HttpGet]
     [Route("latest")]
-    public IActionResult GetLatestNews()
+    public IActionResult GetLatestContent()
     {
         var fromDate = DateTime.UtcNow.AddMinutes(-1);
-        var latestNews = _contentRepository
-            .QueryActiveVersions<NewsContent>(Language.SV)
+        var latestContent = _contentRepository
+            .QueryActiveVersions<Content>(Language.SV)
             .Where(x => x.VersionCreated > fromDate)
             .Include(x => x.ContentRoot)
             .ToList();
 
-        return Ok(latestNews);
+        return Ok(latestContent);
     }
 }

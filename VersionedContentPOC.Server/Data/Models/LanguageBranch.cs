@@ -1,15 +1,10 @@
-﻿using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Extensions;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using VersionedContentPOC.Data.Enums;
 
 namespace VersionedContentPOC.Data.Models;
 
 public class LanguageBranch
 {
-    public LanguageBranch()
-    {
-        
-    }
     public LanguageBranch(Guid contentId, Language language)
     {
         ContentId = contentId;
@@ -28,13 +23,14 @@ public class LanguageBranch
 
     public void AddVersion<T>(T content, bool setAsActive = true) where T : Content
     {
-        Versions.AddIfNotAny(content, x => x.VersionId == content.VersionId);
+        if (!Versions.Any(x => x.VersionId == content.VersionId))
+            Versions.Add(content);
 
-        if (!setAsActive)
-            return;
-        
-        ActiveVersionId = content.VersionId;
-        ActiveVersion = content;
-        content.ContentId = ContentId;
+        if (setAsActive)
+        {
+            ActiveVersionId = content.VersionId;
+            ActiveVersion = content;
+            content.ContentId = ContentId;
+        }
     }
 }
