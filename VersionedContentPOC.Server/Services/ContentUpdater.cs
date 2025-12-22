@@ -8,8 +8,6 @@ public static class ContentUpdater
 {
     public static void ApplyUpdates<T>(T content, IDictionary<string, ContentPropertyValueDto> updates) where T : class
     {
-
-        
         ValidateSchema(content.GetType(), updates);
 
         var instanceProperties = content.GetType()
@@ -23,7 +21,7 @@ public static class ContentUpdater
                 throw new KeyNotFoundException($"Content of type {content.GetType().Name} does not contain a property named \"{propertyName}\"");
 
             var attr = prop.GetCustomAttribute<ContentPropertyMetadataAttribute>(inherit: false);
-            if (attr == null || !attr.Editable)
+            if (attr?.Editable != true)
                 throw new UnauthorizedAccessException($"Property \"{propertyName}\" is not editable");
 
             SetValue(content, prop, dto);
@@ -38,7 +36,6 @@ public static class ContentUpdater
         ContentTypeRegistry.Guards.IsRegiesteredContentType(type);
         var originalSchema = ContentMetadataProvider.GetPropertySchema(type);
 
-        // Reject unknown properties
         if (schema.Keys.Except(originalSchema.Keys).Any())
             throw new InvalidOperationException("Schema contains unknown properties.");
 
@@ -50,6 +47,7 @@ public static class ContentUpdater
     private static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
     {
         var value = dto.Value;
+        //var resolvedValue = ResolveValue(prop.PropertyType.FullName, value); <-- Can this work?
         var resolvedValue = ResolveValue(dto.PropertyTypeFullName, value);
         prop.SetValue(content, resolvedValue);
     }
