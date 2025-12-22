@@ -13,11 +13,13 @@ public abstract class Content
     {
             
     }
+
     public Content(Guid versionId, Language language)
     {
         VersionId = versionId;
         VersionCreated = DateTime.UtcNow;
     }
+
     public Guid VersionId { get; set; }
     public Guid ContentId { get; set; }
     public ContentRoot ContentRoot { get; set; }

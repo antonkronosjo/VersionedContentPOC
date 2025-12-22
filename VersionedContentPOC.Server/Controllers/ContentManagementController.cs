@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Requests;
 using VersionedContentPOC.Server.Services;
 
@@ -83,7 +82,6 @@ public class ContentManagementController : ControllerBase
 
     [HttpPut]
     [Route("update")]
-    [ShouldBeRefactored("Need to compare current version before commiting updates to make sure not multiple people are updating the same content on the same time")]
     public IActionResult UpdateContent([FromBody] UpdateContentRequest request)
     {
         
@@ -91,10 +89,15 @@ public class ContentManagementController : ControllerBase
         if (content == null)
             return NotFound();
 
-        if (content.VersionId != request.Metadata.CurrentVersionId)
-            throw new Exception("You are currently overwriting some one elses changes");
-
-        var updatedContent = _contentRepository.Update(content, request.PropertiesSchema);
+        var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceUpdate);
         return Ok(updatedContent);
+    }
+
+    [HttpDelete]
+    [Route("delete")]
+    public IActionResult DeleteContent([FromQuery] Guid contentId)
+    {
+        _contentRepository.Delete(contentId);
+        return NoContent();
     }
 }

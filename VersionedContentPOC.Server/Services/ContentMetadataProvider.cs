@@ -24,6 +24,7 @@ public static class ContentMetadataProvider
         };  
     }
 
+    [ShouldBeRefactored("Need to pre-populate values from existing content")]
     public static UpdateContentRequest GetUpdateSchema(Content content)
     {
         return new UpdateContentRequest
@@ -41,8 +42,7 @@ public static class ContentMetadataProvider
 
     public static IDictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType)
     {
-        if (!typeof(Content).IsAssignableFrom(contentType))
-            throw new InvalidOperationException($"Type '{contentType.FullName}' does not inherit from {nameof(Content)}.");
+        ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
         return contentType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => IsRequired(p) || HasContentMetaData(p))
@@ -58,13 +58,13 @@ public static class ContentMetadataProvider
 
     private static bool HasContentMetaData(PropertyInfo property)
     {
-        return property.IsDefined(typeof(ContentPropertyMetaDataAttribute), inherit: true);
+        return property.IsDefined(typeof(ContentPropertyMetadataAttribute), inherit: true);
     }
 
     [ShouldBeRefactored("the RequiredMemberAttribute check does not seem to work")]
     public static bool IsRequired(PropertyInfo property)
     {
-        var requiredAttr = property.GetCustomAttribute<ContentPropertyMetaDataAttribute>();
+        var requiredAttr = property.GetCustomAttribute<ContentPropertyMetadataAttribute>();
         return requiredAttr?.Required ?? false
                || property.CustomAttributes.Any(a => a.AttributeType == typeof(RequiredMemberAttribute));
     }
@@ -72,6 +72,7 @@ public static class ContentMetadataProvider
 
 public class ContentPropertyValueDto
 {
+    [ShouldBeRefactored("This property should not be exposed by the API, we need to re-create it when applying creation")]
     public string PropertyTypeFullName { get; set; } = null!;
     public bool IsRequired { get; set; }
     public object? Value { get; set; }

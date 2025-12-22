@@ -14,6 +14,7 @@ public class UpdateContentRequestMetadata
     public required Guid ContentId { get; set; }
     public required Guid CurrentVersionId { get; set; }
     public required Language Language { get; set; }
+    public bool ForceUpdate { get; set; }
 }
     
 

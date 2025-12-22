@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using VersionedContentPOC.Attributes;
-using VersionedContentPOC.Data.Models;
 
 namespace VersionedContentPOC.Server.Services;
 
@@ -9,9 +8,8 @@ public static class ContentUpdater
 {
     public static void ApplyUpdates<T>(T content, IDictionary<string, ContentPropertyValueDto> updates) where T : class
     {
-        if (!typeof(Content).IsAssignableFrom(content.GetType()))
-            throw new InvalidOperationException($"Type '{content.GetType().Name}' does not inherit from {nameof(Content)}.");
 
+        
         ValidateSchema(content.GetType(), updates);
 
         var instanceProperties = content.GetType()
@@ -24,7 +22,7 @@ public static class ContentUpdater
             if (!instanceProperties.TryGetValue(propertyName, out var prop))
                 throw new KeyNotFoundException($"Content of type {content.GetType().Name} does not contain a property named \"{propertyName}\"");
 
-            var attr = prop.GetCustomAttribute<ContentPropertyMetaDataAttribute>(inherit: false);
+            var attr = prop.GetCustomAttribute<ContentPropertyMetadataAttribute>(inherit: false);
             if (attr == null || !attr.Editable)
                 throw new UnauthorizedAccessException($"Property \"{propertyName}\" is not editable");
 
@@ -37,6 +35,7 @@ public static class ContentUpdater
     /// </summary>
     private static void ValidateSchema(Type type, IDictionary<string, ContentPropertyValueDto> schema)
     {
+        ContentTypeRegistry.Guards.IsRegiesteredContentType(type);
         var originalSchema = ContentMetadataProvider.GetPropertySchema(type);
 
         // Reject unknown properties

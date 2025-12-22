@@ -12,13 +12,13 @@ namespace VersionedContentPOC.Server.Data.Models
             
         }
 
-        [ContentPropertyMetaData(editable: true)]
+        [ContentPropertyMetadata(editable: true)]
         public required string Heading { get; set; }
 
-        [ContentPropertyMetaData(editable: true)]
+        [ContentPropertyMetadata(editable: true)]
         public string? Lead { get; set; }
 
-        [ContentPropertyMetaData(editable: true)]
+        [ContentPropertyMetadata(editable: true)]
         public required string Text { get; set; }
     }
 }

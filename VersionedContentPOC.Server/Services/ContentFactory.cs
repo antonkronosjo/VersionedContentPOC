@@ -12,8 +12,7 @@ namespace VersionedContentPOC.Server.Services
     {
         public Content CreateInstance(Type contentType, Language language, IDictionary<string, ContentPropertyValueDto> properties)
         {
-            if (!typeof(Content).IsAssignableFrom(contentType))
-                throw new InvalidOperationException($"Type '{contentType.FullName}' does not inherit from {nameof(Content)}.");
+            ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
             var instance = (Content?)Activator.CreateInstance(contentType, Guid.NewGuid(), language) ?? throw new InvalidOperationException("Failed to create content");
             ContentUpdater.ApplyUpdates(instance, properties);

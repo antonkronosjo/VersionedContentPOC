@@ -1,14 +1,23 @@
-﻿namespace VersionedContentPOC.Attributes
+﻿namespace VersionedContentPOC.Attributes;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class ContentPropertyMetadataAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class ContentPropertyMetaDataAttribute : Attribute
+    public bool Editable { get; private set; }
+    public bool Required { get; private set; }
+    public Editor PropertyEditor { get; private set; }
+
+    public ContentPropertyMetadataAttribute(bool editable = false, bool required = false, Editor propertyEditor = Editor.Input)
     {
-        public bool Editable { get; private set; }
-        public bool Required { get; private set; }
-        public ContentPropertyMetaDataAttribute(bool editable = false, bool required = false)
-        {
-            Editable = editable;
-            Required = required;
-        }
+        Editable = editable;
+        Required = required;
     }
+}
+
+
+public enum Editor {
+    Input,
+    TextArea,
+    Date,
+    DateTime
 }

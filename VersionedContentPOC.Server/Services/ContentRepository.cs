@@ -77,7 +77,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Updates content with new version. NOTE: Will throw exception if content.VersionId does not match currently active content version
     /// </summary>
-    [ShouldBeRefactored("Refacotr this so that it makes sense regarding force update")]
+    [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
     public T Update<T>(Guid contentId, T updatedVersion, bool forceUpdate = false) where T : Content
     {
         using var transaction = _context.Database.BeginTransaction();

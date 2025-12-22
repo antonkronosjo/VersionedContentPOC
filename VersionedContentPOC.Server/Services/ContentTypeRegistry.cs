@@ -1,4 +1,5 @@
-﻿using VersionedContentPOC.Attributes;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Models;
 
 namespace VersionedContentPOC.Server.Services;
@@ -22,5 +23,18 @@ public static class ContentTypeRegistry
         if (contentType == null)
             throw new KeyNotFoundException($"Content type '{typeName}' is not registered.");
         return contentType;
+    }
+
+
+
+    public static class Guards {
+        public static void IsRegiesteredContentType(Type type)
+        {
+            if (!typeof(Content).IsAssignableFrom(type))
+                throw new InvalidOperationException($"Type '{type.FullName}' does not inherit from {nameof(Content)}.");
+
+            if (GetRegisteredContentTypes().SingleOrDefault(x => x == type) == null)
+                throw new InvalidOperationException($"Type '{type.FullName}' is not registered by decorating it with ContentType attribute {nameof(Content)}.");
+        }
     }
 }
