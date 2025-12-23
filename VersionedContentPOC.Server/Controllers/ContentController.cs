@@ -19,7 +19,8 @@ public class ContentController : ControllerBase
 
     [HttpGet]
     [Route("all")]
-    public IActionResult GetAllContent()
+    [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
+    public ActionResult<List<Content>> GetAllContent()
     {
         var news = _contentRepository
             .QueryActiveVersions<Content>(Language.SV)
