@@ -31,6 +31,7 @@ import type {
 } from 'axios';
 
 export interface Content {
+  contentType: string;
   versionId?: string;
   contentId?: string;
   contentRoot?: ContentRoot;
@@ -77,6 +78,25 @@ export interface CreateContentRequestMetadata {
   language: Language;
 }
 
+export type EventContentAllOf = {
+  /** @nullable */
+  heading: string | null;
+  startDate: string;
+  endDate: string;
+};
+
+export type EventContentContentType = typeof EventContentContentType[keyof typeof EventContentContentType];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EventContentContentType = {
+  EventContent: 'EventContent',
+} as const;
+
+export type EventContent = Omit<Content & EventContentAllOf, 'contentType'> & {
+  contentType: EventContentContentType;
+};
+
 export type Language = typeof Language[keyof typeof Language];
 
 
@@ -85,6 +105,27 @@ export const Language = {
   NUMBER_0: 0,
   NUMBER_1: 1,
 } as const;
+
+export type NewsContentAllOf = {
+  /** @nullable */
+  heading: string | null;
+  /** @nullable */
+  lead?: string | null;
+  /** @nullable */
+  text: string | null;
+};
+
+export type NewsContentContentType = typeof NewsContentContentType[keyof typeof NewsContentContentType];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NewsContentContentType = {
+  NewsContent: 'NewsContent',
+} as const;
+
+export type NewsContent = Omit<Content & NewsContentAllOf, 'contentType'> & {
+  contentType: NewsContentContentType;
+};
 
 /**
  * @nullable
@@ -104,6 +145,12 @@ export interface UpdateContentRequestMetadata {
   forceUpdate?: boolean;
 }
 
+export type GetApiContentAll200OneItem = EventContent | NewsContent;
+
+export type GetApiContentAll200TwoItem = EventContent | NewsContent;
+
+export type GetApiContentAll200ThreeItem = EventContent | NewsContent;
+
 export type GetApiContentCreationschemaParams = {
 contentTypeName?: string;
 language?: Language;
@@ -120,7 +167,7 @@ contentId?: string;
 
 export const getApiContentAll = (
      options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Content[]>> => {
+ ): Promise<AxiosResponse<GetApiContentAll200OneItem[] | GetApiContentAll200TwoItem[] | GetApiContentAll200ThreeItem[]>> => {
     
     
     return axios.default.get(

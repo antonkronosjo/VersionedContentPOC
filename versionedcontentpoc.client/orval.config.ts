@@ -5,7 +5,10 @@ export default {
         },
         output: {
             target: 'src/api/client.ts',
-            client: 'react-query'
+            client: 'react-query',
+            override: {
+                useUnionTypes: true,
+            },
         },
     },
 };

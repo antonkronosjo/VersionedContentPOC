@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VersionedContentPOC.Data;
+using VersionedContentPOC.Server.Data.Models;
 using VersionedContentPOC.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,18 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<VersionedContentPOCContext>(options => options.UseSqlite("Data Source=app.db"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    c.UseAllOfForInheritance();
+    c.UseOneOfForPolymorphism();
+
+    c.SelectDiscriminatorNameUsing(type => "contentType");
+    c.SelectDiscriminatorValueUsing(subType =>
+    {
+        if (subType == typeof(NewsContent)) return nameof(NewsContent);
+        if (subType == typeof(EventContent)) return nameof(EventContent);
+        return null;
+    });
+});
 
 var app = builder.Build();
 
