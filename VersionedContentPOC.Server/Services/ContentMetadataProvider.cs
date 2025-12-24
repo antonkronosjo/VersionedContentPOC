@@ -75,5 +75,5 @@ public class ContentPropertyValueDto
     [ShouldBeRefactored("This property should not be exposed by the API, we need to re-create it when applying creation")]
     public string PropertyTypeFullName { get; set; } = null!;
     public bool IsRequired { get; set; }
-    public object? Value { get; set; }
+    public string? Value { get; set; }
 }

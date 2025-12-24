@@ -22,7 +22,8 @@ public class ContentManagementController : ControllerBase
 
     [HttpGet]
     [Route("types")]
-    public IActionResult GetContentTypes()
+    [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
+    public ActionResult<List<string>> GetContentTypes()
     {
         var contentTypes = ContentTypeRegistry.GetRegisteredContentTypes()
             .Select(x => x.Name)
@@ -33,7 +34,8 @@ public class ContentManagementController : ControllerBase
 
     [HttpGet]
     [Route("creationschema")]
-    public IActionResult GetContentCreationSchema([FromQuery] string contentTypeName, [FromQuery] Language language)
+    [ProducesResponseType(typeof(CreateContentRequest), StatusCodes.Status200OK)]
+    public ActionResult<CreateContentRequest> GetContentCreationSchema([FromQuery] string contentTypeName, [FromQuery] Language language)
     {
         try
         {
@@ -49,7 +51,8 @@ public class ContentManagementController : ControllerBase
 
     [HttpPost]
     [Route("create")]
-    public IActionResult CreateContent([FromBody] CreateContentRequest request)
+    [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
+    public ActionResult<Content> CreateContent([FromBody] CreateContentRequest request)
     {
         try
         {
