@@ -6,7 +6,7 @@ namespace VersionedContentPOC.Server.Requests;
 public class CreateContentRequest
 {
     public required CreateContentRequestMetadata Metadata { get; set; }
-    public required IDictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
+    public required Dictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
 }
 
 public class CreateContentRequestMetadata
