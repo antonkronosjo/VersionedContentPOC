@@ -11,6 +11,8 @@ function SelectContentPage() {
     if (error)
         return (<p>Error</p>);
 
+    console.warn("SELECT CONTENT", data.data);
+
     return (
         <>
             <h1>Select content type</h1>
