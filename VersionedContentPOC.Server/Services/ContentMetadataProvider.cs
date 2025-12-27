@@ -40,7 +40,7 @@ public static class ContentMetadataProvider
         };
     }
 
-    public static IDictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType)
+    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType)
     {
         ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
