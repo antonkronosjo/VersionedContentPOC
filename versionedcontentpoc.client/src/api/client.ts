@@ -39,17 +39,12 @@ export interface Content {
   versionCreated?: string;
 }
 
-/**
- * @nullable
- */
-export type ContentPropertyValueDtoValue = unknown | null;
-
 export interface ContentPropertyValueDto {
   /** @nullable */
   propertyTypeFullName?: string | null;
   isRequired?: boolean;
   /** @nullable */
-  value?: ContentPropertyValueDtoValue;
+  value?: string | null;
 }
 
 export interface ContentRoot {
@@ -156,11 +151,7 @@ contentTypeName?: string;
 language?: Language;
 };
 
-export type PostApiContentCreate200One = EventContent | NewsContent;
-
-export type PostApiContentCreate200Two = EventContent | NewsContent;
-
-export type PostApiContentCreate200Three = EventContent | NewsContent;
+export type PostApiContentCreate200 = EventContent | NewsContent;
 
 export type GetApiContentUpdateschemaParams = {
 contentId?: string;
@@ -433,7 +424,6 @@ export const getApiContentCreationschema = (
     
     return axios.default.get(
       `/api/content/creationschema`,{
-        responseType: 'text',
     ...options,
         params: {...params, ...options?.params},}
     );
@@ -516,7 +506,7 @@ export function useGetApiContentCreationschema<TData = Awaited<ReturnType<typeof
 
 export const postApiContentCreate = (
     createContentRequest: CreateContentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiContentCreate200One | PostApiContentCreate200Two | PostApiContentCreate200Three>> => {
+ ): Promise<AxiosResponse<PostApiContentCreate200>> => {
     
     
     return axios.default.post(

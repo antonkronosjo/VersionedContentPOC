@@ -8,6 +8,7 @@ namespace VersionedContentPOC.Controllers;
 
 [ApiController]
 [Route("api/content")]
+[Produces("application/json")]
 public class ContentController : ControllerBase
 {
     IContentRepository _contentRepository;
