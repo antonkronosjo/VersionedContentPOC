@@ -1,5 +1,10 @@
-import { useEffect } from "react";
-import { useGetApiContentCreationschema, type CreateContentRequestPropertiesSchema } from "../api/client";
+import { useState } from "react";
+import {
+    useGetApiContentCreationschema,
+    type CreateContentRequestPropertiesSchema,
+    postApiContentCreate,
+    type CreateContentRequest
+} from "../api/client";
 import { useParams } from 'react-router-dom';
 
 function CreateContentPage() {
@@ -9,42 +14,51 @@ function CreateContentPage() {
         { query: { enabled: !!contentType } }
     );
 
-    if (isLoading)
+    if (isLoading || !response)
         return (<p>Is loading</p>);
 
     if (error)
         return (<p>Error</p>);
 
-    console.warn("SCHEMA", response.data); //<-- data.data is a string
-
     return (
         <>
             <h1>Create content type</h1>
-            <CreateForm schema={response.data.propertiesSchema} />
+            <CreateForm schema={response.data} />
         </>
         
     );
 }
 
 interface CreateFormProps {
-    // Use indexed access to get the specific type of propertiesSchema
-    schema: CreateContentRequestPropertiesSchema;
+    schema: CreateContentRequest;
 }
 function CreateForm(props: CreateFormProps) {
-    if (!props.schema)
-        return (<p>Schema is null!</p>);
+    const [createRequest, setCreateRequest] = useState(props.schema);
 
-    console.log(Object.keys(props.schema));
+    const onSubmit = async () => {
+
+        const createdContent = await postApiContentCreate(createRequest);
+    }
 
     return (
         <>
-            {Object.entries(props.schema).map(([key, prop]) => (
+            {Object.entries(createRequest.propertiesSchema).map(([key, prop]) => (
                 <div key={key}>
                     <label>{key}</label>
-                    <input />
+                    <input onChange={(e) => {
+                        const inputValue = e.target.value;
+                        
+                        setCreateRequest((currVal) => {
+                            const newVal = { ...currVal };
+                            newVal.propertiesSchema[key].value = inputValue;
+                            return newVal;
+                        });
+                    }}
+                        value={createRequest.propertiesSchema[key].value ?? ""} />
                    
                 </div>
             ))}
+            <button onClick={onSubmit}>Save</button>
         </>
     );
 }
