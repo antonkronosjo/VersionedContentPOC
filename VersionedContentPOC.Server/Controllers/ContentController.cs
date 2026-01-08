@@ -26,6 +26,7 @@ public class ContentController : ControllerBase
         var news = _contentRepository
             .QueryActiveVersions<Content>(Language.SV)
             .Include(x => x.ContentRoot)
+            .OrderByDescending(x => x.ContentRoot.Created)
             .ToList();
 
         return Ok(news);

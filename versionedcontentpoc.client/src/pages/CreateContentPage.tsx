@@ -1,10 +1,6 @@
 import { useState } from "react";
-import {
-    useGetApiContentCreationschema,
-    type CreateContentRequestPropertiesSchema,
-    postApiContentCreate,
-    type CreateContentRequest
-} from "../api/client";
+import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest, type ContentPropertyValueDto } from "../api/client";
+import type { ChangeEventHandler, JSX } from "react";
 import { useParams } from 'react-router-dom';
 
 function CreateContentPage() {
@@ -44,18 +40,16 @@ function CreateForm(props: CreateFormProps) {
         <>
             {Object.entries(createRequest.propertiesSchema).map(([key, prop]) => (
                 <div key={key}>
-                    <label>{key}</label>
-                    <input onChange={(e) => {
+                    <label>{key}</label><br />
+                    {resolveTemplate(createRequest.propertiesSchema[key], (e) => {
                         const inputValue = e.target.value;
-                        
+
                         setCreateRequest((currVal) => {
                             const newVal = { ...currVal };
                             newVal.propertiesSchema[key].value = inputValue;
                             return newVal;
                         });
-                    }}
-                        value={createRequest.propertiesSchema[key].value ?? ""} />
-                   
+                    })}
                 </div>
             ))}
             <button onClick={onSubmit}>Save</button>
@@ -64,3 +58,14 @@ function CreateForm(props: CreateFormProps) {
 }
 
 export default CreateContentPage;
+
+const resolveTemplate = (propertyValue: ContentPropertyValueDto, onChange: ChangeEventHandler<HTMLInputElement>): JSX.Element => {
+    switch (propertyValue.propertyTypeFullName) {
+        case "System.String":
+            return <input value={propertyValue.value?.toString() ?? ""} onChange={onChange} />
+        case "System.DateTime":
+            return <input type="datetime-local" value={propertyValue.value?.toString() ?? ""} onChange={onChange} />
+        default:
+            return <>No template defined for content type</>
+    }
+}

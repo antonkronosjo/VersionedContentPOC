@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VersionedContentPOC.Data;
+using VersionedContentPOC.Data.Models;
 using VersionedContentPOC.Server.Data.Models;
 using VersionedContentPOC.Server.Services;
 
@@ -17,10 +18,11 @@ builder.Services.AddSwaggerGen(c => {
     c.UseOneOfForPolymorphism();
 
     c.SelectDiscriminatorNameUsing(type => "contentType");
-    c.SelectDiscriminatorValueUsing(subType =>
+    c.SelectDiscriminatorValueUsing(type =>
     {
-        if (subType == typeof(NewsContent)) return nameof(NewsContent);
-        if (subType == typeof(EventContent)) return nameof(EventContent);
+        if (typeof(Content).IsAssignableFrom(type)) {
+            return type.Name;
+        } 
         return null;
     });
 });

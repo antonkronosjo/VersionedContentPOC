@@ -12,8 +12,13 @@ namespace VersionedContentPOC.Server.Data.Models
             
         }
 
+        [ContentPropertyMetadata(editable: true)]
         public required string Heading { get; set; }
+
+        [ContentPropertyMetadata(editable: true)]
         public required DateTime StartDate { get; set; }
+
+        [ContentPropertyMetadata(editable: true)]
         public required DateTime EndDate { get; set; }
     }
 }

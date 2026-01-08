@@ -39,12 +39,17 @@ export interface Content {
   versionCreated?: string;
 }
 
+/**
+ * @nullable
+ */
+export type ContentPropertyValueDtoValue = unknown | null;
+
 export interface ContentPropertyValueDto {
   /** @nullable */
   propertyTypeFullName?: string | null;
   isRequired?: boolean;
   /** @nullable */
-  value?: string | null;
+  value?: ContentPropertyValueDtoValue;
 }
 
 export interface ContentRoot {
@@ -140,11 +145,7 @@ export interface UpdateContentRequestMetadata {
   forceUpdate?: boolean;
 }
 
-export type GetApiContentAll200OneItem = EventContent | NewsContent;
-
-export type GetApiContentAll200TwoItem = EventContent | NewsContent;
-
-export type GetApiContentAll200ThreeItem = EventContent | NewsContent;
+export type GetApiContentAll200Item = EventContent | NewsContent;
 
 export type GetApiContentCreationschemaParams = {
 contentTypeName?: string;
@@ -164,7 +165,7 @@ contentId?: string;
 
 export const getApiContentAll = (
      options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetApiContentAll200OneItem[] | GetApiContentAll200TwoItem[] | GetApiContentAll200ThreeItem[]>> => {
+ ): Promise<AxiosResponse<GetApiContentAll200Item[]>> => {
     
     
     return axios.default.get(
