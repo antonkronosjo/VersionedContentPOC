@@ -34,13 +34,13 @@ public static class ContentMetadataProvider
                 CurrentVersionId = content.VersionId,
                 Language = content.Language,
             },
-            PropertiesSchema = GetPropertySchema(content.GetType())
+            PropertiesSchema = GetPropertySchema(content.GetType(), content)
                 .Where(x => x.Value.IsRequired == false)
                 .ToDictionary()
         };
     }
 
-    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType)
+    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, Content? content = null)
     {
         ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
@@ -51,7 +51,10 @@ public static class ContentMetadataProvider
                 p => new ContentPropertyValueDto
                 {
                     PropertyTypeFullName = p.PropertyType.FullName!,
-                    IsRequired = IsRequired(p)
+                    IsRequired = IsRequired(p),
+                    Value = content != null
+                        ? p.GetValue(content)
+                        : null
                 }
             );
     }

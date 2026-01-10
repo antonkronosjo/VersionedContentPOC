@@ -1,11 +1,15 @@
-﻿using VersionedContentPOC.Data.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Server.Requests;
 
 public class UpdateContentRequest
 {
+    [Required]
     public required UpdateContentRequestMetadata Metadata { get; set; }
+
+    [Required]
     public required IDictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
 }
 

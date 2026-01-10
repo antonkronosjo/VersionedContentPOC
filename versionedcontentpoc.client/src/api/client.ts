@@ -61,14 +61,10 @@ export interface ContentRoot {
   stopPublish?: string | null;
 }
 
-/**
- * @nullable
- */
-export type CreateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto} | null;
+export type CreateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto};
 
 export interface CreateContentRequest {
   metadata: CreateContentRequestMetadata;
-  /** @nullable */
   propertiesSchema: CreateContentRequestPropertiesSchema;
 }
 
@@ -127,14 +123,10 @@ export type NewsContent = Omit<Content & NewsContentAllOf, 'contentType'> & {
   contentType: NewsContentContentType;
 };
 
-/**
- * @nullable
- */
-export type UpdateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto} | null;
+export type UpdateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto};
 
 export interface UpdateContentRequest {
   metadata: UpdateContentRequestMetadata;
-  /** @nullable */
   propertiesSchema: UpdateContentRequestPropertiesSchema;
 }
 
@@ -158,6 +150,8 @@ export type GetApiContentUpdateschemaParams = {
 contentId?: string;
 language?: Language;
 };
+
+export type PutApiContentUpdate200 = EventContent | NewsContent;
 
 export type DeleteApiContentDeleteParams = {
 contentId?: string;
@@ -563,7 +557,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
     
 export const getApiContentUpdateschema = (
     params?: GetApiContentUpdateschemaParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
+ ): Promise<AxiosResponse<UpdateContentRequest>> => {
     
     
     return axios.default.get(
@@ -650,7 +644,7 @@ export function useGetApiContentUpdateschema<TData = Awaited<ReturnType<typeof g
 
 export const putApiContentUpdate = (
     updateContentRequest: UpdateContentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
+ ): Promise<AxiosResponse<PutApiContentUpdate200>> => {
     
     
     return axios.default.put(

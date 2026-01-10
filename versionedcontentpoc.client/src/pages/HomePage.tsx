@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import { useGetApiContentAll, type EventContent, type GetApiContentAll200Item, type NewsContent } from ".././api/client"
+import { Link } from "react-router-dom";
 
 
 function HomePage() {
@@ -20,6 +21,7 @@ function HomePage() {
                     <p style={{ fontSize: ".8em" }}>ContentType: {content.contentType}</p>
                     <p style={{ fontSize: ".8em" }}>Created: {content.contentRoot?.created}</p>
                     {resolveTemplate(content)}
+                    <Link to={"/update/" + content.contentId}>Edit</Link>
                 </div>
             ))}
         </>

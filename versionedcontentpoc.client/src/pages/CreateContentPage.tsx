@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest, type ContentPropertyValueDto } from "../api/client";
-import type { ChangeEventHandler, JSX } from "react";
+import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest } from "../api/client";
 import { useParams } from 'react-router-dom';
+import ContentForm from "../forms/ContentForm";
 
 function CreateContentPage() {
     const { contentType } = useParams<{ contentType: string }>();
@@ -18,54 +18,39 @@ function CreateContentPage() {
 
     return (
         <>
-            <h1>Create content type</h1>
-            <CreateForm schema={response.data} />
+            <h1>Create {contentType}</h1>
+            <CreateContentForm schema={response.data} />
         </>
         
     );
 }
 
-interface CreateFormProps {
+interface CreateContentFormProps {
     schema: CreateContentRequest;
 }
-function CreateForm(props: CreateFormProps) {
+function CreateContentForm(props: CreateContentFormProps) {
     const [createRequest, setCreateRequest] = useState(props.schema);
 
     const onSubmit = async () => {
+        await postApiContentCreate(createRequest);
+    }
 
-        const createdContent = await postApiContentCreate(createRequest);
+    const onChange = (key: string, value: string) => {
+        setCreateRequest((currval) => {
+            const newval: CreateContentRequest = { ...currval };
+            newval.propertiesSchema[key].value = value;
+            return newval;
+        });
     }
 
     return (
-        <>
-            {Object.entries(createRequest.propertiesSchema).map(([key, prop]) => (
-                <div key={key}>
-                    <label>{key}</label><br />
-                    {resolveTemplate(createRequest.propertiesSchema[key], (e) => {
-                        const inputValue = e.target.value;
-
-                        setCreateRequest((currVal) => {
-                            const newVal = { ...currVal };
-                            newVal.propertiesSchema[key].value = inputValue;
-                            return newVal;
-                        });
-                    })}
-                </div>
-            ))}
-            <button onClick={onSubmit}>Save</button>
-        </>
+        <ContentForm
+            properties={createRequest.propertiesSchema}
+            onSubmit={onSubmit}
+            onChange={onChange}
+            submitText="Create content"
+        />
     );
 }
 
 export default CreateContentPage;
-
-const resolveTemplate = (propertyValue: ContentPropertyValueDto, onChange: ChangeEventHandler<HTMLInputElement>): JSX.Element => {
-    switch (propertyValue.propertyTypeFullName) {
-        case "System.String":
-            return <input value={propertyValue.value?.toString() ?? ""} onChange={onChange} />
-        case "System.DateTime":
-            return <input type="datetime-local" value={propertyValue.value?.toString() ?? ""} onChange={onChange} />
-        default:
-            return <>No template defined for content type</>
-    }
-}

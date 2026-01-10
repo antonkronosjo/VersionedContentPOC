@@ -74,7 +74,8 @@ public class ContentManagementController : ControllerBase
 
     [HttpGet]
     [Route("updateschema")]
-    public IActionResult GetContentUpdateSchema([FromQuery] Guid contentId, [FromQuery] Language language)
+    [ProducesResponseType(typeof(UpdateContentRequest), StatusCodes.Status200OK)]
+    public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] Guid contentId, [FromQuery] Language language)
     {
         var content = _contentRepository.Get<Content>(contentId, language);
         if (content == null)
@@ -86,7 +87,8 @@ public class ContentManagementController : ControllerBase
 
     [HttpPut]
     [Route("update")]
-    public IActionResult UpdateContent([FromBody] UpdateContentRequest request)
+    [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
+    public ActionResult<Content> UpdateContent([FromBody] UpdateContentRequest request)
     {
         
         var content = _contentRepository.Get<Content>(request.Metadata.ContentId, request.Metadata.Language);

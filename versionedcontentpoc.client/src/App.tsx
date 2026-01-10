@@ -3,6 +3,7 @@ import './App.css'
 import HomePage from './pages/HomePage';
 import CreateContentPage from './pages/CreateContentPage';
 import SelectContentPage from './pages/SelectContentPage';
+import UpdateContentPage from './pages/UpdateContentPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/create" element={<SelectContentPage />} />
                   <Route path="/create/:contentType" element={<CreateContentPage />} />
+                  <Route path="/update/:contentId" element={<UpdateContentPage />} />
               </Routes>
           </div>
       </Router>
