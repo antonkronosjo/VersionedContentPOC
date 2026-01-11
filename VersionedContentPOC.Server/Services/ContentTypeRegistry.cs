@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Attributes;
 
 namespace VersionedContentPOC.Server.Services;
 
 public static class ContentTypeRegistry
 {
+    [ShouldBeRefactored("Maybe add cache here to avoid using reflection as much as possible?")]
     public static IEnumerable<Type> GetRegisteredContentTypes()
     {
         return AppDomain.CurrentDomain.GetAssemblies()

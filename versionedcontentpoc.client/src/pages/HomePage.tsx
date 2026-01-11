@@ -1,6 +1,10 @@
 import type { JSX } from "react";
 import { useGetApiContentAll, type EventContent, type GetApiContentAll200Item, type NewsContent } from ".././api/client"
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+//import EditIcon from '@mui/icons-material/Edit';
+import { IconButton, Avatar, Typography, Grid, Card, CardContent, CardHeader, Paper } from "@mui/material";
+import { purple, red, blue } from "@mui/material/colors";
+import { Edit } from '@mui/icons-material';
 
 
 function HomePage() {
@@ -13,19 +17,44 @@ function HomePage() {
         return (<p>Error</p>);
 
     return (
+        <Paper sx={{ p: 1, width: '75%' }} >
+            <Typography variant="h1" gutterBottom>
+                HOME - VersionedContentPOC
+            </Typography>
+            <Grid container spacing={1}>
+                {data?.data.map((content) => (
+                    <Grid size={12} key={content.contentId}>
+                        <Card variant="outlined">
+                            <CardHeader
+                                avatar={
+                                    <Avatar
+                                        sx={{ bgcolor: getContentTypeColor(content.contentType) }}
+                                        aria-label={content.contentType}
+                                    >
+                                        {content.contentType.substring(0, 1)}
+                                    </Avatar>
+                                }
+                                action={
+                                    <IconButton
+                                        aria-label="edit"
+                                        component={RouterLink}
+                                        to={"/update/" + content.contentId}
+                                    >
 
-        <>
-            <h1>HOME - VersionedContentPOC</h1>
-            {data?.data.map((content) => (
-                <div className={"contentTemplate " + content.contentType}>
-                    <p style={{ fontSize: ".8em" }}>ContentType: {content.contentType}</p>
-                    <p style={{ fontSize: ".8em" }}>Created: {content.contentRoot?.created}</p>
-                    {resolveTemplate(content)}
-                    <Link to={"/update/" + content.contentId}>Edit</Link>
-                </div>
-            ))}
-        </>
-        
+                                        {<Edit fontSize="small" />}
+                                    </IconButton>
+                                }
+                                title={content.contentType}
+                                subheader={"Created:" + content.contentRoot?.created}
+                            />
+                            <CardContent>
+                                {resolveTemplate(content)}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </Paper>
     );
 }
 
@@ -33,17 +62,17 @@ export default HomePage;
 
 const NewsTemplate = ({ content }: { content: NewsContent }) => (
     <>
-        <h2>{content.heading}</h2>
-        <p>{content.lead}</p>
-        <p>{content.text}</p>
+        <Typography variant="h2">{content.heading}</Typography>
+        <Typography>{content.lead}</Typography>
+        <Typography>{content.text}</Typography>
     </>
 );
 
 const EventTemplate = ({ content }: { content: EventContent }) => (
     <>
-        <h2>{content.heading}</h2>
-        <p><strong>Start:</strong> {content.startDate}</p>
-        <p><strong>End:</strong> {content.endDate}</p>
+        <Typography variant="h2">{content.heading}</Typography>
+        <Typography><strong>Start:</strong> {content.startDate}</Typography>
+        <Typography><strong>End:</strong> {content.endDate}</Typography>
     </>
 );
 
@@ -53,5 +82,16 @@ const resolveTemplate = (content: GetApiContentAll200Item): JSX.Element =>  {
             return <EventTemplate content={content} />;
         case "NewsContent":
             return <NewsTemplate content={content} />;
+    }
+}
+
+const getContentTypeColor = (contentType:string):string => {
+    switch (contentType) {
+        case "EventContent":
+            return red[500];
+        case "NewsContent":
+            return purple[500];
+        default:
+            return blue[500];
     }
 }

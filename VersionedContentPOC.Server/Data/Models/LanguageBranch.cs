@@ -23,14 +23,16 @@ public class LanguageBranch
 
     public void AddVersion<T>(T content, bool setAsActive = true) where T : Content
     {
-        if (!Versions.Any(x => x.VersionId == content.VersionId))
+        content.ContentId = ContentId;
+
+        if (!Versions.Any(x => x.VersionId == content.VersionId)) //Should throw exception if this is true
             Versions.Add(content);
 
         if (setAsActive)
         {
             ActiveVersionId = content.VersionId;
             ActiveVersion = content;
-            content.ContentId = ContentId;
+            
         }
     }
 }

@@ -47,7 +47,7 @@ public static class ContentUpdater
     private static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
     {
         var value = dto.Value;
-        //var resolvedValue = ResolveValue(prop.PropertyType.FullName, value); <-- Can this work?
+        //var resolvedValue = ResolveValue(prop.PropertyType.FullName, value); //<-- Can this work?
         var resolvedValue = ResolveValue(dto.PropertyTypeFullName, value);
         prop.SetValue(content, resolvedValue);
     }
@@ -57,7 +57,7 @@ public static class ContentUpdater
         if (rawValue == null)
             return null;
 
-        var type = Type.GetType(typeName, throwOnError: true);
+        var type = Type.GetType(typeName, throwOnError: false);
         if (type == null)
             throw new InvalidOperationException("Type could not be resolved");
 

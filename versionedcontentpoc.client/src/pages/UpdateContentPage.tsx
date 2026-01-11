@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest } from "../api/client";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
+import { Grid, Paper, Typography } from "@mui/material";
 
 export default function UpdateContentPage() {
     const { contentId } = useParams<{ contentId: string }>();
@@ -18,10 +19,30 @@ export default function UpdateContentPage() {
         return (<p>Error</p>);
 
     return (
-        <>
-            <h1>Update {contentId}</h1>
-            <UpdateContentForm schema={response.data} />
-        </>
+        <Grid container spacing={1}>
+            <Grid size={9}>
+                <Paper sx={{ p: 1 }}>
+                    <Typography
+                        mb={1}
+                    >
+                        Update {contentId}
+                    </Typography>
+                    <UpdateContentForm schema={response.data} />
+                </Paper>
+            </Grid>
+            <Grid size={3}>
+                <Paper sx={{ p: 1 }}>
+                    <Typography
+                        mb={1}
+                    >
+                        Content versions
+                    </Typography>
+                    fafaf
+                    fafa
+                </Paper>
+            </Grid>
+            
+        </Grid>
         
     );
 }
@@ -31,9 +52,11 @@ interface UpdateContentFormProps {
 }
 function UpdateContentForm(props: UpdateContentFormProps) {
     const [updateRequest, setUpdateRequest] = useState(props.schema);
+    const navigate = useNavigate();
 
     const onSubmit = async () => {
         await putApiContentUpdate(updateRequest);
+        navigate("/");
     }
 
     const onChange = (key: string, value: string) => {

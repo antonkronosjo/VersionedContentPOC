@@ -34,7 +34,7 @@ public class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Creates new content with underlying root object, language branch and version handeling
+    /// Creates new content with underlying root object, language branch and version handling
     /// </summary>
     public T Create<T>(T initialVersion) where T : Content
     {
@@ -42,14 +42,11 @@ public class ContentRepository : IContentRepository
         try
         {
             var contentRoot = new ContentRoot(Guid.NewGuid());
-            _context.Add(contentRoot);
-
             var languageBranch = contentRoot.AddNewLanguageBranch(initialVersion.Language);
-            _context.Add(languageBranch);
+            _context.Add(contentRoot);
             _context.SaveChanges();
 
-            initialVersion.ContentId = contentRoot.ContentId;
-            languageBranch.AddVersion(initialVersion);
+            languageBranch.AddVersion(initialVersion, setAsActive: true);
             _context.Add(initialVersion);
             _context.Update(languageBranch);
             _context.SaveChanges();
@@ -69,7 +66,7 @@ public class ContentRepository : IContentRepository
     /// </summary>
     public void Delete(Guid contentId)
     {
-        var content = _context.Content.Single(x => x.ContentId == contentId);
+        var content = _context.ContentRoots.Where(x => x.ContentId == contentId);
         _context.Remove(content);
         _context.SaveChanges();
     }
@@ -95,12 +92,10 @@ public class ContentRepository : IContentRepository
                 _context.SaveChanges();
             }
 
-            
-
             var languageBranch = newLanguageBranch ?? root.LanguageBranches.Single(x => x.Language == updatedVersion.Language);
 
             if (!forceUpdate && languageBranch.ActiveVersionId != updatedVersion.VersionId)
-                throw new Exception("You are trying to update someone elses work!");
+                throw new Exception("Content.VersionId does not match the current one being active. Use forceUpdate=true to save");
             else
                 updatedVersion.VersionId = Guid.NewGuid();
 

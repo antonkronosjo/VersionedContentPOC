@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest } from "../api/client";
 import { useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
+import { useNavigate } from 'react-router-dom';
+import { Paper, Typography } from "@mui/material";
 
 function CreateContentPage() {
     const { contentType } = useParams<{ contentType: string }>();
@@ -18,8 +20,11 @@ function CreateContentPage() {
 
     return (
         <>
-            <h1>Create {contentType}</h1>
-            <CreateContentForm schema={response.data} />
+            <Paper sx={{ p: 1, width: "75%"}}>
+                <Typography>Create {contentType}</Typography>
+                <CreateContentForm schema={response.data} />
+            </Paper>
+            
         </>
         
     );
@@ -30,9 +35,11 @@ interface CreateContentFormProps {
 }
 function CreateContentForm(props: CreateContentFormProps) {
     const [createRequest, setCreateRequest] = useState(props.schema);
+    const navigate = useNavigate();
 
     const onSubmit = async () => {
         await postApiContentCreate(createRequest);
+        navigate("/");
     }
 
     const onChange = (key: string, value: string) => {
