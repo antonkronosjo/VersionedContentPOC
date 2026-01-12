@@ -9,6 +9,9 @@ namespace VersionedContentPOC.Server.Services;
 public interface IContentRepository
 {
     T? Get<T>(Guid contentId, Language language) where T : Content;
+    bool Exists(Guid contentId);
+    ContentRoot Get(Guid contentId);
+    Type GetContentRootType(Guid contentId);
     T Create<T>(T content) where T : Content;
     T Update<T>(Guid contentId, T contentVersion, bool forceUpdate = false) where T : Content;
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
@@ -34,6 +37,28 @@ public class ContentRepository : IContentRepository
     public T? Get<T>(Guid contentId, Language language) where T : Content 
     {
         return QueryActiveVersions<T>(language).FirstOrDefault(x => x.ContentId == contentId);
+    }
+
+    /// <summary>
+    /// Returns currently active version of content for language. Returns null if entity not found
+    /// </summary>
+    public bool Exists(Guid contentId)
+    {
+        return _context.ContentRoots.Any(x => x.ContentId == contentId);
+    }
+
+    /// <summary>
+    /// Returns root content object
+    /// </summary>
+    public ContentRoot Get(Guid contentId)
+    {
+        return _context.ContentRoots.Include(x => x.LanguageBranches).Single();
+    }
+
+    [ShouldBeRefactored("To get type of ContentRoot should be done in a more eligant way")]
+    public Type GetContentRootType(Guid contentId)
+    {
+        return _context.Content.First(x => x.ContentId == contentId).GetType();
     }
 
     /// <summary>
@@ -97,7 +122,7 @@ public class ContentRepository : IContentRepository
 
             var languageBranch = newLanguageBranch ?? root.LanguageBranches.Single(x => x.Language == updatedVersion.Language);
 
-            if (!forceUpdate && languageBranch.ActiveVersionId != updatedVersion.VersionId)
+            if (!forceUpdate && languageBranch.ActiveVersionId != null && languageBranch.ActiveVersionId != updatedVersion.VersionId)
                 throw new Exception("Content.VersionId does not match the current one being active. Use forceUpdate=true to save");
             else
             {

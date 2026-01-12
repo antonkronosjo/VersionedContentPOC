@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Language, useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
 import { useNavigate, useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
-import { Box, Grid, Paper, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Grid, Menu, MenuItem, Paper, Tab, Tabs, Typography } from "@mui/material";
 import ContentVersionsList from "../compontents/ContentVersionsList";
 import { useQueryClient } from '@tanstack/react-query';
 import { routes } from "../services/routeResolver";
@@ -19,33 +19,51 @@ export default function UpdateContentPage() {
         });
     };
 
+    
+
     if (isLoading || !response)
         return (<p>Is loading</p>);
 
     if (error)
         return (<p>Error</p>);
 
+    
+    const languageTabs = Array.from(new Set([...response.data.metadata.languageTranslations!, language]));
+    const showAddTranslationButton = languageTabs.length != Object.values(Language).length;
+
     return (    
         <Grid container spacing={1}>
             <Grid size={12}>
                 <Paper>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-
                         <Tabs
                             value={language}
                             aria-label="basic tabs example"
-                            onChange={() => {
+                            onChange={(e, value) => {
                                 navigate(
                                     routes.update.build({
                                         contentId: contentId!,
-                                        language: language!
+                                        language: value!
                                     })
                                 );
                             }}>
-                            {response.data.metadata.languageTranslations?.map((languageTranslation) => (
+                            {languageTabs.map((languageTranslation) => (
                                 <Tab label={languageTranslation} value={languageTranslation} />
                             ))}
-                            <Tab label="Add new translation" />
+                            {showAddTranslationButton &&
+                                <DropdownButton
+                                    handleSelect={(value) => {
+                                        navigate(
+                                            routes.update.build({
+                                                contentId: contentId!,
+                                                language: value!
+                                            })
+                                        );
+                                    }
+                                    }
+                                    languages={response.data.metadata.languageTranslations}
+                                />
+                            }
                         </Tabs>
                     </Box>
                 </Paper>
@@ -73,7 +91,7 @@ export default function UpdateContentPage() {
                     </Typography>
                     <ContentVersionsList
                         contentId={contentId}
-                        language={language}
+                        language={language!}
                         onUpdate={refetch}
                         key={response.data.metadata.currentVersionId} />
                 </Paper>
@@ -111,5 +129,56 @@ function UpdateContentForm(props: UpdateContentFormProps) {
             onChange={onChange}
             submitText="Save"
         />
+    );
+}
+
+interface DropdownButtonProps {
+    languages: Language[] | null,
+    handleSelect: (value: Language) => void
+}
+function DropdownButton({ languages, handleSelect }: DropdownButtonProps) {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    if (!languages)
+        return (<></>);
+
+    return (
+        <>
+            <Button
+                aria-controls={open ? "simple-menu" : undefined}
+                aria-haspopup="true"
+                onClick={handleClick}
+                variant="text"
+            >
+                Add translation
+            </Button>
+            <Menu
+                id="simple-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+            >
+                {Object.values(Language)
+                    .filter(x => !languages?.includes(x))
+                    .map(language => (
+                        <MenuItem onClick={() => {
+                            handleSelect(language);
+                            handleClose();
+                        }}>
+                            {language}
+                        </MenuItem>
+                ))}
+            </Menu>
+        </>
     );
 }

@@ -33,8 +33,8 @@ public static class ContentMetadataProvider
                 ContentId = content.ContentId,
                 CurrentVersionId = content.VersionId,
                 Language = content.Language,
-                StartPublish = content.ContentRoot.StartPublish,
-                StopPublish = content.ContentRoot.StopPublish,
+                StartPublish = content.ContentRoot?.StartPublish,
+                StopPublish = content.ContentRoot?.StopPublish,
                 LanguageTranslations = contentLanguages
             },
             PropertiesSchema = GetPropertySchema(content.GetType(), content)
@@ -43,26 +43,49 @@ public static class ContentMetadataProvider
         };
     }
 
+    //[ShouldBeRefactored("Would be good to not need to inject translated languages")]
+    //public static UpdateContentRequest GetUpdateSchemaForTranslation(ContentRoot contentRoot, Language language)
+    //{
+    //    return new UpdateContentRequest
+    //    {
+    //        Metadata = new UpdateContentRequestMetadata
+    //        {
+    //            ContentId = contentRoot.ContentId,
+    //            CurrentVersionId = null,
+    //            Language = language,
+    //            StartPublish = contentRoot.StartPublish,
+    //            StopPublish = contentRoot.StopPublish,
+    //            LanguageTranslations = contentRoot
+    //                .LanguageBranches
+    //                .Select(x => x.Language)
+    //                .ToList()
+    //        },
+    //        PropertiesSchema = GetPropertySchema(content.GetType())
+    //            .Where(x => x.Value.IsRequired == false)
+    //            .ToDictionary()
+    //    };
+    //}
 
-    [ShouldBeRefactored("Would be good to not need to inject translated languages")]
-    public static UpdateContentRequest GetTranslationSchema(ContentRoot contentRoot, List<Language> contentLanguages)
-    {
-        return new UpdateContentRequest
-        {
-            Metadata = new UpdateContentRequestMetadata
-            {
-                ContentId = contentRoot.ContentId,
-                CurrentVersionId = content.VersionId,
-                Language = content.Language,
-                StartPublish = content.ContentRoot.StartPublish,
-                StopPublish = content.ContentRoot.StopPublish,
-                LanguageTranslations = contentLanguages
-            },
-            PropertiesSchema = GetPropertySchema(content.GetType(), content)
-                .Where(x => x.Value.IsRequired == false)
-                .ToDictionary()
-        };
-    }
+
+    //[ShouldBeRefactored("Would be good to not need to inject translated languages")]
+    //public static TranslateContentRequest GetTranslationSchema(ContentRoot contentRoot, List<Language> contentLanguages)
+    //{
+    //    return new UpdateContentRequest
+    //    {
+    //        Metadata = new UpdateContentRequestMetadata
+    //        {
+    //            ContentId = contentRoot.ContentId,
+    //            CurrentVersionId = content.VersionId,
+    //            Language = content.Language,
+    //            StartPublish = content.ContentRoot.StartPublish,
+    //            StopPublish = content.ContentRoot.StopPublish,
+    //            LanguageTranslations = contentLanguages
+    //        },
+    //        PropertiesSchema = GetPropertySchema(content.GetType(), content)
+    //            .Where(x => x.Value.IsRequired == false)
+    //            .ToDictionary()
+    //    };
+    //}
 
     public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, Content? content = null)
     {

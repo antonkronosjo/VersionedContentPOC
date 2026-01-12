@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using VersionedContentPOC.Data.Enums;
+using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Data.Models;
 
 namespace VersionedContentPOC.Data.Models;
@@ -27,6 +28,8 @@ public abstract class Content
 
     [Required]
     public Guid ContentId { get; set; }
+
+    [ShouldBeRefactored("Should this be marked as nullable??? In practice instances can exist with this set to null")]
     public ContentRoot ContentRoot { get; set; }
 
     [Required]

@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Requests;
 using VersionedContentPOC.Server.Services;
 
@@ -58,7 +59,7 @@ public class ContentManagementController : ControllerBase
         try
         {
             var contentType = ContentTypeRegistry.GetRegisteredContentType(request.Metadata.ContentTypeName);
-            var contentInstance = _contentFactory.CreateInstance(contentType, request.Metadata.Language, request.PropertiesSchema);
+            var contentInstance = _contentFactory.CreateInstance(contentType, request.Metadata.Language, properties: request.PropertiesSchema);
             var createdContent = _contentRepository.Create(contentInstance);
             return CreatedAtAction(nameof(CreateContent), createdContent);
         }
@@ -75,16 +76,26 @@ public class ContentManagementController : ControllerBase
     [HttpGet]
     [Route("updateschema")]
     [ProducesResponseType(typeof(UpdateContentRequest), StatusCodes.Status200OK)]
+    [ShouldBeRefactored("Logic regarding initializing translation vs updating in same language branch should no be inside controller")]
     public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] Guid contentId, [FromQuery] Language language)
     {
-        var content = _contentRepository.Get<Content>(contentId, language);
-        if (content == null)
-            return NotFound();
-
         var contentLanguages = _contentRepository.GetTranslatedLanguages(contentId);
-        var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, contentLanguages);
+        if (contentLanguages.Contains(language))
+        {
+            var content = _contentRepository.Get<Content>(contentId, language);
+            if (content == null)
+                return NotFound();
 
-        return Ok(updateSchema);
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, contentLanguages);
+            return Ok(updateSchema);
+        }
+        else
+        {
+            var contentType = _contentRepository.GetContentRootType(contentId);
+            var contentInstance = _contentFactory.CreateInstance(contentType, language, contentId: contentId);
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(contentInstance, contentLanguages);
+            return Ok(updateSchema);
+        }
     }
 
     [HttpPut]
@@ -92,13 +103,23 @@ public class ContentManagementController : ControllerBase
     [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
     public ActionResult<Content> UpdateContent([FromBody] UpdateContentRequest request)
     {
-        
-        var content = _contentRepository.Get<Content>(request.Metadata.ContentId, request.Metadata.Language);
-        if (content == null)
+        var contentExists = _contentRepository.Exists(request.Metadata.ContentId);
+        if (!contentExists)
             return NotFound();
 
-        var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceUpdate);
-        return Ok(updatedContent);
+        var content = _contentRepository.Get<Content>(request.Metadata.ContentId, request.Metadata.Language);
+        if (content != null)
+        {
+            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceUpdate);
+            return Ok(updatedContent);
+        }
+        else
+        {
+            var contentType = _contentRepository.GetContentRootType(request.Metadata.ContentId);
+            content = _contentFactory.CreateInstance(contentType, request.Metadata.Language, contentId: request.Metadata.ContentId);
+            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceUpdate);
+            return Ok(updatedContent);
+        }
     }
 
     [HttpGet]

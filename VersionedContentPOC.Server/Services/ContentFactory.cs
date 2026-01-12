@@ -5,17 +5,23 @@ namespace VersionedContentPOC.Server.Services
 {
     public interface IContentFactory
     {
-        Content CreateInstance(Type contentType, Language language, IDictionary<string, ContentPropertyValueDto> properties);
+        Content CreateInstance(Type contentType, Language language, Guid? contentId = null, IDictionary<string, ContentPropertyValueDto>? properties = null);
     }
 
     public class ContentFactory : IContentFactory
     {
-        public Content CreateInstance(Type contentType, Language language, IDictionary<string, ContentPropertyValueDto> properties)
+        public Content CreateInstance(Type contentType, Language language, Guid? contentId = null, IDictionary<string, ContentPropertyValueDto>? properties = null)
         {
             ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
             var instance = (Content?)Activator.CreateInstance(contentType, Guid.NewGuid(), language) ?? throw new InvalidOperationException("Failed to create content");
-            ContentUpdater.ApplyUpdates(instance, properties);
+
+            if (contentId != null && contentId.HasValue)
+                instance.ContentId = contentId.Value;
+
+            if (properties != null)
+                ContentUpdater.ApplyUpdates(instance, properties);
+            
             return instance;
         }
     }
