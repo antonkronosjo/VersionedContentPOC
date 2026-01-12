@@ -81,7 +81,9 @@ public class ContentManagementController : ControllerBase
         if (content == null)
             return NotFound();
 
-        var updateSchema = ContentMetadataProvider.GetUpdateSchema(content);
+        var contentLanguages = _contentRepository.GetTranslatedLanguages(contentId);
+        var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, contentLanguages);
+
         return Ok(updateSchema);
     }
 

@@ -16,6 +16,7 @@ public interface IContentRepository
     IQueryable<T> QueryActiveVersions<T>(Language languageBranch) where T : Content;
     IEnumerable<T> Versions<T>(Guid contentId, Language language) where T : Content;
     void SetAsActiveVersion(Guid versionId);
+    List<Language> GetTranslatedLanguages(Guid contentId);
 }
 
 public class ContentRepository : IContentRepository
@@ -162,5 +163,19 @@ public class ContentRepository : IContentRepository
             .Where(x => x.Language == language)
             .Include(x => x.LanguageBranch)
             .Where(x => x.LanguageBranch.ActiveVersionId == x.VersionId);
+    }
+
+    /// <summary>
+    /// Returns all languages content has been translated to
+    /// </summary>
+    [ShouldBeRefactored("This method should be moved to another class, maybe IContentMetadataService or similar?")]
+    public List<Language> GetTranslatedLanguages(Guid contentId)
+    {
+        return _context.ContentRoots
+            .Include(x => x.LanguageBranches)
+            .Single(x => x.ContentId == contentId)
+            .LanguageBranches
+            .Select(x => x.Language)
+            .ToList();
     }
 }

@@ -24,8 +24,8 @@ public static class ContentMetadataProvider
         };  
     }
 
-    [ShouldBeRefactored("Need to pre-populate values from existing content")]
-    public static UpdateContentRequest GetUpdateSchema(Content content)
+    [ShouldBeRefactored("Would be good to not need to inject translated languages")]
+    public static UpdateContentRequest GetUpdateSchema(Content content, List<Language> contentLanguages)
     {
         return new UpdateContentRequest
         {
@@ -33,6 +33,30 @@ public static class ContentMetadataProvider
                 ContentId = content.ContentId,
                 CurrentVersionId = content.VersionId,
                 Language = content.Language,
+                StartPublish = content.ContentRoot.StartPublish,
+                StopPublish = content.ContentRoot.StopPublish,
+                LanguageTranslations = contentLanguages
+            },
+            PropertiesSchema = GetPropertySchema(content.GetType(), content)
+                .Where(x => x.Value.IsRequired == false)
+                .ToDictionary()
+        };
+    }
+
+
+    [ShouldBeRefactored("Would be good to not need to inject translated languages")]
+    public static UpdateContentRequest GetTranslationSchema(ContentRoot contentRoot, List<Language> contentLanguages)
+    {
+        return new UpdateContentRequest
+        {
+            Metadata = new UpdateContentRequestMetadata
+            {
+                ContentId = contentRoot.ContentId,
+                CurrentVersionId = content.VersionId,
+                Language = content.Language,
+                StartPublish = content.ContentRoot.StartPublish,
+                StopPublish = content.ContentRoot.StopPublish,
+                LanguageTranslations = contentLanguages
             },
             PropertiesSchema = GetPropertySchema(content.GetType(), content)
                 .Where(x => x.Value.IsRequired == false)

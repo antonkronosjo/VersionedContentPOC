@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey, type Language } from "../api/client";
-import { useParams } from 'react-router-dom';
+import { Language, useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
+import { useNavigate, useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
-import { Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, Paper, Tab, Tabs, Typography } from "@mui/material";
 import ContentVersionsList from "../compontents/ContentVersionsList";
 import { useQueryClient } from '@tanstack/react-query';
+import { routes } from "../services/routeResolver";
 
 export default function UpdateContentPage() {
     const { contentId, language } = useParams<{ contentId: string, language: Language }>();
     const queryClient = useQueryClient();
     const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language });
+    const navigate = useNavigate();
 
     const refetch = () => {
         queryClient.invalidateQueries({
@@ -25,6 +27,29 @@ export default function UpdateContentPage() {
 
     return (    
         <Grid container spacing={1}>
+            <Grid size={12}>
+                <Paper>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+
+                        <Tabs
+                            value={language}
+                            aria-label="basic tabs example"
+                            onChange={() => {
+                                navigate(
+                                    routes.update.build({
+                                        contentId: contentId!,
+                                        language: language!
+                                    })
+                                );
+                            }}>
+                            {response.data.metadata.languageTranslations?.map((languageTranslation) => (
+                                <Tab label={languageTranslation} value={languageTranslation} />
+                            ))}
+                            <Tab label="Add new translation" />
+                        </Tabs>
+                    </Box>
+                </Paper>
+            </Grid>
             <Grid size={9}>
                 <Paper sx={{ p: 1 }}>
                     <Typography

@@ -142,6 +142,12 @@ export interface UpdateContentRequestMetadata {
   contentId: string;
   currentVersionId: string;
   language: Language;
+  /** @nullable */
+  startPublish: string | null;
+  /** @nullable */
+  stopPublish: string | null;
+  /** @nullable */
+  languageTranslations: Language[] | null;
   forceUpdate?: boolean;
 }
 
