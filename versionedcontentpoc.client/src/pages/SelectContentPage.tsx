@@ -1,12 +1,13 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material";
-import { useGetApiContentTypes } from "../api/client"
+import { Language, useGetApiContentTypes } from "../api/client"
 import { useState } from "react";
 import { Link as RouterLink } from 'react-router-dom';
+import { routes } from "../services/routeResolver";
 
 function SelectContentPage() {
     const { data, isLoading, error } = useGetApiContentTypes();
     const [contentType, setContentType] = useState("");
-    const [language, setLanguage] = useState<number | undefined>(undefined);
+    const [language, setLanguage] = useState<Language>(Language.SV);
     
     if (isLoading)
         return (<p>Is loading</p>);
@@ -45,16 +46,17 @@ function SelectContentPage() {
                             id="demo-simple-select"
                             label="Language"
                             value={language}
-                            onChange={(e) => { setLanguage(0) }}
+                            onChange={(e) => { setLanguage(e.target.value) }}
                         >
-                            <MenuItem value={0}>Swedish</MenuItem>
-                            <MenuItem value={1}>English{/*Todo: Pass language param when creating content*/}</MenuItem> 
+                            {Object.values(Language).map((currLang) => (
+                                <MenuItem value={currLang}>{currLang}</MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Grid>
                 <Button
                     component={RouterLink}
-                    to={"/create/" + contentType}
+                    to={routes.create.build({ contentType: contentType, language: language })}
                     disabled={!contentType}
                     sx={{ ml: 'auto' }}
                     variant="contained">

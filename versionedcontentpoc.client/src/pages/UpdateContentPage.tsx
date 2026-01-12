@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
+import { useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey, type Language } from "../api/client";
 import { useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
 import { Grid, Paper, Typography } from "@mui/material";
@@ -7,17 +7,13 @@ import ContentVersionsList from "../compontents/ContentVersionsList";
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function UpdateContentPage() {
-    const { contentId } = useParams<{ contentId: string }>();
+    const { contentId, language } = useParams<{ contentId: string, language: Language }>();
     const queryClient = useQueryClient();
-
-    const { data: response, isLoading, error } = useGetApiContentUpdateschema(
-        { contentId: contentId, language: 0 }
-        /*{ query: { enabled: !!contentId } }*/
-    );
+    const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language });
 
     const refetch = () => {
         queryClient.invalidateQueries({
-            queryKey: getGetApiContentUpdateschemaQueryKey({ contentId, language: 0 })
+            queryKey: getGetApiContentUpdateschemaQueryKey({ contentId, language: language })
         });
     };
 
@@ -52,6 +48,7 @@ export default function UpdateContentPage() {
                     </Typography>
                     <ContentVersionsList
                         contentId={contentId}
+                        language={language}
                         onUpdate={refetch}
                         key={response.data.metadata.currentVersionId} />
                 </Paper>

@@ -21,10 +21,10 @@ public class ContentController : ControllerBase
     [HttpGet]
     [Route("all")]
     [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
-    public ActionResult<List<Content>> GetAllContent()
+    public ActionResult<List<Content>> GetAllContent([FromQuery] Language language)
     {
         var news = _contentRepository
-            .QueryActiveVersions<Content>(Language.SV)
+            .QueryActiveVersions<Content>(language)
             .Include(x => x.ContentRoot)
             .OrderByDescending(x => x.ContentRoot.Created)
             .ToList();

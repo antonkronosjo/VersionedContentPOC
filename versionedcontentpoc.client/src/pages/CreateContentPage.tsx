@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest } from "../api/client";
+import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest, type Language } from "../api/client";
 import { useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
 import { useNavigate } from 'react-router-dom';
 import { Paper, Typography } from "@mui/material";
+import { routes } from "../services/routeResolver";
 
 function CreateContentPage() {
-    const { contentType } = useParams<{ contentType: string }>();
+    const { contentType, language } = useParams<{ contentType: string, language: Language }>();
     const { data: response, isLoading, error } = useGetApiContentCreationschema(
-        { contentTypeName: contentType, language: 0 },
+        { contentTypeName: contentType, language: language },
         { query: { enabled: !!contentType } }
     );
 
@@ -25,7 +26,7 @@ function CreateContentPage() {
                     variant="h1"
                     gutterBottom
                 >
-                    Create new {contentType}
+                    Create new {contentType} for language "{language}"
                 </Typography>
                 <CreateContentForm schema={response.data} />
             </Paper>
@@ -42,7 +43,10 @@ function CreateContentForm(props: CreateContentFormProps) {
 
     const onSubmit = async () => {
         const response = await postApiContentCreate(createRequest);
-        navigate("/update/" + response.data.contentId);
+        navigate(routes.update.build({
+            contentId: response.data.contentId,
+            language: response.data.language
+        }));
     }
 
     const onChange = (key: string, value: string) => {
@@ -59,7 +63,7 @@ function CreateContentForm(props: CreateContentFormProps) {
             onSubmit={onSubmit}
             onChange={onChange}
             submitText="Create content"
-        />
+            />
     );
 }
 

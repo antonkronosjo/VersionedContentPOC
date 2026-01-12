@@ -1,16 +1,14 @@
 import { Publish, Check, Folder } from "@mui/icons-material";
-import { useGetApiContentVersions, putApiContentSetasactive } from "../api/client";
+import { useGetApiContentVersions, putApiContentSetasactive, Language } from "../api/client";
 import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 
 interface ContentVersionsListProps {
     contentId: string | undefined,
+    language: Language,
     onUpdate: () => void
 }
-export default function ContentVersionsList({ contentId, onUpdate }: ContentVersionsListProps) {
-    const { data: response, isLoading, error } = useGetApiContentVersions(
-        { contentId: contentId, language: 0 },
-        { query: { enabled: !!contentId } }
-    );
+export default function ContentVersionsList({ contentId, language,  onUpdate }: ContentVersionsListProps) {
+    const { data: response, isLoading, error } = useGetApiContentVersions({ contentId: contentId, language: language });
 
     if (isLoading)
         return (<p>Is loading</p>);
@@ -26,7 +24,7 @@ export default function ContentVersionsList({ contentId, onUpdate }: ContentVers
     return (
         <List dense={true}>
             {response.data.map((contentVersion) => (
-                <ListItem secondaryAction={
+                <ListItem key={contentVersion.versionId} secondaryAction={
                     contentVersion.languageBranch?.activeVersionId === contentVersion.versionId
                         ?
                             <IconButton

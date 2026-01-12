@@ -32,10 +32,10 @@ import type {
 
 export interface Content {
   contentType: string;
-  versionId?: string;
-  contentId?: string;
+  versionId: string;
+  contentId: string;
   contentRoot?: ContentRoot;
-  language?: Language;
+  language: Language;
   languageBranch?: LanguageBranch;
   versionCreated?: string;
 }
@@ -99,8 +99,8 @@ export type Language = typeof Language[keyof typeof Language];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Language = {
-  NUMBER_0: 0,
-  NUMBER_1: 1,
+  SV: 'SV',
+  EN: 'EN',
 } as const;
 
 export interface LanguageBranch {
@@ -145,6 +145,10 @@ export interface UpdateContentRequestMetadata {
   forceUpdate?: boolean;
 }
 
+export type GetApiContentAllParams = {
+language?: Language;
+};
+
 export type GetApiContentAll200Item = EventContent | NewsContent;
 
 export type GetApiContentCreationschemaParams = {
@@ -177,35 +181,37 @@ contentId?: string;
 };
 
 export const getApiContentAll = (
-     options?: AxiosRequestConfig
+    params?: GetApiContentAllParams, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<GetApiContentAll200Item[]>> => {
     
     
     return axios.default.get(
-      `/api/content/all`,options
+      `/api/content/all`,{
+    ...options,
+        params: {...params, ...options?.params},}
     );
   }
 
 
 
 
-export const getGetApiContentAllQueryKey = () => {
+export const getGetApiContentAllQueryKey = (params?: GetApiContentAllParams,) => {
     return [
-    `/api/content/all`
+    `/api/content/all`, ...(params ? [params]: [])
     ] as const;
     }
 
     
-export const getGetApiContentAllQueryOptions = <TData = Awaited<ReturnType<typeof getApiContentAll>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetApiContentAllQueryOptions = <TData = Awaited<ReturnType<typeof getApiContentAll>>, TError = AxiosError<unknown>>(params?: GetApiContentAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiContentAllQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiContentAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiContentAll>>> = ({ signal }) => getApiContentAll({ signal, ...axiosOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiContentAll>>> = ({ signal }) => getApiContentAll(params, { signal, ...axiosOptions });
 
       
 
@@ -219,7 +225,7 @@ export type GetApiContentAllQueryError = AxiosError<unknown>
 
 
 export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiContentAll>>, TError = AxiosError<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>> & Pick<
+ params: undefined |  GetApiContentAllParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiContentAll>>,
           TError,
@@ -229,7 +235,7 @@ export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiCont
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiContentAll>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>> & Pick<
+ params?: GetApiContentAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiContentAll>>,
           TError,
@@ -239,16 +245,16 @@ export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiCont
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiContentAll>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>>, axios?: AxiosRequestConfig}
+ params?: GetApiContentAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>>, axios?: AxiosRequestConfig}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiContentAll>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>>, axios?: AxiosRequestConfig}
+ params?: GetApiContentAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentAll>>, TError, TData>>, axios?: AxiosRequestConfig}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiContentAllQueryOptions(options)
+  const queryOptions = getGetApiContentAllQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

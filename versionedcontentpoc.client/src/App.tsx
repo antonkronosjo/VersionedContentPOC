@@ -6,8 +6,9 @@ import SelectContentPage from './pages/SelectContentPage';
 import UpdateContentPage from './pages/UpdateContentPage';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { AppBar, Box, Container, Grid, Paper, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Container, Grid, Toolbar, Typography } from '@mui/material';
 import SideBarMenu from './layout/SideBarMenu';
+import { routes } from './services/routeResolver';
 
 const appTheme = createTheme({
     palette: {
@@ -60,10 +61,10 @@ export default App
 function AppRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/create" element={<SelectContentPage />} />
-            <Route path="/create/:contentType" element={<CreateContentPage />} />
-            <Route path="/update/:contentId" element={<UpdateContentPage />} />
+            <Route path={routes.home} element={<HomePage />} />
+            <Route path={routes.select} element={<SelectContentPage />} />
+            <Route path={routes.create.pattern()} element={<CreateContentPage />} />
+            <Route path={routes.update.pattern()} element={<UpdateContentPage />} />
         </Routes>
     );
 }
