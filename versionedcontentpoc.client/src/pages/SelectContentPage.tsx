@@ -6,6 +6,7 @@ import { Link as RouterLink } from 'react-router-dom';
 function SelectContentPage() {
     const { data, isLoading, error } = useGetApiContentTypes();
     const [contentType, setContentType] = useState("");
+    const [language, setLanguage] = useState<number | undefined>(undefined);
     
     if (isLoading)
         return (<p>Is loading</p>);
@@ -19,15 +20,15 @@ function SelectContentPage() {
                 variant="h1"
                 gutterBottom
             >
-                Select content type
+                Create new content
             </Typography>
             <Grid container spacing={1}>
                 <Grid size={12}>
                     <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Select content type</InputLabel>
+                        <InputLabel id="demo-simple-select-label1">Content type</InputLabel>
                         <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
+                            labelId="demo-simple-select-label1"
+                            id="demo-simple-select1"
                             label="Select content type"
                             value={contentType}
                             onChange={(e) => { setContentType(e.target.value) }}
@@ -35,6 +36,19 @@ function SelectContentPage() {
                             {data?.data.map((contentType) => (
                                 <MenuItem value={contentType}>{contentType}</MenuItem>
                             ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ mt: 2 }}>
+                        <InputLabel id="demo-simple-select-label">Language</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            label="Language"
+                            value={language}
+                            onChange={(e) => { setLanguage(0) }}
+                        >
+                            <MenuItem value={0}>Swedish</MenuItem>
+                            <MenuItem value={1}>English{/*Todo: Pass language param when creating content*/}</MenuItem> 
                         </Select>
                     </FormControl>
                 </Grid>

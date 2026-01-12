@@ -14,6 +14,8 @@ public interface IContentRepository
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
     void Delete(Guid contentId);
     IQueryable<T> QueryActiveVersions<T>(Language languageBranch) where T : Content;
+    IEnumerable<T> Versions<T>(Guid contentId, Language language) where T : Content;
+    void SetAsActiveVersion(Guid versionId);
 }
 
 public class ContentRepository : IContentRepository
@@ -97,7 +99,11 @@ public class ContentRepository : IContentRepository
             if (!forceUpdate && languageBranch.ActiveVersionId != updatedVersion.VersionId)
                 throw new Exception("Content.VersionId does not match the current one being active. Use forceUpdate=true to save");
             else
+            {
                 updatedVersion.VersionId = Guid.NewGuid();
+                updatedVersion.VersionCreated = DateTime.UtcNow;
+            }
+                
 
             languageBranch.AddVersion(updatedVersion);
 
@@ -122,6 +128,29 @@ public class ContentRepository : IContentRepository
     {
         ContentUpdater.ApplyUpdates(content, updates);
         return Update<T>(content.ContentId, content);
+    }
+
+    /// <summary>
+    /// Returns all versions of given content
+    /// </summary>
+    public IEnumerable<T> Versions<T>(Guid contentId, Language language) where T : Content
+    {
+        return _context.Content.OfType<T>()
+            .Where(x => x.ContentId == contentId && x.Language == language)
+            .Include(x => x.ContentRoot)
+            .Include(x => x.LanguageBranch);
+    }
+
+    public void SetAsActiveVersion(Guid versionId)
+    {
+        var content = _context.Content
+            .Where(x => x.VersionId == versionId)
+            .Include(x => x.LanguageBranch)
+            .Single();
+
+        content.LanguageBranch.SetActiveVersion(content);
+        _context.Update(content.LanguageBranch);
+        _context.SaveChanges();
     }
 
     /// <summary>

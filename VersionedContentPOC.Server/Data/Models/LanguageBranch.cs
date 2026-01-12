@@ -29,10 +29,12 @@ public class LanguageBranch
             Versions.Add(content);
 
         if (setAsActive)
-        {
-            ActiveVersionId = content.VersionId;
-            ActiveVersion = content;
-            
-        }
+            SetActiveVersion(content);
+    }
+
+    public void SetActiveVersion<T>(T content) where T : Content
+    {
+        ActiveVersionId = content.VersionId;
+        ActiveVersion = content;
     }
 }

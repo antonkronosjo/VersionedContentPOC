@@ -99,6 +99,28 @@ public class ContentManagementController : ControllerBase
         return Ok(updatedContent);
     }
 
+    [HttpGet]
+    [Route("versions")]
+    [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
+    public ActionResult<List<Content>> Versions([FromQuery] Guid contentId, Language language)
+    {
+
+        var contentVersions = _contentRepository
+            .Versions<Content>(contentId, language)
+            .OrderByDescending(x => x.VersionCreated)
+            .ToList();
+
+        return Ok(contentVersions);
+    }
+
+    [HttpPut]
+    [Route("setasactive")]
+    public IActionResult SetAsActiveVersion([FromQuery] Guid versionId)
+    {
+        _contentRepository.SetAsActiveVersion(versionId);
+        return Ok();
+    }
+
     [HttpDelete]
     [Route("delete")]
     public IActionResult DeleteContent([FromQuery] Guid contentId)

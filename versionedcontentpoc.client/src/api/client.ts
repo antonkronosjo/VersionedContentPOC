@@ -36,6 +36,7 @@ export interface Content {
   contentId?: string;
   contentRoot?: ContentRoot;
   language?: Language;
+  languageBranch?: LanguageBranch;
   versionCreated?: string;
 }
 
@@ -102,6 +103,13 @@ export const Language = {
   NUMBER_1: 1,
 } as const;
 
+export interface LanguageBranch {
+  contentId?: string;
+  language?: Language;
+  /** @nullable */
+  activeVersionId?: string | null;
+}
+
 export type NewsContentAllOf = {
   /** @nullable */
   heading: string | null;
@@ -152,6 +160,17 @@ language?: Language;
 };
 
 export type PutApiContentUpdate200 = EventContent | NewsContent;
+
+export type GetApiContentVersionsParams = {
+contentId?: string;
+language?: Language;
+};
+
+export type GetApiContentVersions200Item = EventContent | NewsContent;
+
+export type PutApiContentSetasactiveParams = {
+versionId?: string;
+};
 
 export type DeleteApiContentDeleteParams = {
 contentId?: string;
@@ -694,6 +713,150 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       > => {
 
       const mutationOptions = getPutApiContentUpdateMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    
+export const getApiContentVersions = (
+    params?: GetApiContentVersionsParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<GetApiContentVersions200Item[]>> => {
+    
+    
+    return axios.default.get(
+      `/api/content/versions`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+
+export const getGetApiContentVersionsQueryKey = (params?: GetApiContentVersionsParams,) => {
+    return [
+    `/api/content/versions`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetApiContentVersionsQueryOptions = <TData = Awaited<ReturnType<typeof getApiContentVersions>>, TError = AxiosError<unknown>>(params?: GetApiContentVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentVersions>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiContentVersionsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiContentVersions>>> = ({ signal }) => getApiContentVersions(params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiContentVersions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiContentVersionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiContentVersions>>>
+export type GetApiContentVersionsQueryError = AxiosError<unknown>
+
+
+export function useGetApiContentVersions<TData = Awaited<ReturnType<typeof getApiContentVersions>>, TError = AxiosError<unknown>>(
+ params: undefined |  GetApiContentVersionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentVersions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiContentVersions>>,
+          TError,
+          Awaited<ReturnType<typeof getApiContentVersions>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiContentVersions<TData = Awaited<ReturnType<typeof getApiContentVersions>>, TError = AxiosError<unknown>>(
+ params?: GetApiContentVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentVersions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiContentVersions>>,
+          TError,
+          Awaited<ReturnType<typeof getApiContentVersions>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiContentVersions<TData = Awaited<ReturnType<typeof getApiContentVersions>>, TError = AxiosError<unknown>>(
+ params?: GetApiContentVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentVersions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiContentVersions<TData = Awaited<ReturnType<typeof getApiContentVersions>>, TError = AxiosError<unknown>>(
+ params?: GetApiContentVersionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentVersions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiContentVersionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+
+export const putApiContentSetasactive = (
+    params?: PutApiContentSetasactiveParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.default.put(
+      `/api/content/setasactive`,undefined,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+export const getPutApiContentSetasactiveMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentSetasactive>>, TError,{params?: PutApiContentSetasactiveParams}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof putApiContentSetasactive>>, TError,{params?: PutApiContentSetasactiveParams}, TContext> => {
+
+const mutationKey = ['putApiContentSetasactive'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiContentSetasactive>>, {params?: PutApiContentSetasactiveParams}> = (props) => {
+          const {params} = props ?? {};
+
+          return  putApiContentSetasactive(params,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutApiContentSetasactiveMutationResult = NonNullable<Awaited<ReturnType<typeof putApiContentSetasactive>>>
+    
+    export type PutApiContentSetasactiveMutationError = AxiosError<unknown>
+
+    export const usePutApiContentSetasactive = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentSetasactive>>, TError,{params?: PutApiContentSetasactiveParams}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putApiContentSetasactive>>,
+        TError,
+        {params?: PutApiContentSetasactiveParams},
+        TContext
+      > => {
+
+      const mutationOptions = getPutApiContentSetasactiveMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

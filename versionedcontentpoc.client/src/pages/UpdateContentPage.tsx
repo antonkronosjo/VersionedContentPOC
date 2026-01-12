@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest } from "../api/client";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
+import { useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
 import { Grid, Paper, Typography } from "@mui/material";
+import ContentVersionsList from "../compontents/ContentVersionsList";
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function UpdateContentPage() {
     const { contentId } = useParams<{ contentId: string }>();
+    const queryClient = useQueryClient();
 
     const { data: response, isLoading, error } = useGetApiContentUpdateschema(
-        { contentId: contentId, language: 0 },
-        { query: { enabled: !!contentId } }
+        { contentId: contentId, language: 0 }
+        /*{ query: { enabled: !!contentId } }*/
     );
+
+    const refetch = () => {
+        queryClient.invalidateQueries({
+            queryKey: getGetApiContentUpdateschemaQueryKey({ contentId, language: 0 })
+        });
+    };
 
     if (isLoading || !response)
         return (<p>Is loading</p>);
@@ -18,27 +27,33 @@ export default function UpdateContentPage() {
     if (error)
         return (<p>Error</p>);
 
-    return (
+    return (    
         <Grid container spacing={1}>
             <Grid size={9}>
                 <Paper sx={{ p: 1 }}>
                     <Typography
-                        mb={1}
+                        variant="h1"
+                        gutterBottom
                     >
                         Update {contentId}
                     </Typography>
-                    <UpdateContentForm schema={response.data} />
+                    <UpdateContentForm
+                        schema={response.data}
+                        onSubmit={refetch}
+                        key={response.data.metadata.currentVersionId} />
                 </Paper>
             </Grid>
             <Grid size={3}>
                 <Paper sx={{ p: 1 }}>
                     <Typography
-                        mb={1}
+                        variant="h2"
                     >
-                        Content versions
+                        Versions
                     </Typography>
-                    fafaf
-                    fafa
+                    <ContentVersionsList
+                        contentId={contentId}
+                        onUpdate={refetch}
+                        key={response.data.metadata.currentVersionId} />
                 </Paper>
             </Grid>
             
@@ -49,14 +64,14 @@ export default function UpdateContentPage() {
 
 interface UpdateContentFormProps {
     schema: UpdateContentRequest;
+    onSubmit: () => void;
 }
 function UpdateContentForm(props: UpdateContentFormProps) {
     const [updateRequest, setUpdateRequest] = useState(props.schema);
-    const navigate = useNavigate();
 
     const onSubmit = async () => {
         await putApiContentUpdate(updateRequest);
-        navigate("/");
+        props.onSubmit();
     }
 
     const onChange = (key: string, value: string) => {

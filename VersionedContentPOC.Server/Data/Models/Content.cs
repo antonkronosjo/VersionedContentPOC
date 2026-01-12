@@ -24,7 +24,6 @@ public abstract class Content
     public Guid ContentId { get; set; }
     public ContentRoot ContentRoot { get; set; }
     public Language Language { get; set; }
-    [JsonIgnore]
     public virtual LanguageBranch LanguageBranch { get; set; }
     public DateTime VersionCreated { get; set; }
 }

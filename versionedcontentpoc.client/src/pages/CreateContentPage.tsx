@@ -20,13 +20,16 @@ function CreateContentPage() {
 
     return (
         <>
-            <Paper sx={{ p: 1, width: "75%"}}>
-                <Typography>Create {contentType}</Typography>
+            <Paper sx={{ p: 1, width: "75%" }}>
+                <Typography
+                    variant="h1"
+                    gutterBottom
+                >
+                    Create new {contentType}
+                </Typography>
                 <CreateContentForm schema={response.data} />
             </Paper>
-            
         </>
-        
     );
 }
 
@@ -38,8 +41,8 @@ function CreateContentForm(props: CreateContentFormProps) {
     const navigate = useNavigate();
 
     const onSubmit = async () => {
-        await postApiContentCreate(createRequest);
-        navigate("/");
+        const response = await postApiContentCreate(createRequest);
+        navigate("/update/" + response.data.contentId);
     }
 
     const onChange = (key: string, value: string) => {
