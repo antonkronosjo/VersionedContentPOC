@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Language, useGetApiContentUpdateschema, putApiContentUpdate, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
+import { Language, useGetApiContentUpdateschema, putApiContentUpdate, putApiContentPublish, putApiContentUnpublish, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
 import { useNavigate, useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
-import { Box, Button, Grid, Menu, MenuItem, Paper, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Grid, List, ListItem, ListItemText, Menu, MenuItem, Paper, Tab, Tabs, Typography } from "@mui/material";
 import ContentVersionsList from "../compontents/ContentVersionsList";
 import { useQueryClient } from '@tanstack/react-query';
 import { routes } from "../services/routeResolver";
@@ -30,10 +30,49 @@ export default function UpdateContentPage() {
     
     const languageTabs = Array.from(new Set([...response.data.metadata.languageTranslations!, language]));
     const showAddTranslationButton = languageTabs.length != Object.values(Language).length;
+    const contentIsPublished = response.data.metadata.stopPublish === null; //Actually does not check this correctly but will work for now
 
     return (    
-        <Grid container spacing={1}>
+        <Grid container spacing={1} alignItems="flex-start">
             <Grid size={12}>
+                <Paper sx={{ p: 1, position: "relative" }}>
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        gutterBottom
+                    >
+                        Edit Content
+                    </Typography>
+                    <List dense disablePadding>
+                        <ListItem disableGutters>
+                            <ListItemText primary="ID" secondary={contentId} />
+                        </ListItem>
+                        <ListItem disableGutters>
+                            <ListItemText primary="Created" secondary={response.data.metadata.created ?? "not set"} sx={{m: 0}} />
+                        </ListItem>
+                        <ListItem disableGutters>
+                            <ListItemText primary="Published" secondary={response.data.metadata.startPublish ?? "not set"} />
+                        </ListItem>
+                        
+                    </List>
+                    <Button
+                        variant="contained"
+                        sx={{ position: "absolute", top: 16, right: 16 }}
+                        onClick={async () => {
+                            const res = contentIsPublished
+                                ? await putApiContentUnpublish({ contentId: response.data.metadata.contentId }) 
+                                : await putApiContentPublish({ contentId: response.data.metadata.contentId });
+                            refetch();
+                        }}
+                    >
+                        {contentIsPublished
+                            ? "Unpublish"
+                            : "Publish"
+                        }
+                    </Button>
+                </Paper>
+            </Grid>
+            <Grid size={8}>
                 <Paper>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs
@@ -66,23 +105,15 @@ export default function UpdateContentPage() {
                             }
                         </Tabs>
                     </Box>
+                    <Box sx={{ p: 1 }}>
+                        <UpdateContentForm
+                            schema={response.data}
+                            onSubmit={refetch}
+                            key={response.data.metadata.currentVersionId} />
+                    </Box>
                 </Paper>
             </Grid>
-            <Grid size={9}>
-                <Paper sx={{ p: 1 }}>
-                    <Typography
-                        variant="h1"
-                        gutterBottom
-                    >
-                        Update {contentId}
-                    </Typography>
-                    <UpdateContentForm
-                        schema={response.data}
-                        onSubmit={refetch}
-                        key={response.data.metadata.currentVersionId} />
-                </Paper>
-            </Grid>
-            <Grid size={3}>
+            <Grid size={4}>
                 <Paper sx={{ p: 1 }}>
                     <Typography
                         variant="h2"

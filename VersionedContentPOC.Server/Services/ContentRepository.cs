@@ -12,6 +12,7 @@ public interface IContentRepository
     bool Exists(Guid contentId);
     ContentRoot Get(Guid contentId);
     Type GetContentRootType(Guid contentId);
+    void SetPublishState(Guid contentId, DateTime? startPublish, DateTime? stopPublish);
     T Create<T>(T content) where T : Content;
     T Update<T>(Guid contentId, T contentVersion, bool forceUpdate = false) where T : Content;
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
@@ -53,6 +54,14 @@ public class ContentRepository : IContentRepository
     public ContentRoot Get(Guid contentId)
     {
         return _context.ContentRoots.Include(x => x.LanguageBranches).Single();
+    }
+
+    public void SetPublishState(Guid contentId, DateTime? startPublish, DateTime? stopPublish)
+    {
+        var contentRoot = _context.ContentRoots.Single(x => x.ContentId == contentId);
+        contentRoot.StartPublish = startPublish;
+        contentRoot.StopPublish = stopPublish;
+        _context.SaveChanges();
     }
 
     [ShouldBeRefactored("To get type of ContentRoot should be done in a more eligant way")]

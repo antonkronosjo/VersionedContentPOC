@@ -18,7 +18,7 @@ public static class ContentUpdater
         foreach (var (propertyName, dto) in updates)
         {
             if (!instanceProperties.TryGetValue(propertyName, out var prop))
-                throw new KeyNotFoundException($"Content of type {content.GetType().Name} does not contain a property named \"{propertyName}\"");
+                throw new Exception($"Could not get PropertyInfo for property \"{propertyName}\" from class {content.GetType().Name}");
 
             var attr = prop.GetCustomAttribute<ContentPropertyMetadataAttribute>(inherit: false);
             if (attr?.Editable != true)
@@ -28,9 +28,6 @@ public static class ContentUpdater
         }
     }
 
-    /// <summary>
-    /// Validates schema so that types actually is the same as intended to avoid remote code execution
-    /// </summary>
     private static void ValidateSchema(Type type, IDictionary<string, ContentPropertyValueDto> schema)
     {
         ContentTypeRegistry.Guards.IsRegiesteredContentType(type);
@@ -38,17 +35,12 @@ public static class ContentUpdater
 
         if (schema.Keys.Except(originalSchema.Keys).Any())
             throw new InvalidOperationException("Schema contains unknown properties.");
-
-
-        if (!schema.All(x => String.Equals(originalSchema[x.Key].PropertyTypeFullName, x.Value.PropertyTypeFullName, StringComparison.Ordinal)))
-            throw new InvalidOperationException("Schema validation not successfull!");
     }
 
     private static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
     {
         var value = dto.Value;
-        //var resolvedValue = ResolveValue(prop.PropertyType.FullName, value); //<-- Can this work?
-        var resolvedValue = ResolveValue(dto.PropertyTypeFullName, value);
+        var resolvedValue = ResolveValue(prop.PropertyType.FullName!, value);
         prop.SetValue(content, resolvedValue);
     }
 

@@ -144,6 +144,22 @@ public class ContentManagementController : ControllerBase
         return Ok();
     }
 
+    [HttpPut]
+    [Route("publish")]
+    public IActionResult Publish([FromQuery] Guid contentId)
+    {
+        _contentRepository.SetPublishState(contentId, startPublish: DateTime.UtcNow, stopPublish: null);
+        return Ok();
+    }
+
+    [HttpPut]
+    [Route("unpublish")]
+    public IActionResult UnPublish([FromQuery] Guid contentId)
+    {
+        _contentRepository.SetPublishState(contentId, startPublish: null, stopPublish: DateTime.UtcNow);
+        return Ok();
+    }
+
     [HttpDelete]
     [Route("delete")]
     public IActionResult DeleteContent([FromQuery] Guid contentId)

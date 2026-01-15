@@ -46,8 +46,7 @@ export interface Content {
 export type ContentPropertyValueDtoValue = unknown | null;
 
 export interface ContentPropertyValueDto {
-  /** @nullable */
-  propertyTypeFullName?: string | null;
+  inputType?: InputType;
   isRequired?: boolean;
   /** @nullable */
   value?: ContentPropertyValueDtoValue;
@@ -76,8 +75,8 @@ export interface CreateContentRequestMetadata {
 }
 
 export type EventContentAllOf = {
-  /** @nullable */
-  heading: string | null;
+  /** @minLength 1 */
+  heading: string;
   startDate: string;
   endDate: string;
 };
@@ -93,6 +92,19 @@ export const EventContentContentType = {
 export type EventContent = Omit<Content & EventContentAllOf, 'contentType'> & {
   contentType: EventContentContentType;
 };
+
+export type InputType = typeof InputType[keyof typeof InputType];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const InputType = {
+  None: 'None',
+  Input: 'Input',
+  TextArea: 'TextArea',
+  DatePicker: 'DatePicker',
+  DateTimePicker: 'DateTimePicker',
+  Select: 'Select',
+} as const;
 
 export type Language = typeof Language[keyof typeof Language];
 
@@ -140,8 +152,10 @@ export interface UpdateContentRequest {
 
 export interface UpdateContentRequestMetadata {
   contentId: string;
-  currentVersionId: string;
+  /** @nullable */
+  currentVersionId: string | null;
   language: Language;
+  created: string;
   /** @nullable */
   startPublish: string | null;
   /** @nullable */
@@ -180,6 +194,14 @@ export type GetApiContentVersions200Item = EventContent | NewsContent;
 
 export type PutApiContentSetasactiveParams = {
 versionId?: string;
+};
+
+export type PutApiContentPublishParams = {
+contentId?: string;
+};
+
+export type PutApiContentUnpublishParams = {
+contentId?: string;
 };
 
 export type DeleteApiContentDeleteParams = {
@@ -869,6 +891,120 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       > => {
 
       const mutationOptions = getPutApiContentSetasactiveMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    
+export const putApiContentPublish = (
+    params?: PutApiContentPublishParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.default.put(
+      `/api/content/publish`,undefined,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+export const getPutApiContentPublishMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentPublish>>, TError,{params?: PutApiContentPublishParams}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof putApiContentPublish>>, TError,{params?: PutApiContentPublishParams}, TContext> => {
+
+const mutationKey = ['putApiContentPublish'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiContentPublish>>, {params?: PutApiContentPublishParams}> = (props) => {
+          const {params} = props ?? {};
+
+          return  putApiContentPublish(params,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutApiContentPublishMutationResult = NonNullable<Awaited<ReturnType<typeof putApiContentPublish>>>
+    
+    export type PutApiContentPublishMutationError = AxiosError<unknown>
+
+    export const usePutApiContentPublish = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentPublish>>, TError,{params?: PutApiContentPublishParams}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putApiContentPublish>>,
+        TError,
+        {params?: PutApiContentPublishParams},
+        TContext
+      > => {
+
+      const mutationOptions = getPutApiContentPublishMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    
+export const putApiContentUnpublish = (
+    params?: PutApiContentUnpublishParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.default.put(
+      `/api/content/unpublish`,undefined,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+export const getPutApiContentUnpublishMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentUnpublish>>, TError,{params?: PutApiContentUnpublishParams}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof putApiContentUnpublish>>, TError,{params?: PutApiContentUnpublishParams}, TContext> => {
+
+const mutationKey = ['putApiContentUnpublish'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiContentUnpublish>>, {params?: PutApiContentUnpublishParams}> = (props) => {
+          const {params} = props ?? {};
+
+          return  putApiContentUnpublish(params,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutApiContentUnpublishMutationResult = NonNullable<Awaited<ReturnType<typeof putApiContentUnpublish>>>
+    
+    export type PutApiContentUnpublishMutationError = AxiosError<unknown>
+
+    export const usePutApiContentUnpublish = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentUnpublish>>, TError,{params?: PutApiContentUnpublishParams}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putApiContentUnpublish>>,
+        TError,
+        {params?: PutApiContentUnpublishParams},
+        TContext
+      > => {
+
+      const mutationOptions = getPutApiContentUnpublishMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

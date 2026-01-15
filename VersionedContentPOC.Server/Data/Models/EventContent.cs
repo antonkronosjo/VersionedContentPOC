@@ -1,6 +1,8 @@
-﻿using VersionedContentPOC.Attributes;
+﻿using System.ComponentModel.DataAnnotations;
+using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Data.Enums;
 
 namespace VersionedContentPOC.Server.Data.Models
 {
@@ -13,12 +15,15 @@ namespace VersionedContentPOC.Server.Data.Models
         }
 
         [ContentPropertyMetadata(editable: true)]
+        [Required]
         public required string Heading { get; set; }
 
-        [ContentPropertyMetadata(editable: true)]
+        [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
+        [Required]
         public required DateTime StartDate { get; set; }
 
-        [ContentPropertyMetadata(editable: true)]
+        [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
+        [Required]
         public required DateTime EndDate { get; set; }
     }
 }

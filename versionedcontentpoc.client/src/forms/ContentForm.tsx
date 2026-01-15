@@ -1,6 +1,6 @@
 import type { ChangeEventHandler, JSX } from "react";
-import type { ContentPropertyValueDto } from "../api/client";
-import { Button, Grid, TextField } from "@mui/material";
+import { InputType, type ContentPropertyValueDto } from "../api/client";
+import { Button, Grid, TextField, type TextFieldVariants } from "@mui/material";
 
 interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
@@ -32,12 +32,31 @@ export default function ContentForm({ properties, onChange, onSubmit, submitText
 }
 
 const resolveTemplate = (label: string, propertyValue: ContentPropertyValueDto, onChange: ChangeEventHandler<HTMLInputElement>): JSX.Element => {
-    switch (propertyValue.propertyTypeFullName) {
-        case "System.String":
-            return <TextField label={label} value={propertyValue.value?.toString() ?? ""} onChange={onChange} fullWidth />
-        case "System.DateTime":
-            return <TextField placeholder="a" type="datetime-local" label={label} value={propertyValue.value?.toString() ?? ""} onChange={onChange} fullWidth />
+    const baseProps = {
+        label: label,
+        variant: "filled",
+        value: propertyValue.value?.toString() ?? "",
+        onChange: onChange,
+        fullWidth: true
+    } as BaseProps;
+
+    switch (propertyValue.inputType) {
+        case InputType.Input:
+            return <TextField {...baseProps} />
+        case InputType.TextArea:
+            return <TextField {...baseProps} multiline rows={7} />
+        case InputType.DateTimePicker:
+            return <TextField {...baseProps} type="datetime-local" />
+        
         default:
             return <>No template defined for content type</>
     }
+}
+
+interface BaseProps {
+    label: string | undefined,
+    variant: TextFieldVariants | undefined,
+    value: string | undefined,
+    onChange: ChangeEventHandler<HTMLInputElement>,
+    fullWidth: boolean
 }
