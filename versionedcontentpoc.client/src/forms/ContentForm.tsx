@@ -37,7 +37,8 @@ const resolveTemplate = (label: string, propertyValue: ContentPropertyValueDto, 
         variant: "filled",
         value: propertyValue.value?.toString() ?? "",
         onChange: onChange,
-        fullWidth: true
+        fullWidth: true,
+        //required: propertyValue.isRequired
     } as BaseProps;
 
     switch (propertyValue.inputType) {
@@ -58,5 +59,6 @@ interface BaseProps {
     variant: TextFieldVariants | undefined,
     value: string | undefined,
     onChange: ChangeEventHandler<HTMLInputElement>,
-    fullWidth: boolean
+    fullWidth: boolean,
+    required: boolean
 }

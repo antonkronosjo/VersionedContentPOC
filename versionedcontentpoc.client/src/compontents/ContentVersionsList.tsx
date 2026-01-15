@@ -1,6 +1,6 @@
 import { Publish, Check, Folder } from "@mui/icons-material";
 import { useGetApiContentVersions, putApiContentSetasactive, Language } from "../api/client";
-import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
+import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
 
 interface ContentVersionsListProps {
     contentId: string | undefined,
@@ -20,6 +20,13 @@ export default function ContentVersionsList({ contentId, language,  onUpdate }: 
         await putApiContentSetasactive({ versionId });
         onUpdate();
     }
+
+    if (!response.data.length)
+        return (
+            <Typography sx={{ fontStyle: "italic" }}>
+                No versions exist for language {language}
+            </Typography>
+        );
 
     return (
         <List dense={true}>

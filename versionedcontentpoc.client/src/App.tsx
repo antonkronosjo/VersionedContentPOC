@@ -37,7 +37,7 @@ function App() {
                         <Typography variant="h1">VersionedContentPOC</Typography>
                     </Toolbar>
                 </AppBar>
-                <Container maxWidth={false} sx={{ flex: 1, mb: 1, mt: 1, pl: 1, pr: 1, minHeight: "100vh" }} disableGutters>
+                <Container maxWidth={false} sx={{ flex: 1, mb: 1, mt: 1, pl: 1, pr: 1 }} disableGutters>
                     <Grid container spacing={1}>
                         <Grid size={2}>
                             <SideBarMenu />

@@ -13,25 +13,21 @@ export default function UpdateContentPage() {
     const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language });
     const navigate = useNavigate();
 
-    const refetch = () => {
-        queryClient.invalidateQueries({
-            queryKey: getGetApiContentUpdateschemaQueryKey({ contentId, language: language })
-        });
-    };
-
-    
-
     if (isLoading || !response)
         return (<p>Is loading</p>);
 
     if (error)
         return (<p>Error</p>);
 
-    
     const languageTabs = Array.from(new Set([...response.data.metadata.languageTranslations!, language]));
     const showAddTranslationButton = languageTabs.length != Object.values(Language).length;
     const contentIsPublished = response.data.metadata.stopPublish === null; //Actually does not check this correctly but will work for now
-
+    const refetch = () => {
+        queryClient.invalidateQueries({
+            queryKey: getGetApiContentUpdateschemaQueryKey({ contentId, language: language })
+        });
+    };
+    
     return (    
         <Grid container spacing={1} alignItems="flex-start">
             <Grid size={12}>
@@ -48,15 +44,15 @@ export default function UpdateContentPage() {
                             <ListItemText primary="ID" secondary={contentId} />
                         </ListItem>
                         <ListItem disableGutters>
-                            <ListItemText primary="Created" secondary={response.data.metadata.created ?? "not set"} sx={{m: 0}} />
+                            <ListItemText primary="Created" secondary={response.data.metadata.created ?? "-"} sx={{m: 0}} />
                         </ListItem>
                         <ListItem disableGutters>
-                            <ListItemText primary="Published" secondary={response.data.metadata.startPublish ?? "not set"} />
+                            <ListItemText primary="Published" secondary={response.data.metadata.startPublish ?? "-"} />
                         </ListItem>
-                        
                     </List>
                     <Button
                         variant="contained"
+                        color={contentIsPublished ? "error" : "success"}
                         sx={{ position: "absolute", top: 16, right: 16 }}
                         onClick={async () => {
                             const res = contentIsPublished
@@ -116,9 +112,10 @@ export default function UpdateContentPage() {
             <Grid size={4}>
                 <Paper sx={{ p: 1 }}>
                     <Typography
-                        variant="h2"
+                        variant="h5"
+                        component="h2"
                     >
-                        Versions
+                        Version history
                     </Typography>
                     <ContentVersionsList
                         contentId={contentId}

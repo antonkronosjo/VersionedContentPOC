@@ -16,7 +16,7 @@ class Route<P extends Record<string, unknown>> {
 }
 
 export const routes = {
-    home: '/',
+    home: '/:language?',
     select: '/select',
     create: new Route<{ contentType: string; language: Language }>(
         '/create',

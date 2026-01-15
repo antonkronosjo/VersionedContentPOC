@@ -167,6 +167,7 @@ export interface UpdateContentRequestMetadata {
 
 export type GetApiContentAllParams = {
 language?: Language;
+published?: boolean;
 };
 
 export type GetApiContentAll200Item = EventContent | NewsContent;

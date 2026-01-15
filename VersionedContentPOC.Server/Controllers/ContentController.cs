@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Extensions;
 using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Controllers;
@@ -21,11 +22,13 @@ public class ContentController : ControllerBase
     [HttpGet]
     [Route("all")]
     [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
-    public ActionResult<List<Content>> GetAllContent([FromQuery] Language language)
+    public ActionResult<List<Content>> GetAllContent([FromQuery] Language language, [FromQuery] bool published)
     {
+        var utcNow = DateTime.UtcNow;
         var news = _contentRepository
             .QueryActiveVersions<Content>(language)
             .Include(x => x.ContentRoot)
+            .WhereIf(published, x => x.ContentRoot.StartPublish < utcNow)
             .OrderByDescending(x => x.ContentRoot.Created)
             .ToList();
 

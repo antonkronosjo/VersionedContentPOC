@@ -1,15 +1,16 @@
-import { useState, type JSX } from "react";
 import { Language, useGetApiContentAll, type EventContent, type GetApiContentAll200Item, type NewsContent } from ".././api/client"
-import { Link as RouterLink } from "react-router-dom";
-import { IconButton, Avatar, Typography, Grid, Card, CardContent, CardHeader, Paper, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
+import { IconButton, Avatar, Typography, Grid, Card, CardContent, CardHeader, Paper, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox } from "@mui/material";
 import { purple, red, blue } from "@mui/material/colors";
 import { Edit } from '@mui/icons-material';
 import { routes } from "../services/routeResolver";
 
 
 function HomePage() {
-    const [language, setLanguage] = useState<Language>(Language.SV);
-    const { data, isLoading, error } = useGetApiContentAll({ language: language });
+    const [searchParams] = useSearchParams();
+    const language = searchParams.get("language") as Language ?? Language.SV;
+    const published = searchParams.get("published") === "true";
+    const { data, isLoading, error } = useGetApiContentAll({ language: language, published: published });
     
     if (isLoading)
         return (<p>Is loading</p>);
@@ -23,20 +24,7 @@ function HomePage() {
                 HOME - VersionedContentPOC
             </Typography>
             <Grid container spacing={1}>
-                <FormControl fullWidth sx={{ mt: 2 }}>
-                    <InputLabel id="demo-simple-select-label">View content on language</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        label="View content on language"
-                        value={language}
-                        onChange={(e) => { setLanguage(e.target.value) }}
-                    >
-                        {Object.values(Language).map((currLang) => (
-                            <MenuItem value={currLang}>{currLang}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <ContentFilter />
                 {data?.data.map((content) => (
                     <Grid size={12} key={content.contentId}>
                         <Card variant="outlined">
@@ -77,6 +65,54 @@ function HomePage() {
 }
 
 export default HomePage;
+
+interface ContentFilterProps { }
+function ContentFilter() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const language = (searchParams.get("language") as Language) ?? Language.SV;
+    const published = searchParams.get("published") === "true";
+
+    const setQueryParam = (key: string, value: string | null) => {
+        setSearchParams(prev => {
+            const params = new URLSearchParams(prev);
+            if (value === null) params.delete(key);
+            else params.set(key, value);
+            return params;
+        });
+    };
+
+    return (
+        <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
+            {/* Language Select */}
+            <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel id="language-select-label">View content on language</InputLabel>
+                <Select
+                    labelId="language-select-label"
+                    value={language}
+                    onChange={e => setQueryParam("language", e.target.value)}
+                    label="View content on language"
+                >
+                    {Object.values(Language).map(currLang => (
+                        <MenuItem key={currLang} value={currLang}>
+                            {currLang}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+
+            {/* Published Checkbox */}
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        checked={published}
+                        onChange={e => setQueryParam("published", e.target.checked ? "true" : null)}
+                    />
+                }
+                label="Published only"
+            />
+        </div>
+    );
+};
 
 const NewsTemplate = ({ content }: { content: NewsContent }) => (
     <>

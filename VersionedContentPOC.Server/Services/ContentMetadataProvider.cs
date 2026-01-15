@@ -34,9 +34,9 @@ public static class ContentMetadataProvider
                 ContentId = content.ContentId,
                 CurrentVersionId = content.VersionId,
                 Language = content.Language,
-                Created = content.ContentRoot.Created,
-                StartPublish = content.ContentRoot.StartPublish,
-                StopPublish = content.ContentRoot.StopPublish,
+                Created = content.ContentRoot?.Created,
+                StartPublish = content.ContentRoot?.StartPublish,
+                StopPublish = content.ContentRoot?.StopPublish,
                 LanguageTranslations = contentLanguages
             },
             PropertiesSchema = GetPropertySchema(content.GetType(), content)
@@ -50,7 +50,7 @@ public static class ContentMetadataProvider
         ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
         return contentType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => IsRequired(p) || HasContentMetaData(p))
+            .Where(p => HasContentMetaData(p))
             .ToDictionary(
                 p => p.Name,
                 p => new ContentPropertyValueDto
