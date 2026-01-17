@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material';
-import { Home, PlusOne, Info } from '@mui/icons-material';
+import { Home, PlusOne } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { routes } from '../services/routeResolver';
 
