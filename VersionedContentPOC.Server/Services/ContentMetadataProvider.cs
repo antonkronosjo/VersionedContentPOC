@@ -31,7 +31,8 @@ public static class ContentMetadataProvider
         {
             Metadata = new UpdateContentRequestMetadata {
                 ContentId = content.ContentId,
-                CurrentVersionId = content.VersionId,
+                VersionId = content.VersionId,
+                ActiveVersionId = content.LanguageBranch?.ActiveVersionId,
                 Language = content.Language,
                 Created = content.ContentRoot?.Created,
                 StartPublish = content.ContentRoot?.StartPublish,
@@ -57,7 +58,7 @@ public static class ContentMetadataProvider
                     Value = content != null
                         ? p.GetValue(content)
                         : null,
-                    ReadOnly = content?.IsActiveVersion == true
+                    ReadOnly = false
                 }
             );
     }

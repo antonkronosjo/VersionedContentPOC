@@ -16,7 +16,8 @@ public class UpdateContentRequest
 public class UpdateContentRequestMetadata
 {
     public required Guid ContentId { get; set; }
-    public required Guid? CurrentVersionId { get; set; }
+    public required Guid? VersionId { get; set; }
+    public required Guid? ActiveVersionId { get; set; }
     public required Language Language { get; set; }
     public required DateTime? Created { get; set; }
     public required DateTime? StartPublish { get; set; }

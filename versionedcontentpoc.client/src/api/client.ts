@@ -156,7 +156,9 @@ export interface UpdateContentRequest {
 export interface UpdateContentRequestMetadata {
   contentId: string;
   /** @nullable */
-  currentVersionId: string | null;
+  versionId: string | null;
+  /** @nullable */
+  activeVersionId: string | null;
   language: Language;
   /** @nullable */
   created: string | null;

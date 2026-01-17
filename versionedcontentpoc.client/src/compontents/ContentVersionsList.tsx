@@ -1,13 +1,17 @@
-import { Publish, Check, Folder } from "@mui/icons-material";
+import { Publish, Check, Folder, Home } from "@mui/icons-material";
 import { useGetApiContentVersions, putApiContentSetasactive, Language } from "../api/client";
-import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
+import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { routes } from "../services/routeResolver";
+import { Link as RouterLink } from 'react-router-dom';
 
 interface ContentVersionsListProps {
     contentId: string | undefined,
     language: Language,
+    versionId: string | undefined,
     onUpdate: () => void
 }
-export default function ContentVersionsList({ contentId, language,  onUpdate }: ContentVersionsListProps) {
+export default function ContentVersionsList({ contentId, language, versionId, onUpdate }: ContentVersionsListProps) {
     const { data: response, isLoading, error } = useGetApiContentVersions({ contentId: contentId, language: language });
 
     if (isLoading)
@@ -30,6 +34,32 @@ export default function ContentVersionsList({ contentId, language,  onUpdate }: 
 
     return (
         <List dense={true}>
+            {response.data.map(contentVersion => (
+                <ListItemButton
+                    selected={contentVersion.versionId == versionId}
+                    component={RouterLink}
+                    to={routes.update.build({
+                        contentId: contentVersion.contentId,
+                        language: language,
+                        versionId: contentVersion.versionId
+                })}>
+                    <ListItemIcon>
+                        {contentVersion.languageBranch?.activeVersionId === contentVersion.versionId
+                            ? <Check color="success" />
+                            : <Home />
+                        }
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={"ID: " + contentVersion.versionId}
+                        secondary={"Created: " + contentVersion.versionCreated}
+                    />
+                </ListItemButton>
+            ))}
+        </List>
+    );
+
+    return (
+        <List dense={true}>
             {response.data.map((contentVersion) => (
                 <ListItem key={contentVersion.versionId} secondaryAction={
                     contentVersion.languageBranch?.activeVersionId === contentVersion.versionId
@@ -43,7 +73,9 @@ export default function ContentVersionsList({ contentId, language,  onUpdate }: 
                             <IconButton
                                 edge="end"
                                 aria-label="Ompublicera"
-                                onClick={() => setAsActiveVersion(contentVersion.versionId)}>
+                                onClick={() => {
+                                    
+                                }}>
                                 <Publish />
                             </IconButton>
                 }>

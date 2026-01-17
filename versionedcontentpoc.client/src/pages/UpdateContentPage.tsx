@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Language, useGetApiContentUpdateschema, putApiContentUpdate, putApiContentPublish, putApiContentUnpublish, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey } from "../api/client";
+import { Language, useGetApiContentUpdateschema, putApiContentUpdate, putApiContentPublish, putApiContentUnpublish, type UpdateContentRequest, getGetApiContentUpdateschemaQueryKey, putApiContentSetasactive } from "../api/client";
 import { useNavigate, useParams } from 'react-router-dom';
 import ContentForm from "../forms/ContentForm";
 import { Box, Button, Grid, List, ListItem, ListItemText, Menu, MenuItem, Paper, Tab, Tabs, Typography } from "@mui/material";
@@ -8,9 +8,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { routes } from "../services/routeResolver";
 
 export default function UpdateContentPage() {
-    const { contentId, language } = useParams<{ contentId: string, language: Language }>();
+    const { contentId, language, versionId } = useParams<{ contentId: string, language: Language, versionId: string | undefined }>();
+    const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language, versionId: versionId });
     const queryClient = useQueryClient();
-    const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language });
     const navigate = useNavigate();
 
     if (isLoading || !response)
@@ -21,7 +21,7 @@ export default function UpdateContentPage() {
 
     const languageTabs = Array.from(new Set([...response.data.metadata.languageTranslations!, language]));
     const showAddTranslationButton = languageTabs.length != Object.values(Language).length;
-    const contentIsPublished = response.data.metadata.stopPublish === null; //Actually does not check this correctly but will work for now
+    const contentIsPublished = response.data.metadata.startPublish !== null; //Actually does not check this correctly but will work for now
     const refetch = () => {
         queryClient.invalidateQueries({
             queryKey: getGetApiContentUpdateschemaQueryKey({ contentId, language: language })
@@ -105,7 +105,10 @@ export default function UpdateContentPage() {
                         <UpdateContentForm
                             schema={response.data}
                             onSubmit={refetch}
-                            key={response.data.metadata.currentVersionId} />
+                            versionId={versionId}
+                            activeVersionId={response.data.metadata.activeVersionId}
+                            key={response.data.metadata.activeVersionId}
+                        />
                     </Box>
                 </Paper>
             </Grid>
@@ -119,9 +122,10 @@ export default function UpdateContentPage() {
                     </Typography>
                     <ContentVersionsList
                         contentId={contentId}
-                        language={language!}
+                        versionId={response.data.metadata.versionId}
+                        language={language!}                       
                         onUpdate={refetch}
-                        key={response.data.metadata.currentVersionId} />
+                        key={response.data.metadata.activeVersionId} />
                 </Paper>
             </Grid>
             
@@ -132,14 +136,21 @@ export default function UpdateContentPage() {
 
 interface UpdateContentFormProps {
     schema: UpdateContentRequest;
-    onSubmit: () => void;
+    versionId: string | undefined,
+    activeVersionId: string | null,
+    onSubmit?: () => void;
 }
 function UpdateContentForm(props: UpdateContentFormProps) {
     const [updateRequest, setUpdateRequest] = useState(props.schema);
+    const currentlyEditingActiveVersion = props.versionId === undefined || props.versionId === props.activeVersionId; //Todo: can this be done in another way?
 
     const onSubmit = async () => {
-        await putApiContentUpdate(updateRequest);
-        props.onSubmit();
+        if (currentlyEditingActiveVersion)
+            await putApiContentUpdate(updateRequest);
+        else
+            await putApiContentSetasactive({ versionId: props.versionId });
+
+        props.onSubmit?.();
     }
 
     const onChange = (key: string, value: string) => {
@@ -155,7 +166,11 @@ function UpdateContentForm(props: UpdateContentFormProps) {
             properties={updateRequest.propertiesSchema}
             onSubmit={onSubmit}
             onChange={onChange}
-            submitText="Save"
+            disabled={!currentlyEditingActiveVersion}
+            submitText={currentlyEditingActiveVersion
+                ? "Save"
+                : "Set as active version"
+            }
         />
     );
 }
