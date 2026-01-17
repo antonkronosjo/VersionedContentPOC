@@ -33,8 +33,8 @@ export const routes = {
         '/create',
         ['contentType', 'language']
     ),
-    update: new Route<{ contentId: string; language: Language; versionId?: string }>(
-        '/update',
+    edit: new Route<{ contentId: string; language: Language; versionId?: string }>(
+        '/edit',
         ['contentId', 'language', 'versionId?']
     ),
 }

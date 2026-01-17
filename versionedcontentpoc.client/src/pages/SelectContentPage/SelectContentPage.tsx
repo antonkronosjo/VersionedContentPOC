@@ -1,8 +1,8 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material";
-import { Language, useGetApiContentTypes } from "../api/client"
+import { Language, useGetApiContentTypes } from "../../api/client"
 import { useState } from "react";
 import { Link as RouterLink } from 'react-router-dom';
-import { routes } from "../services/routeResolver";
+import { routes } from "../../services/routeResolver";
 
 function SelectContentPage() {
     const { data, isLoading, error } = useGetApiContentTypes();

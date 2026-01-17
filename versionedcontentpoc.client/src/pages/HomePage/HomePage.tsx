@@ -1,9 +1,9 @@
-import { Language, useGetApiContentAll, type EventContent, type GetApiContentAll200Item, type NewsContent } from ".././api/client"
+import { Language, useGetApiContentAll, type EventContent, type GetApiContentAll200Item, type NewsContent } from "../../api/client"
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { IconButton, Avatar, Typography, Grid, Card, CardContent, CardHeader, Paper, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox } from "@mui/material";
 import { purple, red, blue } from "@mui/material/colors";
 import { Edit } from '@mui/icons-material';
-import { routes } from "../services/routeResolver";
+import { routes } from "../../services/routeResolver";
 
 
 function HomePage() {
@@ -41,7 +41,7 @@ function HomePage() {
                                     <IconButton
                                         aria-label="edit"
                                         component={RouterLink}
-                                        to={routes.update.build({
+                                        to={routes.edit.build({
                                             contentId: content.contentId,
                                             language: content.language
                                         })}

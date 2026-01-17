@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest, type Language } from "../api/client";
+import { useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest, type Language } from "../../api/client";
 import { useParams } from 'react-router-dom';
-import ContentForm from "../forms/ContentForm";
+import ContentForm from "../../forms/ContentForm";
 import { useNavigate } from 'react-router-dom';
 import { Paper, Typography } from "@mui/material";
-import { routes } from "../services/routeResolver";
+import { routes } from "../../services/routeResolver";
 
 function CreateContentPage() {
     const { contentType, language } = useParams<{ contentType: string, language: Language }>();
@@ -43,7 +43,7 @@ function CreateContentForm(props: CreateContentFormProps) {
 
     const onSubmit = async () => {
         const response = await postApiContentCreate(createRequest);
-        navigate(routes.update.build({
+        navigate(routes.edit.build({
             contentId: response.data.contentId,
             language: response.data.language
         }));
