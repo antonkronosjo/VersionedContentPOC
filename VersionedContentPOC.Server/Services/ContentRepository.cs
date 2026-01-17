@@ -3,12 +3,14 @@ using VersionedContentPOC.Data;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
 using VersionedContentPOC.Server.Attributes;
+using VersionedContentPOC.Server.Extensions;
 
 namespace VersionedContentPOC.Server.Services;
 
 public interface IContentRepository
 {
     T? Get<T>(Guid contentId, Language language) where T : Content;
+    T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content;
     bool Exists(Guid contentId);
     ContentRoot Get(Guid contentId);
     Type GetContentRootType(Guid contentId);
@@ -33,7 +35,7 @@ public class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Returns currently active version of content for language. Returns null if entity not found
+    /// Returns currently active version of content for language. Returns null if entity not found or not active
     /// </summary>
     public T? Get<T>(Guid contentId, Language language) where T : Content 
     {
@@ -41,7 +43,16 @@ public class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Returns currently active version of content for language. Returns null if entity not found
+    /// Returns version of content for language. Returns null if not found,
+    /// </summary>
+    public T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content
+    {
+        return QueryVersions<T>(language)
+            .FirstOrDefault(x => x.ContentId == contentId && x.VersionId == versionId);
+    }
+
+    /// <summary>
+    /// Returns true if content with contentid exists
     /// </summary>
     public bool Exists(Guid contentId)
     {
@@ -53,7 +64,10 @@ public class ContentRepository : IContentRepository
     /// </summary>
     public ContentRoot Get(Guid contentId)
     {
-        return _context.ContentRoots.Include(x => x.LanguageBranches).Single();
+        return _context.ContentRoots
+            .Where(x => x.ContentId == contentId)
+            .Include(x => x.LanguageBranches)
+            .Single();
     }
 
     public void SetPublishState(Guid contentId, DateTime? startPublish, DateTime? stopPublish)
@@ -179,7 +193,7 @@ public class ContentRepository : IContentRepository
     public void SetAsActiveVersion(Guid versionId)
     {
         var content = _context.Content
-            .Where(x => x.VersionId == versionId)
+            .WhereVersion(versionId)
             .Include(x => x.LanguageBranch)
             .Single();
 
@@ -194,9 +208,18 @@ public class ContentRepository : IContentRepository
     public IQueryable<T> QueryActiveVersions<T>(Language language) where T : Content
     {
         return _context.Content.OfType<T>()
-            .Where(x => x.Language == language)
+            .WhereLanguage(language)
+            .WhereActive();
+    }
+
+    /// <summary>
+    /// Returns a base query used when querying all versions of content
+    /// </summary>
+    public IQueryable<T> QueryVersions<T>(Language language) where T : Content
+    {
+        return _context.Content.OfType<T>()
             .Include(x => x.LanguageBranch)
-            .Where(x => x.LanguageBranch.ActiveVersionId == x.VersionId);
+            .WhereLanguage(language);
     }
 
     /// <summary>

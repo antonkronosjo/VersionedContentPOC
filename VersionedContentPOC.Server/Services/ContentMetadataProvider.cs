@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
@@ -40,8 +39,6 @@ public static class ContentMetadataProvider
                 LanguageTranslations = contentLanguages
             },
             PropertiesSchema = GetPropertySchema(content.GetType(), content)
-                .Where(x => x.Value.IsRequired == false)
-                .ToDictionary()
         };
     }
 
@@ -59,7 +56,8 @@ public static class ContentMetadataProvider
                     IsRequired = IsRequired(p),
                     Value = content != null
                         ? p.GetValue(content)
-                        : null
+                        : null,
+                    ReadOnly = content?.IsActiveVersion == true
                 }
             );
     }
@@ -83,4 +81,5 @@ public class ContentPropertyValueDto
     public InputType InputType { get; set; }
     public bool IsRequired { get; set; }
     public object? Value { get; set; }
+    public bool ReadOnly { get; set; }
 }

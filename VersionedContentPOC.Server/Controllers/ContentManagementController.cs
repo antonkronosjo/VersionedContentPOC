@@ -77,12 +77,15 @@ public class ContentManagementController : ControllerBase
     [Route("updateschema")]
     [ProducesResponseType(typeof(UpdateContentRequest), StatusCodes.Status200OK)]
     [ShouldBeRefactored("Logic regarding initializing translation vs updating in same language branch should no be inside controller")]
-    public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] Guid contentId, [FromQuery] Language language)
+    public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] Guid contentId, [FromQuery] Language language, [FromQuery] Guid? versionId = null)
     {
         var contentLanguages = _contentRepository.GetTranslatedLanguages(contentId);
         if (contentLanguages.Contains(language))
         {
-            var content = _contentRepository.Get<Content>(contentId, language);
+            var content = versionId == null
+                ? _contentRepository.Get<Content>(contentId, language)
+                : _contentRepository.GetVersion<Content>(contentId, versionId.Value, language);
+
             if (content == null)
                 return NotFound();
 

@@ -36,4 +36,9 @@ public abstract class Content
     public Language Language { get; set; }
     public virtual LanguageBranch LanguageBranch { get; set; }
     public DateTime VersionCreated { get; set; }
+
+    /// <summary>
+    /// True/false if active/not active version. null if unknown (because LanguageBranch not included)
+    /// </summary>
+    public bool? IsActiveVersion => LanguageBranch?.ActiveVersionId == VersionId;
 }
