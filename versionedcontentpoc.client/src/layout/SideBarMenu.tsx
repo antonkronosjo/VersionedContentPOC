@@ -15,7 +15,7 @@ export default function SidebarMenu() {
                         </ListItemIcon>
                         <ListItemText primary="Home" />
                     </ListItemButton>
-                    <ListItemButton component={RouterLink} to={routes.select}>
+                    <ListItemButton component={RouterLink} to={routes.create}>
                         <ListItemIcon>
                             <PlusOne />
                         </ListItemIcon>

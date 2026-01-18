@@ -62,8 +62,7 @@ function AppRoutes() {
     return (
         <Routes>
             <Route path={routes.home} element={<HomePage />} />
-            <Route path={routes.select} element={<SelectContentPage />} />
-            <Route path={routes.create.pattern()} element={<CreateContentPage />} />
+            <Route path={routes.create} element={<CreateContentPage />} />
             <Route path={routes.edit.pattern()} element={<EditContentPage />} />
         </Routes>
     );
