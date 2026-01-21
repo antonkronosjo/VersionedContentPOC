@@ -25,14 +25,9 @@ class Route<P extends Record<string, unknown>> {
     }
 }
 
-
 export const routes = {
     home: '/',
-    cmshome: '/cms',
-    create: new Route<{ contentType: string; language: Language }>(
-        '/cms/create',
-        ['contentType', 'language']
-    ),
+    create: '/create',
     edit: new Route<{ contentId: string; language: Language; versionId?: string }>(
         '/cms/edit',
         ['contentId', 'language', 'versionId?']
