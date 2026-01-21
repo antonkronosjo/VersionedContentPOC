@@ -1,17 +1,16 @@
-import { Language, useGetApiContentAll, type EventContent, type GetApiContentAll200Item, type NewsContent } from "../../api/client"
+import { Language, useGetApiContentsummaryContentroots, type ContentRootSummary } from "../../api/client"
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
-import { IconButton, Avatar, Typography, Grid, Card, CardContent, CardHeader, Paper, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox } from "@mui/material";
-import { purple, red, blue } from "@mui/material/colors";
+import { IconButton, Typography, Grid, Paper, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Link } from "@mui/material";
 import { Edit } from '@mui/icons-material';
 import { routes } from "../../services/routeResolver";
-import type { JSX } from "react";
+import { format } from "date-fns";
 
 
 export default function CMSHomePage() {
     const [searchParams] = useSearchParams();
-    const language = searchParams.get("language") as Language ?? Language.SV;
+    const contentType = searchParams.get("contentType") as string | undefined;
     const published = searchParams.get("published") === "true";
-    const { data, isLoading, error } = useGetApiContentAll({ language: language, published: published });
+    const { data, isLoading, error } = useGetApiContentsummaryContentroots({ ContentType: contentType, Published: published });
     
     if (isLoading)
         return (<p>Is loading</p>);
@@ -20,48 +19,21 @@ export default function CMSHomePage() {
         return (<p>Error</p>);
 
     return (
-        <Paper sx={{ p: 1, width: '75%' }} >
-            <Typography variant="h1" gutterBottom>
-                HOME - VersionedContentPOC
-            </Typography>
-            <Grid container spacing={1}>
-                <ContentFilter />
-                {data?.data.map((content) => (
-                    <Grid size={12} key={content.contentId}>
-                        <Card variant="outlined">
-                            <CardHeader
-                                avatar={
-                                    <Avatar
-                                        sx={{ bgcolor: getContentTypeColor(content.contentType) }}
-                                        aria-label={content.contentType}
-                                    >
-                                        {content.contentType.substring(0, 1)}
-                                    </Avatar>
-                                }
-                                action={
-                                    <IconButton
-                                        aria-label="edit"
-                                        component={RouterLink}
-                                        to={routes.edit.build({
-                                            contentId: content.contentId,
-                                            language: content.language
-                                        })}
-                                    >
-
-                                        {<Edit fontSize="small" />}
-                                    </IconButton>
-                                }
-                                title={content.contentType}
-                                subheader={"Created:" + content.contentRoot?.created}
-                            />
-                            <CardContent>
-                                {resolveTemplate(content)}
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
+        <Grid container>
+            <Grid size={9}>
+                <Paper sx={{ p: 1 }} >
+                    <Typography variant="h4" component="h1" gutterBottom>
+                        Manage content
+                    </Typography>
+                    <ContentFilter />
+                    {data?.data?.length 
+                        ? <ContentRootTable contentRoots={data?.data} />
+                        : <i>No content exists...</i>
+                    }
+                </Paper>
             </Grid>
-        </Paper>
+        </Grid>
+
     );
 }
 
@@ -111,39 +83,77 @@ function ContentFilter() {
         </div>
     );
 };
-
-const NewsTemplate = ({ content }: { content: NewsContent }) => (
-    <>
-        <Typography variant="h2">{content.heading}</Typography>
-        <Typography>{content.lead}</Typography>
-        <Typography>{content.text}</Typography>
-    </>
-);
-
-const EventTemplate = ({ content }: { content: EventContent }) => (
-    <>
-        <Typography variant="h2">{content.heading}</Typography>
-        <Typography><strong>Start:</strong> {content.startDate}</Typography>
-        <Typography><strong>End:</strong> {content.endDate}</Typography>
-    </>
-);
-
-const resolveTemplate = (content: GetApiContentAll200Item): JSX.Element =>  {
-    switch (content.contentType) {
-        case "EventContent":
-            return <EventTemplate content={content} />;
-        case "NewsContent":
-            return <NewsTemplate content={content} />;
-    }
+interface ContentRootTableProps {
+    contentRoots: ContentRootSummary[]
+}
+function ContentRootTable({ contentRoots }: ContentRootTableProps) {
+    return (
+        <TableContainer>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Content Id</TableCell>
+                        <TableCell>Content type</TableCell>
+                        <TableCell>Languages</TableCell>
+                        <TableCell>Start publish</TableCell>
+                        <TableCell>Stop publish</TableCell>
+                        <TableCell>Last updated</TableCell>
+                        <TableCell></TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {contentRoots.map((contentRoot) => (
+                        <ContentRootTableRow contentRoot={contentRoot} />
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
+    );
+}
+interface ContentRootTableRowProps {
+    contentRoot: ContentRootSummary;
+}
+function ContentRootTableRow({ contentRoot }: ContentRootTableRowProps) {
+    return (
+        <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+            <TableCell component="th" scope="row">
+                {contentRoot.contentId}
+            </TableCell>
+            <TableCell align="left">{contentRoot.contentTypeName}</TableCell>
+            <TableCell align="left">
+                {contentRoot.languageVersions?.length &&
+                    contentRoot.languageVersions.map((lang, index) => (
+                        <span key={lang}>
+                            {index > 0 && ", "}
+                            <Link component={RouterLink} to={routes.edit.build({ contentId: contentRoot.contentId, language: lang })}>
+                                {lang}
+                            </Link>
+                        </span>
+                    ))
+                }
+            </TableCell>
+            <TableCell align="left">{formatDateString(contentRoot.startPublish, "yyyy-MM-dd HH:mm")}</TableCell>
+            <TableCell align="left">{formatDateString(contentRoot.stopPublish, "yyyy-MM-dd HH:mm")}</TableCell>
+            <TableCell align="left">{formatDateString(contentRoot.stopPublish, "yyyy-MM-dd HH:mm")}</TableCell>
+            <TableCell align="left">
+                <IconButton
+                    aria-label="edit"
+                    component={RouterLink}
+                    to={routes.edit.build({
+                        contentId: contentRoot.contentId,
+                        language: Language.SV //Todo: This should not be a mandatory param
+                    })}
+                >
+                    {<Edit fontSize="small" />}
+                </IconButton>
+            </TableCell>
+        </TableRow>
+    );
 }
 
-const getContentTypeColor = (contentType:string):string => {
-    switch (contentType) {
-        case "EventContent":
-            return red[500];
-        case "NewsContent":
-            return purple[500];
-        default:
-            return blue[500];
-    }
+const formatDateString = (dateString: string | null | undefined, dateFormat: string):string => {
+    if (!dateString)
+        return "-";
+
+    return format(new Date(dateString), dateFormat);
 }

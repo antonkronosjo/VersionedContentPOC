@@ -9,6 +9,7 @@ export default {
             override: {
                 useUnionTypes: true,
             },
+            dateType: 'date'
         },
     },
 };

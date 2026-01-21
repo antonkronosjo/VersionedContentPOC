@@ -17,20 +17,25 @@ function HomePage() {
         return (<p>Error</p>);
 
     return (
-        <Grid size={9}>
-            <Paper sx={{ p: 1, width: '75%' }} >
-                <Typography variant="h1" gutterBottom>
-                    HOME - VersionedContentPOC
-                </Typography>
-                <Grid container spacing={1}>
-                    <ContentFilter />
-                    {data?.data.map((content) => (
-                        <Grid size={12} key={content.contentId}>
-                            <ContentCard content={content} />
+        <Grid container>
+            <Grid size={9}>
+                <Paper sx={{ p: 1 }} >
+                    <Typography variant="h1" gutterBottom>
+                        HOME - VersionedContentPOC
+                    </Typography>
+                    <Grid container spacing={1}>
+                        <Grid size={12}>
+                            <ContentFilter />
                         </Grid>
-                    ))}
-                </Grid>
-            </Paper>
+                        {data?.data.map((content) => (
+                            <Grid size={12} key={content.contentId}>
+                                <ContentCard content={content} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Paper>
+            </Grid>
+
         </Grid>
     );
 }

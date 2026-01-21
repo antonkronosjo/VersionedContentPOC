@@ -1,6 +1,6 @@
-import { Publish, Check, Folder, Home } from "@mui/icons-material";
+import { Check, Home } from "@mui/icons-material";
 import { useGetApiContentVersions, Language } from "../api/client";
-import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { routes } from "../services/routeResolver";
 import { Link as RouterLink } from 'react-router-dom';
 
