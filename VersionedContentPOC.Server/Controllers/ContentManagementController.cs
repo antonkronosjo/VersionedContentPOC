@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
 using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Requests;
+using VersionedContentPOC.Server.Controllers.Requests;
 using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Controllers;

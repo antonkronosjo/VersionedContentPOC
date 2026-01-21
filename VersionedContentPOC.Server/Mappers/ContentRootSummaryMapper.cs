@@ -1,0 +1,43 @@
+﻿using VersionedContentPOC.Data.Enums;
+using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Attributes;
+using VersionedContentPOC.Server.Services;
+
+namespace VersionedContentPOC.Server.Mappers
+{
+    public static class ContentRootSummaryMapper
+    {
+        [ShouldBeRefactored("ContentTypeName should be stored in the database somehow. Don't know how")]
+        public static IEnumerable<ContentRootSummary> ToSummary(this IEnumerable<ContentRoot> contentRoots, IContentRepository contentRepository)
+        {
+            return contentRoots.Select(x => new ContentRootSummary()
+            {
+                ContentId = x.ContentId,
+                ContentTypeName = contentRepository
+                    .GetContentRootType(x.ContentId)
+                    .Name,
+                StartPublish = x.StartPublish,
+                StopPublish = x.StopPublish,
+                LanguageVersions = x
+                    .LanguageBranches
+                    .Select(x => x.Language)
+                    .ToList(),
+                LastUpdated = x.LanguageBranches
+                    .SelectMany(x => x.Versions)
+                    .OrderByDescending(x => x.VersionCreated)
+                    .FirstOrDefault()
+                    ?.VersionCreated
+            });
+        }
+    }
+
+    public class ContentRootSummary
+    {
+        public required Guid ContentId { get; set; }
+        public required string ContentTypeName { get; set; }
+        public required DateTime? StartPublish {  get; set; }
+        public required DateTime? StopPublish { get; set; }
+        public required List<Language> LanguageVersions { get; set; }
+        public required DateTime? LastUpdated { get; set; }
+    }
+}

@@ -2,13 +2,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css'
 import HomePage from './pages/HomePage/HomePage';
 import CreateContentPage from './pages/CreateContentPage/CreateContentPage';
-import SelectContentPage from './pages/SelectContentPage/SelectContentPage';
 import EditContentPage from './pages/EditContentPage/EditContentPage';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AppBar, Box, Container, Grid, Toolbar, Typography } from '@mui/material';
 import SideBarMenu from './layout/SideBarMenu';
 import { routes } from './services/routeResolver';
+import CMSHomePage from './pages/CMSHomePage/CMSHomePage';
 
 const appTheme = createTheme({
     palette: {
@@ -62,7 +62,7 @@ function AppRoutes() {
     return (
         <Routes>
             <Route path={routes.home} element={<HomePage />} />
-            <Route path={routes.select} element={<SelectContentPage />} />
+            <Route path={routes.cmshome} element={<CMSHomePage /> } />
             <Route path={routes.create.pattern()} element={<CreateContentPage />} />
             <Route path={routes.edit.pattern()} element={<EditContentPage />} />
         </Routes>

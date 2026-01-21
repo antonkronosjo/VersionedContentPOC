@@ -20,7 +20,8 @@ public interface IContentRepository
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
     void Delete(Guid contentId);
     IQueryable<T> QueryActiveVersions<T>(Language languageBranch) where T : Content;
-    IEnumerable<T> Versions<T>(Guid contentId, Language language) where T : Content;
+    IQueryable<T> Versions<T>(Guid contentId, Language language) where T : Content;
+    IQueryable<ContentRoot> QueryRoots();
     void SetAsActiveVersion(Guid versionId);
     List<Language> GetTranslatedLanguages(Guid contentId);
 }
@@ -182,7 +183,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Returns all versions of given content
     /// </summary>
-    public IEnumerable<T> Versions<T>(Guid contentId, Language language) where T : Content
+    public IQueryable<T> Versions<T>(Guid contentId, Language language) where T : Content
     {
         return _context.Content.OfType<T>()
             .Where(x => x.ContentId == contentId && x.Language == language)
@@ -220,6 +221,14 @@ public class ContentRepository : IContentRepository
         return _context.Content.OfType<T>()
             .Include(x => x.LanguageBranch)
             .WhereLanguage(language);
+    }
+
+    /// <summary>
+    /// Returns a base query used when querying content roots
+    /// </summary>
+    public IQueryable<ContentRoot> QueryRoots() 
+    {
+        return _context.ContentRoots;
     }
 
     /// <summary>

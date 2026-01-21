@@ -2,7 +2,7 @@
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Server.Services;
 
-namespace VersionedContentPOC.Server.Requests;
+namespace VersionedContentPOC.Server.Controllers.Requests;
 
 public class CreateContentRequest
 {
