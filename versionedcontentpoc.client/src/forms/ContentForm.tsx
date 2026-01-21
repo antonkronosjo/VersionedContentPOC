@@ -1,6 +1,6 @@
 import type { ChangeEventHandler, JSX } from "react";
 import { InputType, type ContentPropertyValueDto } from "../api/client";
-import { Button, Grid, TextField, type TextFieldProps, type TextFieldVariants } from "@mui/material";
+import { Button, Grid, TextField, type TextFieldProps } from "@mui/material";
 
 interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
@@ -40,12 +40,7 @@ const resolveTemplate = (label: string, propertyValue: ContentPropertyValueDto, 
         value: propertyValue.value?.toString() ?? "",
         onChange: onChange,
         fullWidth: true,
-        disabled: propertyValue.readOnly || formDisabled,
-        //slotProps: {
-        //    input: {
-        //        readOnly: propertyValue.readOnly
-        //    }
-        //}
+        disabled: propertyValue.readOnly || formDisabled
     } as TextFieldProps;
 
     switch (propertyValue.inputType) {

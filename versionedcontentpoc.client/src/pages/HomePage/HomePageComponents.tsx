@@ -1,10 +1,11 @@
 import { Language, type EventContent, type GetApiContentAll200Item, type NewsContent } from "../../api/client"
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
-import { IconButton, Avatar, Typography, Card, CardContent, CardHeader, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox } from "@mui/material";
+import { IconButton, Avatar, Typography, Card, CardContent, CardHeader, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Grid } from "@mui/material";
 import { purple, red, blue } from "@mui/material/colors";
 import { Edit } from '@mui/icons-material';
 import { routes } from "../../services/routeResolver";
 import type { JSX } from "react";
+import LanguageSelector from "../../formElements/LanguageSelector";
 
 interface ContentCardProps {
     content: GetApiContentAll200Item
@@ -59,32 +60,22 @@ export function ContentFilter() {
     };
 
     return (
-        <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
-            <FormControl sx={{ minWidth: 200 }}>
-                <InputLabel id="language-select-label">View content on language</InputLabel>
-                <Select
-                    labelId="language-select-label"
-                    value={language}
-                    onChange={e => setQueryParam("language", e.target.value)}
-                    label="View content on language"
-                >
-                    {Object.values(Language).map(currLang => (
-                        <MenuItem key={currLang} value={currLang}>
-                            {currLang}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={published}
-                        onChange={e => setQueryParam("published", e.target.checked ? "true" : null)}
-                    />
-                }
-                label="Published only"
-            />
-        </div>
+        <Grid container spacing={2}>
+            <Grid size={6}>
+                <LanguageSelector value={language} onChange={e => setQueryParam("language", e.target.value)} />
+            </Grid>
+            <Grid size={6}>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={published}
+                            onChange={e => setQueryParam("published", e.target.checked ? "true" : null)}
+                        />
+                    }
+                    label="Published"
+                />
+            </Grid>
+        </Grid>
     );
 };
 

@@ -32,24 +32,30 @@ function App() {
         <ThemeProvider theme={appTheme}>
             <CssBaseline />
             <Router>
-                <AppBar position="static" >
-                    <Toolbar>
-                        <Typography variant="h1">VersionedContentPOC</Typography>
-                    </Toolbar>
-                </AppBar>
-                <Container maxWidth={false} sx={{ flex: 1, mb: 1, mt: 1, pl: 1, pr: 1 }} disableGutters>
-                    <Grid container spacing={1}>
-                        <Grid size={2}>
-                            <SideBarMenu />
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: "100vh", // full viewport height
+                }}>
+                    <AppBar position="static" >
+                        <Toolbar>
+                            <Typography variant="h1">VersionedContentPOC</Typography>
+                        </Toolbar>
+                    </AppBar>
+                    <Container maxWidth={false} sx={{ flex: 1, mb: 1, mt: 1, pl: 1, pr: 1 }} disableGutters>
+                        <Grid container spacing={1}>
+                            <Grid size={2}>
+                                <SideBarMenu />
+                            </Grid>
+                            <Grid size={10}>
+                                <AppRoutes />
+                            </Grid>
                         </Grid>
-                        <Grid size={10}>
-                            <AppRoutes />
-                        </Grid>
-                    </Grid>
-                </Container>
-                {/* Footer */}
-                <Box component="footer" sx={{ py: 2, textAlign: 'center', bgcolor: 'grey.900' }}>
-                    <Typography variant="body2">VersionedContentPOC</Typography>
+                    </Container>
+                    {/* Footer */}
+                    <Box component="footer" sx={{ py: 2, textAlign: 'center', bgcolor: 'grey.900' }}>
+                        <Typography variant="body2">VersionedContentPOC</Typography>
+                    </Box>
                 </Box>
             </Router>
         </ThemeProvider>

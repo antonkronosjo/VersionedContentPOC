@@ -75,6 +75,8 @@ export interface ContentRootSummary {
   /** @nullable */
   languageVersions: Language[] | null;
   /** @nullable */
+  created: string | null;
+  /** @nullable */
   lastUpdated: string | null;
 }
 
@@ -233,6 +235,7 @@ contentId?: string;
 export type GetApiContentsummaryContentrootsParams = {
 ContentType?: string;
 Published?: boolean;
+Language?: Language;
 };
 
 export const getApiContentAll = (

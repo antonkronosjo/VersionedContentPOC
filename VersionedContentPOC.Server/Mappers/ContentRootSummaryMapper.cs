@@ -16,6 +16,7 @@ namespace VersionedContentPOC.Server.Mappers
                 ContentTypeName = contentRepository
                     .GetContentRootType(x.ContentId)
                     .Name,
+                Created = x.Created,
                 StartPublish = x.StartPublish,
                 StopPublish = x.StopPublish,
                 LanguageVersions = x
@@ -38,6 +39,7 @@ namespace VersionedContentPOC.Server.Mappers
         public required DateTime? StartPublish {  get; set; }
         public required DateTime? StopPublish { get; set; }
         public required List<Language> LanguageVersions { get; set; }
+        public required DateTime? Created { get; set; }
         public required DateTime? LastUpdated { get; set; }
     }
 }

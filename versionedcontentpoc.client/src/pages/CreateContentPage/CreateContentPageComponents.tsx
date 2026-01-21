@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Language, useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest } from "../../api/client";
-import { data, useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import ContentForm from "../../forms/ContentForm";
 import { useNavigate } from 'react-router-dom';
-import { FormControl, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material";
 import { routes } from "../../services/routeResolver";
+import LanguageSelector from "../../formElements/LanguageSelector";
+import ContentTypeSelector from "../../formElements/ContentTypeSelector";
+import { Grid } from "@mui/material";
 
 interface ContentTypeSelectProps {
     contentTypes: string[]
@@ -24,38 +26,14 @@ export function ContentTypeSelect({ contentTypes }: ContentTypeSelectProps) {
     };
 
     return (
-        <>
-            <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label1">Content type</InputLabel>
-                <Select
-                    labelId="demo-simple-select-label1"
-                    id="demo-simple-select1"
-                    label="Select content type"
-                    value={contentType}
-                    variant="filled"
-                    onChange={(e) => { setQueryParam("contentType", e.target.value) }}
-                >
-                    {contentTypes.map((contentType) => (
-                        <MenuItem value={contentType}>{contentType}</MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-            <FormControl fullWidth sx={{ mt: 2 }} >
-                <InputLabel id="demo-simple-select-label">Language</InputLabel>
-                <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Language"
-                    value={language}
-                    variant="filled"
-                    onChange={(e) => { setQueryParam("language", e.target.value) }}
-                >
-                    {Object.values(Language).map((currLang) => (
-                        <MenuItem value={currLang}>{currLang}</MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-        </>
+        <Grid container spacing={2}>
+            <Grid size={12}>
+                <ContentTypeSelector value={contentType} contentTypes={contentTypes} onChange={(e) => { setQueryParam("contentType", e.target.value) }} />
+            </Grid>
+            <Grid size={12}>
+                <LanguageSelector value={language} onChange={(e) => { setQueryParam("language", e.target.value) }} />
+            </Grid>
+        </Grid>
     );
 }
 

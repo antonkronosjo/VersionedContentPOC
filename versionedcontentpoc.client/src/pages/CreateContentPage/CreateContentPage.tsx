@@ -1,10 +1,6 @@
-import { useState } from "react";
-import { Language, useGetApiContentCreationschema, postApiContentCreate, type CreateContentRequest, useGetApiContentTypes } from "../../api/client";
-import { useParams, useSearchParams } from 'react-router-dom';
-import ContentForm from "../../forms/ContentForm";
-import { useNavigate } from 'react-router-dom';
+import { Language, useGetApiContentTypes } from "../../api/client";
+import { useSearchParams } from 'react-router-dom';
 import { Grid, Paper, Typography } from "@mui/material";
-import { routes } from "../../services/routeResolver";
 import { ContentTypeSelect, CreateContentForm } from "./CreateContentPageComponents";
 
 export default function CreateContentPage() {
@@ -26,9 +22,7 @@ export default function CreateContentPage() {
                     <Typography variant="h1" gutterBottom>
                         Select content type and language
                     </Typography>
-                    <ContentTypeSelect
-                        contentTypes={response.data}
-                    />
+                    <ContentTypeSelect contentTypes={response.data} />
                 </Paper>
             </Grid>
             {contentType && language &&
