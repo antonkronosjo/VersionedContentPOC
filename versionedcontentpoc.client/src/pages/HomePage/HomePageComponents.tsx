@@ -1,16 +1,14 @@
-import { Language, type EventContent, type GetApiContentAll200Item, type NewsContent } from "../../api/client"
+import { Language, useGetApiContentTypes } from "../../api/client"
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
-import { IconButton, Avatar, Typography, Card, CardContent, CardHeader, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Grid } from "@mui/material";
-import { purple, red, blue } from "@mui/material/colors";
-import { Edit } from '@mui/icons-material';
-import { routes } from "../../services/routeResolver";
-import type { JSX } from "react";
+import { Grid } from "@mui/material";
 import LanguageSelector from "../../formElements/LanguageSelector";
-import { formatDateString } from "../CMSHomePage/CmsHomePageComponents";
+import ContentTypeSelector from "../../formElements/ContentTypeSelector";
 
 export function ContentFilter() {
     const [searchParams, setSearchParams] = useSearchParams();
     const language = (searchParams.get("language") as Language) ?? Language.SV;
+    // const contentType = searchParams.get("contentType");
+    // const { data: response, isLoading, error } = useGetApiContentTypes();
 
     const setQueryParam = (key: string, value: string | null) => {
         setSearchParams(prev => {
@@ -26,6 +24,9 @@ export function ContentFilter() {
             <Grid size={6}>
                 <LanguageSelector value={language} onChange={e => setQueryParam("language", e.target.value)} />
             </Grid>
+            {/* <Grid size={6}>
+                <ContentTypeSelector value={language} contentTypes={response?.data ?? []} onChange={e => setQueryParam("contentType", e.target.value)} />
+            </Grid> */}
         </Grid>
     );
 };

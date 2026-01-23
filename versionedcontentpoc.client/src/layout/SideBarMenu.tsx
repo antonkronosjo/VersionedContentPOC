@@ -14,7 +14,7 @@ export default function SidebarMenu() {
             <Box component="nav">
                 <List disablePadding>
                     {menuItems.map((menuItem) => (
-                        <ListItemButton component={RouterLink} to={menuItem.url}>
+                        <ListItemButton component={RouterLink} to={menuItem.url} selected={location.pathname === menuItem.url}>
                             <ListItemIcon>
                                 {menuItem.icon}
                             </ListItemIcon>
