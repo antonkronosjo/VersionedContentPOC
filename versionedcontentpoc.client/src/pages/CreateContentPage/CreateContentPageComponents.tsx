@@ -27,10 +27,10 @@ export function ContentTypeSelect({ contentTypes }: ContentTypeSelectProps) {
 
     return (
         <Grid container spacing={2}>
-            <Grid size={12}>
+            <Grid size={6}>
                 <ContentTypeSelector value={contentType} contentTypes={contentTypes} onChange={(e) => { setQueryParam("contentType", e.target.value) }} />
             </Grid>
-            <Grid size={12}>
+            <Grid size={6}>
                 <LanguageSelector value={language} onChange={(e) => { setQueryParam("language", e.target.value) }} />
             </Grid>
         </Grid>
