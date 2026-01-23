@@ -25,5 +25,9 @@ namespace VersionedContentPOC.Server.Data.Models
         [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
         [Required]
         public required DateTime EndDate { get; set; }
+
+        [ContentPropertyMetadata(editable: true, inputType: InputType.TextArea)]
+        [Required]
+        public required string Description { get; set; }
     }
 }
