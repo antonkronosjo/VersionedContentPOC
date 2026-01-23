@@ -106,7 +106,7 @@ function ContentRootTableRow({ contentRoot }: ContentRootTableRowProps) {
     );
 }
 
-const formatDateString = (dateString: string | null | undefined, dateFormat: string): string => {
+export const formatDateString = (dateString: string | null | undefined, dateFormat: string): string => {
     if (!dateString)
         return "-";
 

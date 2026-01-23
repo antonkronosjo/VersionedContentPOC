@@ -7,8 +7,7 @@ import { ContentCard, ContentFilter } from "./HomePageComponents";
 function HomePage() {
     const [searchParams] = useSearchParams();
     const language = searchParams.get("language") as Language ?? Language.SV;
-    const published = searchParams.get("published") === "true";
-    const { data, isLoading, error } = useGetApiContentAll({ language: language, published: published });
+    const { data, isLoading, error } = useGetApiContentAll({ language: language, published: true });
     
     if (isLoading)
         return (<p>Is loading</p>);
@@ -18,7 +17,7 @@ function HomePage() {
 
     return (
         <Grid container>
-            <Grid size={9}>
+            <Grid size={6}>
                 <Paper sx={{ p: 1 }} >
                     <Typography variant="h1" gutterBottom>
                         HOME - VersionedContentPOC

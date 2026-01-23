@@ -6,6 +6,7 @@ import { Edit } from '@mui/icons-material';
 import { routes } from "../../services/routeResolver";
 import type { JSX } from "react";
 import LanguageSelector from "../../formElements/LanguageSelector";
+import { formatDateString } from "../CMSHomePage/CmsHomePageComponents";
 
 interface ContentCardProps {
     content: GetApiContentAll200Item
@@ -22,21 +23,21 @@ export function ContentCard({ content }: ContentCardProps) {
                         {content.contentType.substring(0, 1)}
                     </Avatar>
                 }
-                action={
-                    <IconButton
-                        aria-label="edit"
-                        component={RouterLink}
-                        to={routes.edit.build({
-                            contentId: content.contentId,
-                            language: content.language
-                        })}
-                    >
+                // action={
+                //     <IconButton
+                //         aria-label="edit"
+                //         component={RouterLink}
+                //         to={routes.edit.build({
+                //             contentId: content.contentId,
+                //             language: content.language
+                //         })}
+                //     >
 
-                        {<Edit fontSize="small" />}
-                    </IconButton>
-                }
+                //         {<Edit fontSize="small" />}
+                //     </IconButton>
+                // }
                 title={content.contentType}
-                subheader={"Created:" + content.contentRoot?.created}
+                subheader={"Created: " + formatDateString(content.contentRoot?.created, "yyyy-MM-dd HH:mm")}
             />
             <CardContent>
                 {resolveTemplate(content)}
@@ -48,7 +49,6 @@ export function ContentCard({ content }: ContentCardProps) {
 export function ContentFilter() {
     const [searchParams, setSearchParams] = useSearchParams();
     const language = (searchParams.get("language") as Language) ?? Language.SV;
-    const published = searchParams.get("published") === "true";
 
     const setQueryParam = (key: string, value: string | null) => {
         setSearchParams(prev => {
@@ -64,17 +64,6 @@ export function ContentFilter() {
             <Grid size={6}>
                 <LanguageSelector value={language} onChange={e => setQueryParam("language", e.target.value)} />
             </Grid>
-            <Grid size={6}>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={published}
-                            onChange={e => setQueryParam("published", e.target.checked ? "true" : null)}
-                        />
-                    }
-                    label="Published"
-                />
-            </Grid>
         </Grid>
     );
 };
@@ -83,15 +72,14 @@ const NewsTemplate = ({ content }: { content: NewsContent }) => (
     <>
         <Typography variant="h2">{content.heading}</Typography>
         <Typography>{content.lead}</Typography>
-        <Typography>{content.text}</Typography>
     </>
 );
 
 const EventTemplate = ({ content }: { content: EventContent }) => (
     <>
         <Typography variant="h2">{content.heading}</Typography>
-        <Typography><strong>Start:</strong> {content.startDate}</Typography>
-        <Typography><strong>End:</strong> {content.endDate}</Typography>
+        <Typography><strong>Start:</strong> {formatDateString(content.startDate, "yyyy-MM-dd HH:mm")}</Typography>
+        <Typography><strong>End:</strong> {formatDateString(content.endDate, "yyyy-MM-dd HH:mm")}</Typography>
     </>
 );
 
