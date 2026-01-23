@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /VersionedContentPOC.Server/app.db
 /VersionedContentPOC.Server/app.db-shm
 /VersionedContentPOC.Server/app.db-wal
+versionedcontentpoc.client/obj/Debug//package.g.props
