@@ -1,7 +1,8 @@
 import { Language, useGetApiContentAll } from "../../api/client"
 import { useSearchParams } from "react-router-dom";
 import { Typography, Grid, Paper } from "@mui/material";
-import { ContentCard, ContentFilter } from "./HomePageComponents";
+import { ContentFilter } from "./HomePageComponents";
+import { ContentCard } from "../../compontents/ContentCard";
 
 
 function HomePage() {
