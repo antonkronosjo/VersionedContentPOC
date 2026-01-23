@@ -4,7 +4,8 @@ import { Box, Button, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography 
 import ContentForm from "../../forms/ContentForm";
 import LanguageSelectButton from "../../compontents/LanguageSelectButton";
 import { useNavigate } from "react-router-dom";
-import { routes } from "../../services/routeResolver";
+import { routes } from "../../utils/routeResolver";
+import { relativeDateTime } from "../../utils/dateUtils";
 
 interface EditContentPageHeaderProps {
     metadata: UpdateContentRequestMetadata;
@@ -40,10 +41,10 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
                         <ListItemText primary="ID" secondary={metadata.contentId} />
                     </ListItem>
                     <ListItem disableGutters>
-                        <ListItemText primary="Created" secondary={metadata.created ?? "-"} sx={{ m: 0 }} />
+                        <ListItemText primary="Created" secondary={relativeDateTime(metadata.created)} sx={{ m: 0 }} />
                     </ListItem>
                     <ListItem disableGutters>
-                        <ListItemText primary="Published" secondary={metadata.startPublish ?? "-"} />
+                        <ListItemText primary="Published" secondary={relativeDateTime(metadata.startPublish)} />
                     </ListItem>
                 </List>
             </Grid>

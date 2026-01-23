@@ -1,8 +1,9 @@
 import { Check, Home } from "@mui/icons-material";
 import { useGetApiContentVersions, Language } from "../api/client";
 import { List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
-import { routes } from "../services/routeResolver";
 import { Link as RouterLink } from 'react-router-dom';
+import { routes } from "../utils/routeResolver";
+import { relativeDateTime } from "../utils/dateUtils";
 
 interface ContentVersionsListProps {
     contentId: string | undefined,
@@ -46,7 +47,7 @@ export default function ContentVersionsList({ contentId, language, versionId }: 
                     </ListItemIcon>
                     <ListItemText
                         primary={"ID: " + contentVersion.versionId}
-                        secondary={"Created: " + contentVersion.versionCreated}
+                        secondary={relativeDateTime(contentVersion.versionCreated)}
                     />
                 </ListItemButton>
             ))}

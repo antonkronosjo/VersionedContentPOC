@@ -1,8 +1,8 @@
 import { Avatar, Card, CardContent, CardHeader, Typography } from "@mui/material";
-import type { EventContent, FAQContent, GetApiContentAll200Item, NewsContent } from "../api/client";
-import { formatDateString } from "../pages/CMSHomePage/CmsHomePageComponents";
+import type { EventContent, GetApiContentAll200Item, NewsContent } from "../api/client";
 import type { JSX } from "react";
 import { blue, purple, red } from "@mui/material/colors";
+import { relativeDateTime } from "../utils/dateUtils";
 
 interface ContentCardProps {
     content: GetApiContentAll200Item
@@ -20,7 +20,7 @@ export function ContentCard({ content }: ContentCardProps) {
                     </Avatar>
                 }
                 title={content.contentType}
-                subheader={"Created: " + formatDateString(content.contentRoot?.created, "yyyy-MM-dd HH:mm")}
+                subheader={"Created: " + relativeDateTime(content.contentRoot?.created)}
             />
             <CardContent>
                 {resolveTemplate(content)}
@@ -59,7 +59,7 @@ const NewsTemplate = ({ content }: { content: NewsContent }) => (
 const EventTemplate = ({ content }: { content: EventContent }) => (
     <>
         <Typography variant="h2">{content.heading}</Typography>
-        <Typography><strong>Start:</strong> {formatDateString(content.startDate, "yyyy-MM-dd HH:mm")}</Typography>
-        <Typography><strong>End:</strong> {formatDateString(content.endDate, "yyyy-MM-dd HH:mm")}</Typography>
+        <Typography><strong>Start:</strong> {relativeDateTime(content.startDate)}</Typography>
+        <Typography><strong>End:</strong> {relativeDateTime(content.endDate)}</Typography>
     </>
 );

@@ -7,8 +7,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AppBar, Box, Container, Grid, Toolbar, Typography } from '@mui/material';
 import SideBarMenu from './layout/SideBarMenu';
-import { routes } from './services/routeResolver';
 import CMSHomePage from './pages/CMSHomePage/CMSHomePage';
+import { routes } from './utils/routeResolver';
 
 const appTheme = createTheme({
     palette: {

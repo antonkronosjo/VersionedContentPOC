@@ -1,8 +1,8 @@
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material';
 import { Home, Add, LibraryBooks } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { routes } from '../services/routeResolver';
 import type { JSX } from 'react';
+import { routes } from '../utils/routeResolver';
 
 export default function SidebarMenu() {
     const location = useLocation();

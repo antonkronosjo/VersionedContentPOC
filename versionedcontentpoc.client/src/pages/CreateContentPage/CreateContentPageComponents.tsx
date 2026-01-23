@@ -3,7 +3,7 @@ import { Language, useGetApiContentCreationschema, postApiContentCreate, type Cr
 import { useSearchParams } from 'react-router-dom';
 import ContentForm from "../../forms/ContentForm";
 import { useNavigate } from 'react-router-dom';
-import { routes } from "../../services/routeResolver";
+import { routes } from "../../utils/routeResolver";
 import LanguageSelector from "../../formElements/LanguageSelector";
 import ContentTypeSelector from "../../formElements/ContentTypeSelector";
 import { Grid } from "@mui/material";

@@ -1,10 +1,10 @@
 import { Language, useGetApiContentTypes, type ContentRootSummary } from "../../api/client"
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import { Checkbox, FormControlLabel, Grid, Link, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import { routes } from "../../services/routeResolver";
 import LanguageSelector from "../../formElements/LanguageSelector";
-import { format } from "date-fns";
 import ContentTypeSelector from "../../formElements/ContentTypeSelector";
+import { relativeDateTime } from "../../utils/dateUtils";
+import { routes } from "../../utils/routeResolver";
 
 export function ContentFilter() {
     const { data: response, isLoading, error } = useGetApiContentTypes();
@@ -99,16 +99,9 @@ function ContentRootTableRow({ contentRoot }: ContentRootTableRowProps) {
                     ))
                 }
             </TableCell>
-            <TableCell align="left">{formatDateString(contentRoot.startPublish, "yyyy-MM-dd HH:mm")}</TableCell>
-            <TableCell align="left">{formatDateString(contentRoot.stopPublish, "yyyy-MM-dd HH:mm")}</TableCell>
-            <TableCell align="left">{formatDateString(contentRoot.stopPublish, "yyyy-MM-dd HH:mm")}</TableCell>
+            <TableCell align="left">{relativeDateTime(contentRoot.startPublish)}</TableCell>
+            <TableCell align="left">{relativeDateTime(contentRoot.stopPublish)}</TableCell>
+            <TableCell align="left">{relativeDateTime(contentRoot.stopPublish)}</TableCell>
         </TableRow>
     );
-}
-
-export const formatDateString = (dateString: string | null | undefined, dateFormat: string): string => {
-    if (!dateString)
-        return "-";
-
-    return format(new Date(dateString), dateFormat);
 }
