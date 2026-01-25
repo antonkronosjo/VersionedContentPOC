@@ -20,12 +20,14 @@ public static class ContentMetadataProvider
                 ContentTypeName = contentType.Name,
                 Language = language,
             },
-            PropertiesSchema = GetPropertySchema(contentType)
+            PropertiesSchema = GetPropertySchema(contentType, language)
         };  
     }
 
     [ShouldBeRefactored("Would be good to not need to inject translated languages")]
-    public static UpdateContentRequest GetUpdateSchema(Content content, List<Language> contentLanguages)
+    [ShouldBeRefactored("Should be a new schema created for translations where i need current active version of main language")]
+    [ShouldBeRefactored("I need to have current active version here")]
+    public static UpdateContentRequest GetUpdateSchema(Content content, ContentRoot contentRoot, List<Language> contentLanguages)
     {
         return new UpdateContentRequest
         {
@@ -34,16 +36,16 @@ public static class ContentMetadataProvider
                 VersionId = content.VersionId,
                 ActiveVersionId = content.LanguageBranch?.ActiveVersionId,
                 Language = content.Language,
-                Created = content.ContentRoot?.Created,
-                StartPublish = content.ContentRoot?.StartPublish,
-                StopPublish = content.ContentRoot?.StopPublish,
+                Created = contentRoot.Created,
+                StartPublish = contentRoot.StartPublish,
+                StopPublish = contentRoot.StopPublish,
                 LanguageTranslations = contentLanguages
             },
-            PropertiesSchema = GetPropertySchema(content.GetType(), content)
+            PropertiesSchema = GetPropertySchema(content.GetType(), contentRoot.MainLanguage, content)
         };
     }
 
-    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, Content? content = null)
+    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, Language mainLanguage, Content? content = null)
     {
         ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
@@ -58,9 +60,20 @@ public static class ContentMetadataProvider
                     Value = content != null
                         ? p.GetValue(content)
                         : null,
-                    ReadOnly = false
+                    ReadOnly = GetReadOnly(p, mainLanguage, content)
                 }
             );
+    }
+
+    private static bool GetReadOnly(PropertyInfo propertyInfo, Language mainLanguage, Content? content)
+    {
+        if (content == null)
+            return false;
+
+        if (content.Language == mainLanguage)
+            return false;
+
+        return propertyInfo.GetCustomAttribute<MainLanguageOnlyAttribute>()?.IsActive == true;
     }
 
     private static bool HasContentMetaData(PropertyInfo property)

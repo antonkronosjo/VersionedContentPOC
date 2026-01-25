@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using VersionedContentPOC.Attributes;
+using VersionedContentPOC.Server.Attributes;
 
 namespace VersionedContentPOC.Server.Services;
 
@@ -8,7 +9,7 @@ public static class ContentUpdater
 {
     public static void ApplyUpdates<T>(T content, IDictionary<string, ContentPropertyValueDto> updates) where T : class
     {
-        ValidateSchema(content.GetType(), updates);
+        //ValidateSchema(content.GetType(), updates);
 
         var instanceProperties = content.GetType()
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -28,14 +29,15 @@ public static class ContentUpdater
         }
     }
 
-    private static void ValidateSchema(Type type, IDictionary<string, ContentPropertyValueDto> schema)
-    {
-        ContentTypeRegistry.Guards.IsRegiesteredContentType(type);
-        var originalSchema = ContentMetadataProvider.GetPropertySchema(type);
+    [ShouldBeRefactored("As for now no schema validation is done this is crucial since people can otherwhise inject other properties here.")]
+    //private static void ValidateSchema(Type type, IDictionary<string, ContentPropertyValueDto> schema)
+    //{
+    //    ContentTypeRegistry.Guards.IsRegiesteredContentType(type);
+    //    var originalSchema = ContentMetadataProvider.GetPropertySchema(type);
 
-        if (schema.Keys.Except(originalSchema.Keys).Any())
-            throw new InvalidOperationException("Schema contains unknown properties.");
-    }
+    //    if (schema.Keys.Except(originalSchema.Keys).Any())
+    //        throw new InvalidOperationException("Schema contains unknown properties.");
+    //}
 
     private static void SetValue(object content, PropertyInfo prop, ContentPropertyValueDto dto)
     {

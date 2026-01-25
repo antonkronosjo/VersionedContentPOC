@@ -2,6 +2,7 @@
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
+using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Data.Enums;
 
 namespace VersionedContentPOC.Server.Data.Models
@@ -20,10 +21,12 @@ namespace VersionedContentPOC.Server.Data.Models
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
         [Required]
+        [MainLanguageOnly]
         public required DateTime StartDate { get; set; }
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
         [Required]
+        [MainLanguageOnly]
         public required DateTime EndDate { get; set; }
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.TextArea)]

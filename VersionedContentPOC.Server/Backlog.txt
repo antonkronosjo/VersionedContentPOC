@@ -10,7 +10,6 @@ Todo:
 	- See if initializing new content instances when creating first new translation can be done better
 	
 - New features:
-	- Add datetime formating
 	- Add validation
 		- Add backend-validation-endpoint, maybe per property?
 		- Make save button disabled untill changes have been applied
@@ -20,12 +19,13 @@ Todo:
 		- Add "delayed publish feature"
 		- Add "delayed unpublish feature"
 	- Add "Force update feature"
-	- Add "CMS-endpoint feature"
 	- Add sending event on content changes
 		- created, updated, published, unpublished, translated
 	- Add "minimizing menu feature"
 	- Add spinners/etc to give user proper feedback when page loading
 	- Add table for overviewing content on home page
+	- Add uploading files feature
+	- Add culture specific properties
 
 - Bugs:
 	- When working on an new languge version (before saving) created date is not visible

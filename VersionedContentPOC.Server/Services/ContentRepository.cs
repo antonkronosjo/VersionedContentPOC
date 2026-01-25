@@ -29,10 +29,12 @@ public interface IContentRepository
 public class ContentRepository : IContentRepository
 {
     VersionedContentPOCContext _context;
+    IContentVersionRepository _contentVersionRepository;
 
-    public ContentRepository(VersionedContentPOCContext context)
+    public ContentRepository(VersionedContentPOCContext context, IContentVersionRepository contentVersionRepository)
     {
         _context = context;
+        _contentVersionRepository = contentVersionRepository;
     }
 
     /// <summary>
@@ -93,7 +95,7 @@ public class ContentRepository : IContentRepository
         using var transaction = _context.Database.BeginTransaction();
         try
         {
-            var contentRoot = new ContentRoot(Guid.NewGuid());
+            var contentRoot = new ContentRoot(Guid.NewGuid(), initialVersion.Language);
             var languageBranch = contentRoot.AddNewLanguageBranch(initialVersion.Language);
             _context.Add(contentRoot);
             _context.SaveChanges();
@@ -129,46 +131,7 @@ public class ContentRepository : IContentRepository
     [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
     public T Update<T>(Guid contentId, T updatedVersion, bool forceUpdate = false) where T : Content
     {
-        using var transaction = _context.Database.BeginTransaction();
-        try
-        {
-            var root = _context.ContentRoots
-                .Include(r => r.LanguageBranches)
-                    .ThenInclude(m => m.Versions)
-                .Single(r => r.ContentId == contentId);
-
-            var newLanguageBranch = root.AddNewLanguageBranchIfNotExist(updatedVersion.Language);
-            if (newLanguageBranch != null)
-            {
-                _context.Add(newLanguageBranch);
-                _context.SaveChanges();
-            }
-
-            var languageBranch = newLanguageBranch ?? root.LanguageBranches.Single(x => x.Language == updatedVersion.Language);
-
-            if (!forceUpdate && languageBranch.ActiveVersionId != null && languageBranch.ActiveVersionId != updatedVersion.VersionId)
-                throw new Exception("Content.VersionId does not match the current one being active. Use forceUpdate=true to save");
-            else
-            {
-                updatedVersion.VersionId = Guid.NewGuid();
-                updatedVersion.VersionCreated = DateTime.UtcNow;
-            }
-                
-
-            languageBranch.AddVersion(updatedVersion);
-
-            _context.Update(languageBranch);
-            _context.Add(updatedVersion);
-            _context.SaveChanges();
-            transaction.Commit();
-
-            return updatedVersion;
-        }
-        catch
-        {
-            transaction.Rollback();
-            throw;
-        }
+        return _contentVersionRepository.AddVersion(contentId, updatedVersion, forceUpdate);
     }
 
     /// <summary>
@@ -176,6 +139,8 @@ public class ContentRepository : IContentRepository
     /// </summary>
     public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content
     {
+        //var entity = _context.Entities.Find(id);
+        _context.Entry(content).State = EntityState.Detached;
         ContentUpdater.ApplyUpdates(content, updates);
         return Update<T>(content.ContentId, content);
     }
@@ -193,34 +158,31 @@ public class ContentRepository : IContentRepository
 
     public void SetAsActiveVersion(Guid versionId)
     {
-        var content = _context.Content
-            .WhereVersion(versionId)
-            .Include(x => x.LanguageBranch)
-            .Single();
-
-        content.LanguageBranch.SetActiveVersion(content);
-        _context.Update(content.LanguageBranch);
-        _context.SaveChanges();
+        _contentVersionRepository.SetAsActiveVersion(versionId);
     }
 
     /// <summary>
     /// Returns a base query used when querying active versions of content
     /// </summary>
+    [ShouldBeRefactored("Should be renamed to just query")]
     public IQueryable<T> QueryActiveVersions<T>(Language language) where T : Content
     {
         return _context.Content.OfType<T>()
-            .WhereLanguage(language)
-            .WhereActive();
+            .Where(x => x.Language == language)
+            .Include(x => x.LanguageBranch)
+            .Where(x => x.LanguageBranch.ActiveVersionId == x.VersionId);
     }
 
     /// <summary>
     /// Returns a base query used when querying all versions of content
     /// </summary>
+    [ShouldBeRefactored("Should be moved to ContentVersionRepo")]
     public IQueryable<T> QueryVersions<T>(Language language) where T : Content
     {
         return _context.Content.OfType<T>()
-            .Include(x => x.LanguageBranch)
-            .WhereLanguage(language);
+            .Where(x => x.Language == language)
+            .Include(x => x.ContentRoot)
+            .Include(x => x.LanguageBranch);
     }
 
     /// <summary>

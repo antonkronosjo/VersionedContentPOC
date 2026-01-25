@@ -5,16 +5,18 @@ namespace VersionedContentPOC.Data.Models;
 
 public class ContentRoot
 {
-    public ContentRoot(Guid contentId)
+    public ContentRoot(Guid contentId, Language mainLanguage)
     {
         ContentId = contentId;
         Created = DateTime.UtcNow;
+        MainLanguage = mainLanguage;
     }
 
     public Guid ContentId { get; set; }
     public DateTime Created { get; set; }
     public DateTime? StartPublish { get; set; }
     public DateTime? StopPublish { get; set; }
+    public Language MainLanguage { get; set; }
 
     [JsonIgnore]
     public ICollection<LanguageBranch> LanguageBranches { get; set; } = new List<LanguageBranch>();
@@ -28,7 +30,8 @@ public class ContentRoot
         return AddNewLanguageBranch(language);
     }
 
-    public LanguageBranch AddNewLanguageBranch(Language language) {
+    public LanguageBranch AddNewLanguageBranch(Language language)
+    {
         var languageBranch = new LanguageBranch(this.ContentId, language);
         LanguageBranches.Add(languageBranch);
         return languageBranch;

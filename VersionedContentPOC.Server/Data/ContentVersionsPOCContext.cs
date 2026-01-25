@@ -33,6 +33,7 @@ namespace VersionedContentPOC.Data
 
             modelBuilder.Entity<Content>(entity =>
             {
+                entity.UseTpcMappingStrategy();
                 entity.HasKey(x => x.VersionId);
                 entity.HasOne(x => x.LanguageBranch)
                     .WithMany(x => x.Versions)
@@ -40,7 +41,6 @@ namespace VersionedContentPOC.Data
                 entity.HasOne(v => v.ContentRoot)
                     .WithMany()
                     .HasForeignKey(x => x.ContentId);
-                entity.HasDiscriminator<string>("ContentTypeDiscriminator");
             });
 
             modelBuilder.RegisterContentTypes();

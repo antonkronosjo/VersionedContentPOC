@@ -89,14 +89,15 @@ public class ContentManagementController : ControllerBase
             if (content == null)
                 return NotFound();
 
-            var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, contentLanguages);
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, content.ContentRoot, contentLanguages);
             return Ok(updateSchema);
         }
         else
         {
+            var contentRoot = _contentRepository.QueryRoots().Single(x => x.ContentId == contentId);
             var contentType = _contentRepository.GetContentRootType(contentId);
             var contentInstance = _contentFactory.CreateInstance(contentType, language, contentId: contentId);
-            var updateSchema = ContentMetadataProvider.GetUpdateSchema(contentInstance, contentLanguages);
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(contentInstance, contentRoot, contentLanguages);
             return Ok(updateSchema);
         }
     }
