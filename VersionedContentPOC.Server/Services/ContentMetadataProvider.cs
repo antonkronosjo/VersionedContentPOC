@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data.Enums;
@@ -56,7 +57,7 @@ public static class ContentMetadataProvider
                 p => new ContentPropertyValueDto
                 {
                     InputType = p.GetCustomAttribute<ContentPropertyMetadataAttribute>().PropertyInputType,
-                    IsRequired = IsRequired(p),
+                    IsRequired = p.IsDefined(typeof(RequiredAttribute), inherit: true),
                     Value = content != null
                         ? p.GetValue(content)
                         : null,
@@ -74,14 +75,6 @@ public static class ContentMetadataProvider
             return false;
 
         return propertyInfo.GetCustomAttribute<MainLanguageOnlyAttribute>()?.IsActive == true;
-    }
-
-    [ShouldBeRefactored("the RequiredMemberAttribute check does not seem to work")]
-    public static bool IsRequired(PropertyInfo property)
-    {
-        var requiredAttr = property.GetCustomAttribute<ContentPropertyMetadataAttribute>();
-        return requiredAttr?.Required ?? false
-               || property.CustomAttributes.Any(a => a.AttributeType == typeof(RequiredMemberAttribute));
     }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEventHandler, type JSX } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState, type ChangeEventHandler } from "react";
 import { InputType, postApiValidationProperty, type ContentPropertyValueDto, type ValidationResult } from "../api/client";
 import { Button, Grid, TextField, type TextFieldProps } from "@mui/material";
 import useUpdateEffect from "../hooks/useUpdateEffect";
@@ -12,14 +12,35 @@ interface ContentFormProps {
     submitText: string;
 }
 export default function ContentForm({ properties, onChange, onSubmit, submitText, disabled }: ContentFormProps) {
+    const inputRefs = useRef<FormElementTemplateHandles[]>([]);
+
+    const handleSubmit = async () => {
+        if (inputRefs.current.length === 0) return;
+
+        const results = await Promise.all(
+            inputRefs.current.map((ref) => ref?.validate())
+        );
+
+        const allValid = results.every(Boolean);
+
+        if (!allValid) {
+            console.log("Form is invalid! Fix errors before submitting.");
+            return;
+        }
+
+        console.log("Form valid! Proceed with submission.");
+        onSubmit();
+    };
+
     return (
         <form onSubmit={(e) => {
             e.preventDefault();
         }}>
             <Grid container spacing={2}>
-                {Object.entries(properties).map(([key]) => (
+                {Object.entries(properties).map(([key], index) => (
                     <Grid size={12} key={key}>
-                        <FormElementTemplate
+                        <FormElementTemplate2
+                            ref={(el) => { inputRefs.current[index] = el! }}
                             label={key}
                             propertyName={key}
                             valueDto={properties[key]}
@@ -28,7 +49,7 @@ export default function ContentForm({ properties, onChange, onSubmit, submitText
                         />
                     </Grid>
                 ))}
-                <Button sx={{ ml: 'auto' }} variant="contained" onClick={onSubmit}>
+                <Button sx={{ ml: 'auto' }} variant="contained" onClick={handleSubmit}>
                     {submitText}
                 </Button>
             </Grid>
@@ -44,53 +65,61 @@ type FormElementTemplateProps = {
     disabled: boolean;
     onChange: ChangeEventHandler<HTMLInputElement>;
 }
-function FormElementTemplate({ label, propertyName, valueDto, disabled, onChange }: FormElementTemplateProps) {
-    const [errors, setErrors] = useState<ValidationResult[]>([]);
-    const [touched, setTouched] = useState(false);
-    const debouncedValidate = useDebouncedCallback((value: ContentPropertyValueDto) => {
-        postApiValidationProperty(value, {
-            contentTypeName: "NewsContent",
-            propertyName: propertyName
-        }).then((errors) => {
-            setErrors(errors.data);
-        });
-    }, 200);
+interface FormElementTemplateHandles { validate: () => Promise<boolean>; }
 
-    useUpdateEffect(() => {
-        if (!touched)
-            return;
+const FormElementTemplate2 = forwardRef<FormElementTemplateHandles, FormElementTemplateProps>(
+    ({ label, propertyName, valueDto, disabled, onChange }, ref) => {
+        const [errors, setErrors] = useState<ValidationResult[]>([]);
+        const [touched, setTouched] = useState(false);
 
-        debouncedValidate(valueDto);
-    }, [valueDto.value, touched]);
+        const validate = async () => {
+            setTouched(true);
+            const res = await postApiValidationProperty(valueDto, {
+                contentTypeName: "NewsContent",
+                propertyName,
+            });
+            setErrors(res.data);
+            return res.data.length === 0;
+        }
 
+        // debounced API validation
+        const debouncedValidate = useDebouncedCallback(validate, 200);
 
-    const baseProps = {
-        label: label,
-        variant: "filled",
-        value: valueDto.value?.toString() ?? "",
-        onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        useImperativeHandle(ref, () => ({
+            validate: validate,
+        }));
+
+        useUpdateEffect(() => {
+            if (!touched) return;
+            debouncedValidate();
+        }, [valueDto.value, touched]);
+
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             setTouched(true);
             onChange(e);
-        },
-        fullWidth: true,
-        error: errors.length > 0,
-        helperText: errors[0]?.errorMessage ?? null,
-        disabled: valueDto.readOnly || disabled
-    } as TextFieldProps;
+        };
 
-    switch (valueDto.inputType) {
-        case InputType.Input:
-            return (
-                <>
-                    <TextField {...baseProps} />
-                </>
-            ) 
-        case InputType.TextArea:
-            return <TextField {...baseProps} multiline rows={7} />
-        case InputType.DateTimePicker:
-            return <TextField {...baseProps} type="datetime-local" />
+        const baseProps = {
+            label: label,
+            variant: "filled",
+            value: valueDto.value?.toString() ?? "",
+            onChange: handleChange,
+            fullWidth: true,
+            error: errors.length > 0,
+            helperText: errors[0]?.errorMessage ?? null,
+            disabled: valueDto.readOnly || disabled,
+            required: valueDto.isRequired
+        } as TextFieldProps;
 
-        default:
-            return <>No template defined for content type</>
+        switch (valueDto.inputType) {
+            case InputType.Input:
+                return <TextField {...baseProps} />;
+            case InputType.TextArea:
+                return <TextField {...baseProps} multiline rows={7} />;
+            case InputType.DateTimePicker:
+                return <TextField {...baseProps} type="datetime-local" />;
+            default:
+                return <>No template defined for content type</>;
+        }
     }
-}
+);
