@@ -13,6 +13,7 @@ Todo:
 	- Add validation
 		- Add backend-validation-endpoint, maybe per property?
 		- Make save button disabled untill changes have been applied
+	- Add interface for versioning so you can choose to not use it
 	- Add "manage-content-button"
 		- Add "delete content feature"
 		- Add "delete language branch feature"

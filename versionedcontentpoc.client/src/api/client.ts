@@ -62,6 +62,7 @@ export interface ContentRoot {
   startPublish?: string | null;
   /** @nullable */
   stopPublish?: string | null;
+  mainLanguage?: Language;
 }
 
 export interface ContentRootSummary {
@@ -98,6 +99,8 @@ export type EventContentAllOf = {
   heading: string;
   startDate: string;
   endDate: string;
+  /** @minLength 1 */
+  description: string;
 };
 
 export type EventContentContentType = typeof EventContentContentType[keyof typeof EventContentContentType];
@@ -187,6 +190,13 @@ export interface UpdateContentRequestMetadata {
   forceUpdate?: boolean;
 }
 
+export interface ValidationResult {
+  /** @nullable */
+  readonly memberNames?: readonly string[] | null;
+  /** @nullable */
+  errorMessage?: string | null;
+}
+
 export type GetApiContentAllParams = {
 language?: Language;
 published?: boolean;
@@ -236,6 +246,11 @@ export type GetApiContentsummaryContentrootsParams = {
 ContentType?: string;
 Published?: boolean;
 Language?: Language;
+};
+
+export type PostApiValidationPropertyParams = {
+contentTypeName?: string;
+propertyName?: string;
 };
 
 export const getApiContentAll = (
@@ -1178,3 +1193,66 @@ export function useGetApiContentsummaryContentroots<TData = Awaited<ReturnType<t
 
   return query;
 }
+
+
+
+
+
+export const postApiValidationProperty = (
+    contentPropertyValueDto: ContentPropertyValueDto,
+    params?: PostApiValidationPropertyParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<ValidationResult[]>> => {
+    
+    
+    return axios.default.post(
+      `/api/validation/property`,
+      contentPropertyValueDto,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+
+export const getPostApiValidationPropertyMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiValidationProperty>>, TError,{data: ContentPropertyValueDto;params?: PostApiValidationPropertyParams}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiValidationProperty>>, TError,{data: ContentPropertyValueDto;params?: PostApiValidationPropertyParams}, TContext> => {
+
+const mutationKey = ['postApiValidationProperty'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiValidationProperty>>, {data: ContentPropertyValueDto;params?: PostApiValidationPropertyParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  postApiValidationProperty(data,params,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiValidationPropertyMutationResult = NonNullable<Awaited<ReturnType<typeof postApiValidationProperty>>>
+    export type PostApiValidationPropertyMutationBody = ContentPropertyValueDto
+    export type PostApiValidationPropertyMutationError = AxiosError<unknown>
+
+    export const usePostApiValidationProperty = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiValidationProperty>>, TError,{data: ContentPropertyValueDto;params?: PostApiValidationPropertyParams}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiValidationProperty>>,
+        TError,
+        {data: ContentPropertyValueDto;params?: PostApiValidationPropertyParams},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiValidationPropertyMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }

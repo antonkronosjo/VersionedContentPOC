@@ -46,12 +46,12 @@ public static class ContentUpdater
         prop.SetValue(content, resolvedValue);
     }
 
-    private static object? ResolveValue(string typeName, object? rawValue)
+    public static object? ResolveValue(string typeFullName, object? rawValue)
     {
         if (rawValue == null)
             return null;
 
-        var type = Type.GetType(typeName, throwOnError: false);
+        var type = Type.GetType(typeFullName, throwOnError: false);
         if (type == null)
             throw new InvalidOperationException("Type could not be resolved");
 
