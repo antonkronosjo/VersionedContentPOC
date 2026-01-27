@@ -13,6 +13,8 @@ public interface IContentVersionRepository
     void SetAsActiveVersion(Guid versionId);
 }
 
+[ShouldBeRefactored("This should be cleaned up & internal function names hould be named better")]
+[ShouldBeRefactored("This should be unit tested")]
 public class ContentVersionRepository : IContentVersionRepository
 {
     VersionedContentPOCContext _context;
@@ -30,7 +32,6 @@ public class ContentVersionRepository : IContentVersionRepository
         using var transaction = _context.Database.BeginTransaction();
         try
         {
-            //_context.Entry(version).State = EntityState.Detached;
             var root = _context.ContentRoots
                 .Include(r => r.LanguageBranches)
                     .ThenInclude(m => m.Versions)
@@ -221,6 +222,7 @@ public static class ContentVersionExtensions
             .Where(x => x.CanRead && x.IsDefined(typeof(ContentPropertyMetadataAttribute), true));
     }
 
+    [ShouldBeRefactored("This could maybe be made more generic where attribute is a T param?")]
     public static IEnumerable<PropertyInfo> FilterByMainLanguageOnly(this IEnumerable<PropertyInfo> propertyInfos)
     {
         return propertyInfos
