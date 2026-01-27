@@ -10,9 +10,8 @@ Todo:
 	- See if initializing new content instances when creating first new translation can be done better
 	
 - New features:
-	- Add validation
-		- Add backend-validation-endpoint, maybe per property?
-		- Make save button disabled untill changes have been applied
+	- Wrap up validation solution
+	- Make save button disabled untill changes have been applied
 	- Add interface for versioning so you can choose to not use it
 	- Add "manage-content-button"
 		- Add "delete content feature"
@@ -26,7 +25,7 @@ Todo:
 	- Add spinners/etc to give user proper feedback when page loading
 	- Add table for overviewing content on home page
 	- Add uploading files feature
-	- Add culture specific properties
+	- Add DateTimePicker
 
 - Bugs:
 	- When working on an new languge version (before saving) created date is not visible
