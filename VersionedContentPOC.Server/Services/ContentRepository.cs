@@ -140,7 +140,7 @@ public class ContentRepository : IContentRepository
     public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content
     {
         //var entity = _context.Entities.Find(id);
-        _context.Entry(content).State = EntityState.Detached;
+        _context.Entry(content).State = EntityState.Detached; //Need to detach state before applying updates
         ContentUpdater.ApplyUpdates(content, updates);
         return Update<T>(content.ContentId, content);
     }

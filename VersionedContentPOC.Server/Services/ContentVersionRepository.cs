@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
 using System.Reflection;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data;
 using VersionedContentPOC.Data.Models;
 using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Extensions;
 
 namespace VersionedContentPOC.Server.Services;
 
@@ -32,6 +30,7 @@ public class ContentVersionRepository : IContentVersionRepository
         using var transaction = _context.Database.BeginTransaction();
         try
         {
+            //_context.Entry(version).State = EntityState.Detached;
             var root = _context.ContentRoots
                 .Include(r => r.LanguageBranches)
                     .ThenInclude(m => m.Versions)
@@ -47,7 +46,7 @@ public class ContentVersionRepository : IContentVersionRepository
                 throw new Exception("Something went wrong");
 
             //Content has no MainLanguageOnly-properties => Just add new version
-            if (HasNoMainLanguageOnlyProperties(version))
+            if (NoMainLanguageOnlyProperties(version))
             {
                 InternalAddVersion(contentId, version, forceUpdate);
                 transaction.Commit();
@@ -62,20 +61,19 @@ public class ContentVersionRepository : IContentVersionRepository
                 return version;
             }
                 
-
             //If main language is updated, update all existing versions of other languages
             if (root.MainLanguage == version.Language)
             {
-                UpdateNonCulturalSpecificValues(root, activeMainLanguageVersion);
+                UpdateMainLanguageOnlyValues(root, version);
                 InternalAddVersion(contentId, version, forceUpdate);
                 transaction.Commit();
                 return version;
             }
 
-            //If not main language is updated => Map non cultural specific values to the new version
+            //If not main language is updated => Map MainLanguageOnly-properties to the new version from current Active
             else
             {
-                ContentVersionExtensions.MapNonCulturalSpecificValues(version, activeMainLanguageVersion);
+                ContentVersionExtensions.MapMainLanguageOnlyValues(version, activeMainLanguageVersion);
                 InternalAddVersion(contentId, version, forceUpdate);
                 transaction.Commit();
                 return version;
@@ -98,8 +96,8 @@ public class ContentVersionRepository : IContentVersionRepository
                 .Include(x => x.ContentRoot)
                 .Single();
 
-            //Content has only cultural specific properties => No need to change values in other versions => Just add new version
-            if (HasNoMainLanguageOnlyProperties(version))
+            //Content has no MainLanguageOnly-properties => No need to change values in other versions => Set as Active
+            if (NoMainLanguageOnlyProperties(version))
             {
                 version.LanguageBranch.SetActiveVersion(version);
                 _context.Update(version.LanguageBranch);
@@ -135,7 +133,7 @@ public class ContentVersionRepository : IContentVersionRepository
             //Is not main language change => Update non-cultural-specific properties on the chosen version
             if (version.ContentRoot.MainLanguage != version.Language)
             {
-                ContentVersionExtensions.MapNonCulturalSpecificValues(version, activeMainLanguageVersion);
+                ContentVersionExtensions.MapMainLanguageOnlyValues(version, activeMainLanguageVersion);
                 _context.Update(version);
                 version.LanguageBranch.SetActiveVersion(version);
                 _context.Update(version.LanguageBranch);
@@ -146,7 +144,7 @@ public class ContentVersionRepository : IContentVersionRepository
             //
             else
             {
-                UpdateNonCulturalSpecificValues(root, version);
+                UpdateMainLanguageOnlyValues(root, version);
                 version.LanguageBranch.SetActiveVersion(version);
                 _context.SaveChanges();
                 transaction.Commit();
@@ -159,7 +157,7 @@ public class ContentVersionRepository : IContentVersionRepository
         }
     }
 
-    private void UpdateNonCulturalSpecificValues<T>(ContentRoot contentRoot, T activeMainLanguageVersion) where T : Content
+    private void UpdateMainLanguageOnlyValues<T>(ContentRoot contentRoot, T activeMainLanguageVersion) where T : Content
     {
         foreach (var languageBranch in contentRoot.LanguageBranches.Where(x => x.Language != contentRoot.MainLanguage))
         {
@@ -169,15 +167,15 @@ public class ContentVersionRepository : IContentVersionRepository
 
             foreach (var languageVersion in languageBranch.Versions)
             {
-                ContentVersionExtensions.MapNonCulturalSpecificValues(languageVersion, activeMainLanguageVersion);
+                ContentVersionExtensions.MapMainLanguageOnlyValues(languageVersion, activeMainLanguageVersion);
                 _context.Update(languageVersion);
             }
         }
     }
 
-    private static bool HasNoMainLanguageOnlyProperties(Content content)
+    private static bool NoMainLanguageOnlyProperties(Content content)
     {
-        return content.GetContentProperties().FilterByMainLanguageOnly(true).Any() == false;
+        return content.GetContentProperties().FilterByMainLanguageOnly().Any() == false;
     }
 
     public T InternalAddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content
@@ -223,12 +221,12 @@ public static class ContentVersionExtensions
             .Where(x => x.CanRead && x.IsDefined(typeof(ContentPropertyMetadataAttribute), true));
     }
 
-    public static IEnumerable<PropertyInfo> FilterByMainLanguageOnly(this IEnumerable<PropertyInfo> propertyInfos, bool isActive)
+    public static IEnumerable<PropertyInfo> FilterByMainLanguageOnly(this IEnumerable<PropertyInfo> propertyInfos)
     {
         return propertyInfos
-                .Where(x => x
+                .Where((x) => x
                     .GetCustomAttribute<MainLanguageOnlyAttribute>(inherit: true)
-                        ?.IsActive ?? false == isActive);
+                        ?.IsActive == true);
     }
 
     public static bool HasAnyMainLanguagePropertyDifference<T>(this T versionA, T versionB) where T : Content
@@ -239,7 +237,7 @@ public static class ContentVersionExtensions
 
         var properties = versionA
             .GetContentProperties()
-            .FilterByMainLanguageOnly(true);
+            .FilterByMainLanguageOnly();
 
         foreach (var property in properties)
         {
@@ -255,13 +253,13 @@ public static class ContentVersionExtensions
         return false;
     }
 
-    public static void MapNonCulturalSpecificValues<T>(T targetContent, T mainContent) where T : Content
+    public static void MapMainLanguageOnlyValues<T>(T targetContent, T mainContent) where T : Content
     {
         if (targetContent.GetType() != mainContent.GetType()) throw new ArgumentException("Types differ!");
 
         var properties = mainContent
             .GetContentProperties()
-            .FilterByMainLanguageOnly(false);
+            .FilterByMainLanguageOnly();
 
         foreach (var property in properties)
         {
