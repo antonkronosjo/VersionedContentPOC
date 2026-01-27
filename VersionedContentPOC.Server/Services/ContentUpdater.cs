@@ -2,6 +2,7 @@
 using System.Text.Json;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Server.Attributes;
+using VersionedContentPOC.Server.Extensions;
 
 namespace VersionedContentPOC.Server.Services;
 
@@ -12,8 +13,7 @@ public static class ContentUpdater
         //ValidateSchema(content.GetType(), updates);
 
         var instanceProperties = content.GetType()
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.CanWrite && p.CanRead)
+            .GetContentProperties()
             .ToDictionary(p => p.Name, p => p);
 
         foreach (var (propertyName, dto) in updates)

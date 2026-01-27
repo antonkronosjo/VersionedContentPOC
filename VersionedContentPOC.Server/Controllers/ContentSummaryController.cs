@@ -27,6 +27,7 @@ public class ContentSummaryController : ControllerBase
     public IActionResult GetRootSummaries([FromQuery] GetRootSummariesRequest request)
     {
         var utcNow = DateTime.UtcNow;
+
         var contentRoots = _contentRepository.QueryRoots()
             .Include(x => x.LanguageBranches)
                 .ThenInclude(x => x.Versions)
@@ -34,7 +35,7 @@ public class ContentSummaryController : ControllerBase
             .ToList()
             .ToSummary(_contentRepository)
             .Where(x => String.IsNullOrEmpty(request.ContentType) || request.ContentType == x.ContentTypeName)
-            .Where(x => x.LanguageVersions.Contains(request.Language))
+            .Where(x => request.Language == null || x.LanguageVersions.Contains(request.Language.Value))
             .OrderByDescending(x => x.Created)
             .ToList();
 

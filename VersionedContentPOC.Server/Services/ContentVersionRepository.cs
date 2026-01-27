@@ -2,19 +2,21 @@
 using System.Reflection;
 using VersionedContentPOC.Attributes;
 using VersionedContentPOC.Data;
+using VersionedContentPOC.Data.Enums;
 using VersionedContentPOC.Data.Models;
 using VersionedContentPOC.Server.Attributes;
+using VersionedContentPOC.Server.Extensions;
 
 namespace VersionedContentPOC.Server.Services;
 
 public interface IContentVersionRepository
 {
     T AddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content;
+    IQueryable<T> QueryVersions<T>(Language language) where T : Content;
+    T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content;
     void SetAsActiveVersion(Guid versionId);
 }
 
-[ShouldBeRefactored("This should be cleaned up & internal function names hould be named better")]
-[ShouldBeRefactored("This should be unit tested")]
 public class ContentVersionRepository : IContentVersionRepository
 {
     VersionedContentPOCContext _context;
@@ -30,63 +32,51 @@ public class ContentVersionRepository : IContentVersionRepository
     public T AddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content
     {
         using var transaction = _context.Database.BeginTransaction();
-        try
+
+        var root = _context.ContentRoots
+            .Include(r => r.LanguageBranches).ThenInclude(m => m.Versions)
+            .Include(x => x.LanguageBranches).ThenInclude(x => x.ActiveVersion)
+            .Single(r => r.ContentId == contentId);
+
+        var activeMainLanguageVersion = root.LanguageBranches
+            .Single(x => x.Language == root.MainLanguage)
+            .ActiveVersion ?? throw new Exception("Something went wrong");
+
+        //Content has no MainLanguageOnly-properties => Just add new version
+        if (NoMainLanguageOnlyProperties(version))
         {
-            var root = _context.ContentRoots
-                .Include(r => r.LanguageBranches)
-                    .ThenInclude(m => m.Versions)
-                .Include(x => x.LanguageBranches)
-                    .ThenInclude(x => x.ActiveVersion)
-                .Single(r => r.ContentId == contentId);
-
-            var activeMainLanguageVersion = root.LanguageBranches
-                .Where(x => x.Language == root.MainLanguage)
-                .Single().ActiveVersion;
-
-            if (activeMainLanguageVersion == null)
-                throw new Exception("Something went wrong");
-
-            //Content has no MainLanguageOnly-properties => Just add new version
-            if (NoMainLanguageOnlyProperties(version))
-            {
-                InternalAddVersion(contentId, version, forceUpdate);
-                transaction.Commit();
-                return version;
-            }
-                
-            //Content has no MainLanguageOnly-properties changed => Just add new version
-            if (activeMainLanguageVersion.HasAnyMainLanguagePropertyDifference(version) == false)
-            {
-                InternalAddVersion(contentId, version, forceUpdate);
-                transaction.Commit();
-                return version;
-            }
-                
-            //If main language is updated, update all existing versions of other languages
-            if (root.MainLanguage == version.Language)
-            {
-                UpdateMainLanguageOnlyValues(root, version);
-                InternalAddVersion(contentId, version, forceUpdate);
-                transaction.Commit();
-                return version;
-            }
-
-            //If not main language is updated => Map MainLanguageOnly-properties to the new version from current Active
-            else
-            {
-                ContentVersionExtensions.MapMainLanguageOnlyValues(version, activeMainLanguageVersion);
-                InternalAddVersion(contentId, version, forceUpdate);
-                transaction.Commit();
-                return version;
-            }
+            InternalAddVersion(contentId, version, forceUpdate);
+            transaction.Commit();
+            return version;
         }
-        catch
+
+        //Content has no MainLanguageOnly-properties changed => Just add new version
+        if (HasMainLanguageChanges(activeMainLanguageVersion, version) == false)
         {
-            transaction.Rollback();
-            throw;
+            InternalAddVersion(contentId, version, forceUpdate);
+            transaction.Commit();
+            return version;
         }
+
+        //If main language is updated, update all existing versions of other languages
+        if (root.MainLanguage == version.Language)
+        {
+            UpdateMainLanguageOnlyValues(root, version);
+        }
+        //If not main language is updated => Map MainLanguageOnly-properties to the new version from current Active
+        else
+        {
+            CopyMainLanguageValues(version, activeMainLanguageVersion);
+        }
+
+        InternalAddVersion(contentId, version, forceUpdate);
+        transaction.Commit();
+        return version;
     }
 
+    /// <summary>
+    /// Sets version as current active
+    /// </summary>
     public void SetAsActiveVersion(Guid versionId)
     {
         using var transaction = _context.Database.BeginTransaction();
@@ -122,7 +112,7 @@ public class ContentVersionRepository : IContentVersionRepository
                 throw new Exception("Something went wrong");
 
             //Content has no changes on MainLanguageOnly-properties => Just add new version
-            if (activeMainLanguageVersion.HasAnyMainLanguagePropertyDifference(version) == false)
+            if (HasMainLanguageChanges(activeMainLanguageVersion, version) == false)
             {
                 version.LanguageBranch.SetActiveVersion(version);
                 _context.Update(version.LanguageBranch);
@@ -134,7 +124,7 @@ public class ContentVersionRepository : IContentVersionRepository
             //Is not main language change => Update non-cultural-specific properties on the chosen version
             if (version.ContentRoot.MainLanguage != version.Language)
             {
-                ContentVersionExtensions.MapMainLanguageOnlyValues(version, activeMainLanguageVersion);
+                CopyMainLanguageValues(version, activeMainLanguageVersion);
                 _context.Update(version);
                 version.LanguageBranch.SetActiveVersion(version);
                 _context.Update(version.LanguageBranch);
@@ -158,6 +148,26 @@ public class ContentVersionRepository : IContentVersionRepository
         }
     }
 
+    /// <summary>
+    /// Queries all version 
+    /// </summary>
+    public IQueryable<T> QueryVersions<T>(Language language) where T : Content
+    {
+        return _context.Content.OfType<T>()
+            .Where(x => x.Language == language)
+            .Include(x => x.ContentRoot)
+            .Include(x => x.LanguageBranch);
+    }
+
+    /// <summary>
+    /// Returns version of content for language. Returns null if not found,
+    /// </summary>
+    public T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content
+    {
+        return QueryVersions<T>(language)
+            .FirstOrDefault(x => x.ContentId == contentId && x.VersionId == versionId);
+    }
+
     private void UpdateMainLanguageOnlyValues<T>(ContentRoot contentRoot, T activeMainLanguageVersion) where T : Content
     {
         foreach (var languageBranch in contentRoot.LanguageBranches.Where(x => x.Language != contentRoot.MainLanguage))
@@ -168,18 +178,46 @@ public class ContentVersionRepository : IContentVersionRepository
 
             foreach (var languageVersion in languageBranch.Versions)
             {
-                ContentVersionExtensions.MapMainLanguageOnlyValues(languageVersion, activeMainLanguageVersion);
+                CopyMainLanguageValues(languageVersion, activeMainLanguageVersion);
                 _context.Update(languageVersion);
             }
         }
     }
 
-    private static bool NoMainLanguageOnlyProperties(Content content)
+    private static void CopyMainLanguageValues<T>(T target, T source) where T : Content
     {
-        return content.GetContentProperties().FilterByMainLanguageOnly().Any() == false;
+        if (target.GetType() != source.GetType()) throw new ArgumentException("Types differ!");
+
+        var properties = source
+            .GetType()
+            .GetContentProperties()
+            .FilterByAttribute<MainLanguageOnlyAttribute>(x => x?.IsActive == true);
+
+        foreach (var p in properties)
+            p.SetValue(target, p.GetValue(source));
     }
 
-    public T InternalAddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content
+    private static bool NoMainLanguageOnlyProperties(Content content)
+    {
+        return content.GetType()
+            .GetContentProperties()
+            .FilterByAttribute<MainLanguageOnlyAttribute>(x => x?.IsActive == true)
+            .Any() == false;
+    }
+
+    private static bool HasMainLanguageChanges<T>(T versionA, T versionB) where T : Content
+    {
+        if (versionA.GetType() != versionB.GetType()) throw new ArgumentException("Types differ!");
+
+        var properties = versionA
+            .GetType()
+            .GetContentProperties()
+            .FilterByAttribute<MainLanguageOnlyAttribute>(x => x?.IsActive == true);
+
+        return properties.Any(p => !Equals(p.GetValue(versionA), p.GetValue(versionB)));
+    }
+
+    private T InternalAddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content
     {
         var root = _context.ContentRoots
                .Include(r => r.LanguageBranches)
@@ -203,70 +241,11 @@ public class ContentVersionRepository : IContentVersionRepository
             version.VersionCreated = DateTime.UtcNow;
         }
 
-
         languageBranch.AddVersion(version);
 
         _context.Update(languageBranch);
         _context.Add(version);
         _context.SaveChanges();
         return version;
-    }
-}
-
-public static class ContentVersionExtensions
-{
-    public static IEnumerable<PropertyInfo> GetContentProperties(this Content content)
-    {
-        return content.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(x => x.CanRead && x.IsDefined(typeof(ContentPropertyMetadataAttribute), true));
-    }
-
-    [ShouldBeRefactored("This could maybe be made more generic where attribute is a T param?")]
-    public static IEnumerable<PropertyInfo> FilterByMainLanguageOnly(this IEnumerable<PropertyInfo> propertyInfos)
-    {
-        return propertyInfos
-                .Where((x) => x
-                    .GetCustomAttribute<MainLanguageOnlyAttribute>(inherit: true)
-                        ?.IsActive == true);
-    }
-
-    public static bool HasAnyMainLanguagePropertyDifference<T>(this T versionA, T versionB) where T : Content
-    {
-        if (versionA == null) throw new ArgumentNullException(nameof(versionA));
-        if (versionB == null) throw new ArgumentNullException(nameof(versionB));
-        if (versionA.GetType() != versionB.GetType()) throw new ArgumentException("Types differ!");
-
-        var properties = versionA
-            .GetContentProperties()
-            .FilterByMainLanguageOnly();
-
-        foreach (var property in properties)
-        {
-            var valueA = property.GetValue(versionA);
-            var valueB = property.GetValue(versionB);
-
-            if (!Equals(valueA, valueB))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static void MapMainLanguageOnlyValues<T>(T targetContent, T mainContent) where T : Content
-    {
-        if (targetContent.GetType() != mainContent.GetType()) throw new ArgumentException("Types differ!");
-
-        var properties = mainContent
-            .GetContentProperties()
-            .FilterByMainLanguageOnly();
-
-        foreach (var property in properties)
-        {
-            var value = property.GetValue(mainContent);
-            property.SetValue(targetContent, value);
-        }
     }
 }

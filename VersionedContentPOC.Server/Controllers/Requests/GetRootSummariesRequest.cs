@@ -6,6 +6,6 @@ namespace VersionedContentPOC.Server.Controllers.Requests
     {
         public string? ContentType { get; set; }
         public bool? Published { get; set; }
-        public Language Language { get; set; }
+        public Language? Language { get; set; }
     }
 }

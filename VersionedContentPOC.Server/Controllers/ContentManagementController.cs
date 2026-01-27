@@ -15,11 +15,13 @@ public class ContentManagementController : ControllerBase
 {
     IContentRepository _contentRepository;
     IContentFactory _contentFactory;
+    IContentVersionRepository _contentVersionRepository;
 
-    public ContentManagementController(IContentRepository contentRepository, IContentFactory contentFactory)
+    public ContentManagementController(IContentRepository contentRepository, IContentFactory contentFactory, IContentVersionRepository contentVersionRepository)
     {
         _contentRepository = contentRepository;
         _contentFactory = contentFactory;
+        _contentVersionRepository = contentVersionRepository;
     }
 
     [HttpGet]
@@ -84,7 +86,7 @@ public class ContentManagementController : ControllerBase
         {
             var content = versionId == null
                 ? _contentRepository.Get<Content>(contentId, language)
-                : _contentRepository.GetVersion<Content>(contentId, versionId.Value, language);
+                : _contentVersionRepository.GetVersion<Content>(contentId, versionId.Value, language);
 
             if (content == null)
                 return NotFound();
@@ -132,8 +134,9 @@ public class ContentManagementController : ControllerBase
     public ActionResult<List<Content>> Versions([FromQuery] Guid contentId, Language language)
     {
 
-        var contentVersions = _contentRepository
-            .Versions<Content>(contentId, language)
+        var contentVersions = _contentVersionRepository
+            .QueryVersions<Content>(language)
+            .Where(x => x.ContentId == contentId)
             .OrderByDescending(x => x.VersionCreated)
             .ToList();
 

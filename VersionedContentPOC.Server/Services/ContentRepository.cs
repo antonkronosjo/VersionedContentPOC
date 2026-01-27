@@ -10,7 +10,6 @@ namespace VersionedContentPOC.Server.Services;
 public interface IContentRepository
 {
     T? Get<T>(Guid contentId, Language language) where T : Content;
-    T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content;
     bool Exists(Guid contentId);
     ContentRoot Get(Guid contentId);
     Type GetContentRootType(Guid contentId);
@@ -19,8 +18,7 @@ public interface IContentRepository
     T Update<T>(Guid contentId, T contentVersion, bool forceUpdate = false) where T : Content;
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
     void Delete(Guid contentId);
-    IQueryable<T> QueryActiveVersions<T>(Language languageBranch) where T : Content;
-    IQueryable<T> Versions<T>(Guid contentId, Language language) where T : Content;
+    IQueryable<T> Query<T>(Language languageBranch) where T : Content;
     IQueryable<ContentRoot> QueryRoots();
     void SetAsActiveVersion(Guid versionId);
     List<Language> GetTranslatedLanguages(Guid contentId);
@@ -42,16 +40,7 @@ public class ContentRepository : IContentRepository
     /// </summary>
     public T? Get<T>(Guid contentId, Language language) where T : Content 
     {
-        return QueryActiveVersions<T>(language).FirstOrDefault(x => x.ContentId == contentId);
-    }
-
-    /// <summary>
-    /// Returns version of content for language. Returns null if not found,
-    /// </summary>
-    public T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content
-    {
-        return QueryVersions<T>(language)
-            .FirstOrDefault(x => x.ContentId == contentId && x.VersionId == versionId);
+        return Query<T>(language).FirstOrDefault(x => x.ContentId == contentId);
     }
 
     /// <summary>
@@ -162,27 +151,15 @@ public class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Returns a base query used when querying active versions of content
+    /// Returns a base query used when querying content
     /// </summary>
-    [ShouldBeRefactored("Should be renamed to just query")]
-    public IQueryable<T> QueryActiveVersions<T>(Language language) where T : Content
+    public IQueryable<T> Query<T>(Language language) where T : Content
     {
         return _context.Content.OfType<T>()
             .Where(x => x.Language == language)
             .Include(x => x.LanguageBranch)
-            .Where(x => x.LanguageBranch.ActiveVersionId == x.VersionId);
-    }
-
-    /// <summary>
-    /// Returns a base query used when querying all versions of content
-    /// </summary>
-    [ShouldBeRefactored("Should be moved to ContentVersionRepo")]
-    public IQueryable<T> QueryVersions<T>(Language language) where T : Content
-    {
-        return _context.Content.OfType<T>()
-            .Where(x => x.Language == language)
-            .Include(x => x.ContentRoot)
-            .Include(x => x.LanguageBranch);
+            .Where(x => x.LanguageBranch.ActiveVersionId == x.VersionId)
+            .Include(x => x.ContentRoot);
     }
 
     /// <summary>

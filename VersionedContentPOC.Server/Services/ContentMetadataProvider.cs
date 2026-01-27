@@ -6,6 +6,7 @@ using VersionedContentPOC.Data.Models;
 using VersionedContentPOC.Server.Attributes;
 using VersionedContentPOC.Server.Controllers.Requests;
 using VersionedContentPOC.Server.Data.Enums;
+using VersionedContentPOC.Server.Extensions;
 
 namespace VersionedContentPOC.Server.Services;
 
@@ -49,8 +50,7 @@ public static class ContentMetadataProvider
     {
         ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
-        return contentType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => HasContentMetaData(p))
+        return contentType.GetContentProperties()
             .ToDictionary(
                 p => p.Name,
                 p => new ContentPropertyValueDto
@@ -74,11 +74,6 @@ public static class ContentMetadataProvider
             return false;
 
         return propertyInfo.GetCustomAttribute<MainLanguageOnlyAttribute>()?.IsActive == true;
-    }
-
-    private static bool HasContentMetaData(PropertyInfo property)
-    {
-        return property.IsDefined(typeof(ContentPropertyMetadataAttribute), inherit: true);
     }
 
     [ShouldBeRefactored("the RequiredMemberAttribute check does not seem to work")]

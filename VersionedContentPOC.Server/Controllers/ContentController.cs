@@ -26,7 +26,7 @@ public class ContentController : ControllerBase
     {
         var utcNow = DateTime.UtcNow;
         var news = _contentRepository
-            .QueryActiveVersions<Content>(language)
+            .Query<Content>(language)
             .Include(x => x.ContentRoot)
             .WhereIf(published, x => x.ContentRoot.StartPublish < utcNow)
             .OrderByDescending(x => x.ContentRoot.Created)
@@ -41,7 +41,7 @@ public class ContentController : ControllerBase
     {
         var fromDate = DateTime.UtcNow.AddMinutes(-1);
         var latestContent = _contentRepository
-            .QueryActiveVersions<Content>(Language.SV)
+            .Query<Content>(Language.SV)
             .Where(x => x.VersionCreated > fromDate)
             .Include(x => x.ContentRoot)
             .ToList();
