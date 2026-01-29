@@ -35,6 +35,7 @@ public static class ContentMetadataProvider
         {
             Metadata = new UpdateContentRequestMetadata {
                 ContentId = content.ContentId,
+                ContentTypeName = content.GetType().Name,
                 VersionId = content.VersionId,
                 ActiveVersionId = content.LanguageBranch?.ActiveVersionId,
                 Language = content.Language,

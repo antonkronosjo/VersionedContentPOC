@@ -15,6 +15,9 @@ public class CreateContentRequest
 
 public class CreateContentRequestMetadata
 {
+    [Required]
     public required string ContentTypeName { get; set; }
+
+    [Required]
     public required Language Language { get; set; }
 }

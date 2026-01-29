@@ -145,12 +145,12 @@ export interface LanguageBranch {
 }
 
 export type NewsContentAllOf = {
-  /** @nullable */
-  heading: string | null;
+  /** @minLength 1 */
+  heading: string;
   /** @nullable */
   lead?: string | null;
-  /** @nullable */
-  text: string | null;
+  /** @minLength 1 */
+  text: string;
 };
 
 export type NewsContentContentType = typeof NewsContentContentType[keyof typeof NewsContentContentType];
@@ -188,6 +188,8 @@ export interface UpdateContentRequestMetadata {
   /** @nullable */
   languageTranslations: Language[] | null;
   forceUpdate?: boolean;
+  /** @nullable */
+  contentTypeName: string | null;
 }
 
 export interface ValidationResult {

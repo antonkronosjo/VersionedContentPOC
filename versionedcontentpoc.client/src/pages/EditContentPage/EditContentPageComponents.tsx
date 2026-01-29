@@ -59,7 +59,7 @@ interface EditContentFormProps {
     onSubmit?: () => void;
 }
 export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }: EditContentFormProps) {
-    const [updateRequest, setUpdateRequest] = useState(schema);
+    const [updateRequest, setUpdateRequest] = useState <UpdateContentRequest>(schema);
     const currentlyEditingActiveVersion = versionId === undefined
             || versionId === activeVersionId; //Todo: can this be done in another way?
 
@@ -82,6 +82,7 @@ export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }
 
     return (
         <ContentForm
+            contentTypeName={updateRequest.metadata.contentTypeName}
             properties={updateRequest.propertiesSchema}
             onSubmit={internalOnSubmit}
             onChange={onChange}

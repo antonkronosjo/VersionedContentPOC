@@ -6,12 +6,13 @@ import { useDebouncedCallback } from "../hooks/useDebouncedCallback";
 
 interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
+    contentTypeName: string;
     disabled: boolean;
     onChange: (key: string, value: string) => void;
     onSubmit: () => Promise<void>;
     submitText: string;
 }
-export default function ContentForm({ properties, onChange, onSubmit, submitText, disabled }: ContentFormProps) {
+export default function ContentForm({ properties, contentTypeName, onChange, onSubmit, submitText, disabled }: ContentFormProps) {
     const inputRefs = useRef<FormElementTemplateHandles[]>([]);
 
     const handleSubmit = async () => {
@@ -39,9 +40,10 @@ export default function ContentForm({ properties, onChange, onSubmit, submitText
             <Grid container spacing={2}>
                 {Object.entries(properties).map(([key], index) => (
                     <Grid size={12} key={key}>
-                        <FormElementTemplate2
+                        <FormElementTemplate
                             ref={(el) => { inputRefs.current[index] = el! }}
                             label={key}
+                            contentTypeName={contentTypeName}
                             propertyName={key}
                             valueDto={properties[key]}
                             disabled={disabled}
@@ -60,6 +62,7 @@ export default function ContentForm({ properties, onChange, onSubmit, submitText
 
 type FormElementTemplateProps = {
     label: string;
+    contentTypeName: string;
     propertyName: string;
     valueDto: ContentPropertyValueDto;
     disabled: boolean;
@@ -67,22 +70,21 @@ type FormElementTemplateProps = {
 }
 interface FormElementTemplateHandles { validate: () => Promise<boolean>; }
 
-const FormElementTemplate2 = forwardRef<FormElementTemplateHandles, FormElementTemplateProps>(
-    ({ label, propertyName, valueDto, disabled, onChange }, ref) => {
+const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTemplateProps>(
+    ({ label, propertyName, contentTypeName, valueDto, disabled, onChange }, ref) => {
         const [errors, setErrors] = useState<ValidationResult[]>([]);
         const [touched, setTouched] = useState(false);
 
         const validate = async () => {
             setTouched(true);
             const res = await postApiValidationProperty(valueDto, {
-                contentTypeName: "NewsContent",
+                contentTypeName: contentTypeName,
                 propertyName,
             });
             setErrors(res.data);
             return res.data.length === 0;
         }
 
-        // debounced API validation
         const debouncedValidate = useDebouncedCallback(validate, 200);
 
         useImperativeHandle(ref, () => ({

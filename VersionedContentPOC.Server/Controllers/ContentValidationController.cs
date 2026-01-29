@@ -39,10 +39,6 @@ public class ContentValidationController : ControllerBase
             .ToList();
 
         var results = new List<ValidationResult>();
-        var context = new ValidationContext(new object(), null, null)
-        {
-            MemberName = propertyName
-        };
 
         foreach (var attr in attributes)
         {

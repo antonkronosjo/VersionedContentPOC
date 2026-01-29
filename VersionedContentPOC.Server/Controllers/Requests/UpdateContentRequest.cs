@@ -24,6 +24,7 @@ public class UpdateContentRequestMetadata
     public required DateTime? StopPublish { get; set; }
     public required List<Language> LanguageTranslations { get; set; }
     public bool ForceUpdate { get; set; }
+    public required string ContentTypeName { get; set; }
 }
     
 

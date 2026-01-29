@@ -43,7 +43,7 @@ interface CreateContentFormProps {
 }
 export function CreateContentForm({ contentType, language }: CreateContentFormProps) {
     const navigate = useNavigate();
-    const [createRequest, setCreateRequest] = useState(null);
+    const [createRequest, setCreateRequest] = useState<CreateContentRequest | null>(null);
     const { data: response, isLoading, error } = useGetApiContentCreationschema(
         { contentTypeName: contentType, language: language }
     );
@@ -80,6 +80,7 @@ export function CreateContentForm({ contentType, language }: CreateContentFormPr
 
     return (
         <ContentForm
+            contentTypeName={createRequest.metadata.contentTypeName}
             properties={createRequest.propertiesSchema}
             onSubmit={onSubmit}
             onChange={onChange}
