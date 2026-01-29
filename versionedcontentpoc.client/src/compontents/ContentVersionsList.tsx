@@ -35,9 +35,9 @@ export default function ContentVersionsList({ contentId, language, versionId }: 
                     selected={contentVersion.versionId == versionId}
                     component={RouterLink}
                     to={routes.edit.build({
-                        contentId: contentVersion.contentId,
+                        contentId: contentVersion.contentId.toString(),
                         language: language,
-                        versionId: contentVersion.versionId
+                        versionId: contentVersion.versionId.toString()
                 })}>
                     <ListItemIcon>
                         {contentVersion.languageBranch?.activeVersionId === contentVersion.versionId

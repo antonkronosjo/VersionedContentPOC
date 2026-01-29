@@ -92,7 +92,7 @@ function ContentRootTableRow({ contentRoot }: ContentRootTableRowProps) {
                     contentRoot.languageVersions.map((lang, index) => (
                         <span key={lang}>
                             {index > 0 && ", "}
-                            <Link component={RouterLink} to={routes.edit.build({ contentId: contentRoot.contentId, language: lang })}>
+                            <Link component={RouterLink} to={routes.edit.build({ contentId: contentRoot.contentId.toString(), language: lang })}>
                                 {lang}
                             </Link>
                         </span>

@@ -1,12 +1,17 @@
 import { Language, useGetApiContentUpdateschema, getGetApiContentUpdateschemaQueryKey } from "../../api/client";
-import { useParams } from 'react-router-dom';
 import { Box, Grid, Paper, Typography } from "@mui/material";
 import ContentVersionsList from "../../compontents/ContentVersionsList";
 import { useQueryClient } from '@tanstack/react-query';
 import { EditContentPageHeader, EditContentForm, LanguageBranchTabs } from "./EditContentPageComponents";
+import { useTypedParams } from "../../hooks/useTypedParams";
 
 export default function EditContentPage() {
-    const { contentId, language, versionId } = useParams<{ contentId: number, language: Language, versionId: string | undefined }>();
+    const { contentId, language, versionId } = useTypedParams({
+        contentId: Number,
+        language: (v) => v as Language,
+        versionId: (v) => v ? Number(v) : undefined,
+    });
+
     const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language, versionId: versionId });
     const queryClient = useQueryClient();
 
