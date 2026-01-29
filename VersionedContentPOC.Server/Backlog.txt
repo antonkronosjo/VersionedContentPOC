@@ -9,7 +9,6 @@ Todo:
 	
 - New features:
 	- Key features
-		- Change PK guid => int
 		- Advanced filtering
 		- Add uploading files feature
 		- Add sending event on content changes
