@@ -9,19 +9,19 @@ namespace VersionedContentPOC.Server.Services;
 
 public interface IContentRepository
 {
-    T? Get<T>(Guid contentId, Language language) where T : Content;
-    bool Exists(Guid contentId);
-    ContentRoot Get(Guid contentId);
-    Type GetContentRootType(Guid contentId);
-    void SetPublishState(Guid contentId, DateTime? startPublish, DateTime? stopPublish);
+    T? Get<T>(int contentId, Language language) where T : Content;
+    bool Exists(int contentId);
+    ContentRoot Get(int contentId);
+    Type GetContentRootType(int contentId);
+    void SetPublishState(int contentId, DateTime? startPublish, DateTime? stopPublish);
     T Create<T>(T content) where T : Content;
-    T Update<T>(Guid contentId, T contentVersion, bool forceUpdate = false) where T : Content;
+    T Update<T>(int contentId, T contentVersion, bool forceUpdate = false) where T : Content;
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
-    void Delete(Guid contentId);
+    void Delete(int contentId);
     IQueryable<T> Query<T>(Language languageBranch) where T : Content;
     IQueryable<ContentRoot> QueryRoots();
-    void SetAsActiveVersion(Guid versionId);
-    List<Language> GetTranslatedLanguages(Guid contentId);
+    void SetAsActiveVersion(int versionId);
+    List<Language> GetTranslatedLanguages(int contentId);
 }
 
 public class ContentRepository : IContentRepository
@@ -38,7 +38,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Returns currently active version of content for language. Returns null if entity not found or not active
     /// </summary>
-    public T? Get<T>(Guid contentId, Language language) where T : Content 
+    public T? Get<T>(int contentId, Language language) where T : Content 
     {
         return Query<T>(language).FirstOrDefault(x => x.ContentId == contentId);
     }
@@ -46,7 +46,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Returns true if content with contentid exists
     /// </summary>
-    public bool Exists(Guid contentId)
+    public bool Exists(int contentId)
     {
         return _context.ContentRoots.Any(x => x.ContentId == contentId);
     }
@@ -54,7 +54,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Returns root content object
     /// </summary>
-    public ContentRoot Get(Guid contentId)
+    public ContentRoot Get(int contentId)
     {
         return _context.ContentRoots
             .Where(x => x.ContentId == contentId)
@@ -62,7 +62,7 @@ public class ContentRepository : IContentRepository
             .Single();
     }
 
-    public void SetPublishState(Guid contentId, DateTime? startPublish, DateTime? stopPublish)
+    public void SetPublishState(int contentId, DateTime? startPublish, DateTime? stopPublish)
     {
         var contentRoot = _context.ContentRoots.Single(x => x.ContentId == contentId);
         contentRoot.StartPublish = startPublish;
@@ -71,7 +71,7 @@ public class ContentRepository : IContentRepository
     }
 
     [ShouldBeRefactored("To get type of ContentRoot should be done in a more eligant way")]
-    public Type GetContentRootType(Guid contentId)
+    public Type GetContentRootType(int contentId)
     {
         return _context.Content.First(x => x.ContentId == contentId).GetType();
     }
@@ -84,7 +84,7 @@ public class ContentRepository : IContentRepository
         using var transaction = _context.Database.BeginTransaction();
         try
         {
-            var contentRoot = new ContentRoot(Guid.NewGuid(), initialVersion.Language);
+            var contentRoot = new ContentRoot(initialVersion.Language);
             var languageBranch = contentRoot.AddNewLanguageBranch(initialVersion.Language);
             _context.Add(contentRoot);
             _context.SaveChanges();
@@ -107,7 +107,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Delets content and all versions of it
     /// </summary>
-    public void Delete(Guid contentId)
+    public void Delete(int contentId)
     {
         var content = _context.ContentRoots.Where(x => x.ContentId == contentId);
         _context.Remove(content);
@@ -118,7 +118,7 @@ public class ContentRepository : IContentRepository
     /// Updates content with new version. NOTE: Will throw exception if content.VersionId does not match currently active content version
     /// </summary>
     [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
-    public T Update<T>(Guid contentId, T updatedVersion, bool forceUpdate = false) where T : Content
+    public T Update<T>(int contentId, T updatedVersion, bool forceUpdate = false) where T : Content
     {
         return _contentVersionRepository.AddVersion(contentId, updatedVersion, forceUpdate);
     }
@@ -137,7 +137,7 @@ public class ContentRepository : IContentRepository
     /// <summary>
     /// Returns all versions of given content
     /// </summary>
-    public IQueryable<T> Versions<T>(Guid contentId, Language language) where T : Content
+    public IQueryable<T> Versions<T>(int contentId, Language language) where T : Content
     {
         return _context.Content.OfType<T>()
             .Where(x => x.ContentId == contentId && x.Language == language)
@@ -145,7 +145,7 @@ public class ContentRepository : IContentRepository
             .Include(x => x.LanguageBranch);
     }
 
-    public void SetAsActiveVersion(Guid versionId)
+    public void SetAsActiveVersion(int versionId)
     {
         _contentVersionRepository.SetAsActiveVersion(versionId);
     }
@@ -174,7 +174,7 @@ public class ContentRepository : IContentRepository
     /// Returns all languages content has been translated to
     /// </summary>
     [ShouldBeRefactored("This method should be moved to another class, maybe IContentMetadataService or similar?")]
-    public List<Language> GetTranslatedLanguages(Guid contentId)
+    public List<Language> GetTranslatedLanguages(int contentId)
     {
         return _context.ContentRoots
             .Include(x => x.LanguageBranches)

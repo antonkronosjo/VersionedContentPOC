@@ -5,15 +5,15 @@ namespace VersionedContentPOC.Data.Models;
 
 public class LanguageBranch
 {
-    public LanguageBranch(Guid contentId, Language language)
+    public LanguageBranch(int contentId, Language language)
     {
         ContentId = contentId;
         Language = language;
     }
 
-    public Guid ContentId { get; set; }
+    public int ContentId { get; set; }
     public Language Language { get; set; }
-    public Guid? ActiveVersionId { get; set; }
+    public int? ActiveVersionId { get; set; }
 
     [JsonIgnore]
     public Content? ActiveVersion { get; set; }

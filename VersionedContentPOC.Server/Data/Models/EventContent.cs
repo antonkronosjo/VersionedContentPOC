@@ -10,7 +10,7 @@ namespace VersionedContentPOC.Server.Data.Models
     [ContentType]
     public class EventContent : Content
     {
-        public EventContent(Guid versionId, Language language) : base(versionId, language)
+        public EventContent(Language language) : base(language)
         {
             
         }

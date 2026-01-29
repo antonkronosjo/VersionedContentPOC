@@ -79,7 +79,7 @@ public class ContentManagementController : ControllerBase
     [Route("updateschema")]
     [ProducesResponseType(typeof(UpdateContentRequest), StatusCodes.Status200OK)]
     [ShouldBeRefactored("Logic regarding initializing translation vs updating in same language branch should no be inside controller")]
-    public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] Guid contentId, [FromQuery] Language language, [FromQuery] Guid? versionId = null)
+    public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] int contentId, [FromQuery] Language language, [FromQuery] int? versionId = null)
     {
         var contentLanguages = _contentRepository.GetTranslatedLanguages(contentId);
         if (contentLanguages.Contains(language))
@@ -131,7 +131,7 @@ public class ContentManagementController : ControllerBase
     [HttpGet]
     [Route("versions")]
     [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
-    public ActionResult<List<Content>> Versions([FromQuery] Guid contentId, Language language)
+    public ActionResult<List<Content>> Versions([FromQuery] int contentId, Language language)
     {
 
         var contentVersions = _contentVersionRepository
@@ -145,7 +145,7 @@ public class ContentManagementController : ControllerBase
 
     [HttpPut]
     [Route("setasactive")]
-    public IActionResult SetAsActiveVersion([FromQuery] Guid versionId)
+    public IActionResult SetAsActiveVersion([FromQuery] int versionId)
     {
         _contentRepository.SetAsActiveVersion(versionId);
         return Ok();
@@ -153,7 +153,7 @@ public class ContentManagementController : ControllerBase
 
     [HttpPut]
     [Route("publish")]
-    public IActionResult Publish([FromQuery] Guid contentId)
+    public IActionResult Publish([FromQuery] int contentId)
     {
         _contentRepository.SetPublishState(contentId, startPublish: DateTime.UtcNow, stopPublish: null);
         return Ok();
@@ -161,7 +161,7 @@ public class ContentManagementController : ControllerBase
 
     [HttpPut]
     [Route("unpublish")]
-    public IActionResult UnPublish([FromQuery] Guid contentId)
+    public IActionResult UnPublish([FromQuery] int contentId)
     {
         _contentRepository.SetPublishState(contentId, startPublish: null, stopPublish: DateTime.UtcNow);
         return Ok();
@@ -169,7 +169,7 @@ public class ContentManagementController : ControllerBase
 
     [HttpDelete]
     [Route("delete")]
-    public IActionResult DeleteContent([FromQuery] Guid contentId)
+    public IActionResult DeleteContent([FromQuery] int contentId)
     {
         _contentRepository.Delete(contentId);
         return NoContent();

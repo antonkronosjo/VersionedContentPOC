@@ -16,18 +16,17 @@ public abstract class Content
             
     }
 
-    public Content(Guid versionId, Language language)
+    public Content(Language language)
     {
-        VersionId = versionId;
         VersionCreated = DateTime.UtcNow;
         Language = language;
     }
 
     [Required]
-    public Guid VersionId { get; set; }
+    public int VersionId { get; set; }
 
     [Required]
-    public Guid ContentId { get; set; }
+    public int ContentId { get; set; }
 
     [ShouldBeRefactored("Should this be marked as nullable??? In practice instances can exist with this set to null")]
     public ContentRoot ContentRoot { get; set; }

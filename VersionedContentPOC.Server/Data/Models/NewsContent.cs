@@ -9,7 +9,7 @@ namespace VersionedContentPOC.Server.Data.Models
     [ContentType]
     public class NewsContent : Content
     {
-        public NewsContent(Guid versionId, Language language) : base(versionId, language)
+        public NewsContent(Language language) : base(language)
         {
             
         }

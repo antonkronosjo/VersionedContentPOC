@@ -11,10 +11,10 @@ namespace VersionedContentPOC.Server.Services;
 
 public interface IContentVersionRepository
 {
-    T AddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content;
+    T AddVersion<T>(int contentId, T version, bool forceUpdate = false) where T : Content;
     IQueryable<T> QueryVersions<T>(Language language) where T : Content;
-    T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content;
-    void SetAsActiveVersion(Guid versionId);
+    T? GetVersion<T>(int contentId, int versionId, Language language) where T : Content;
+    void SetAsActiveVersion(int versionId);
 }
 
 public class ContentVersionRepository : IContentVersionRepository
@@ -29,7 +29,7 @@ public class ContentVersionRepository : IContentVersionRepository
     /// <summary>
     /// Adds new version to content + updates non cultural specific properties on other language branches
     /// </summary>
-    public T AddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content
+    public T AddVersion<T>(int contentId, T version, bool forceUpdate = false) where T : Content
     {
         using var transaction = _context.Database.BeginTransaction();
 
@@ -77,7 +77,7 @@ public class ContentVersionRepository : IContentVersionRepository
     /// <summary>
     /// Sets version as current active
     /// </summary>
-    public void SetAsActiveVersion(Guid versionId)
+    public void SetAsActiveVersion(int versionId)
     {
         using var transaction = _context.Database.BeginTransaction();
         try
@@ -162,7 +162,7 @@ public class ContentVersionRepository : IContentVersionRepository
     /// <summary>
     /// Returns version of content for language. Returns null if not found,
     /// </summary>
-    public T? GetVersion<T>(Guid contentId, Guid versionId, Language language) where T : Content
+    public T? GetVersion<T>(int contentId, int versionId, Language language) where T : Content
     {
         return QueryVersions<T>(language)
             .FirstOrDefault(x => x.ContentId == contentId && x.VersionId == versionId);
@@ -217,7 +217,7 @@ public class ContentVersionRepository : IContentVersionRepository
         return properties.Any(p => !Equals(p.GetValue(versionA), p.GetValue(versionB)));
     }
 
-    private T InternalAddVersion<T>(Guid contentId, T version, bool forceUpdate = false) where T : Content
+    private T InternalAddVersion<T>(int contentId, T version, bool forceUpdate = false) where T : Content
     {
         var root = _context.ContentRoots
                .Include(r => r.LanguageBranches)
@@ -237,7 +237,7 @@ public class ContentVersionRepository : IContentVersionRepository
             throw new Exception("Content.VersionId does not match the current one being active. Use forceUpdate=true to save");
         else
         {
-            version.VersionId = Guid.NewGuid();
+            version.VersionId = 0;
             version.VersionCreated = DateTime.UtcNow;
         }
 

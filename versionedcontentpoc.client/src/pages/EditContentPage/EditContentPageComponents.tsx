@@ -54,8 +54,8 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
 
 interface EditContentFormProps {
     schema: UpdateContentRequest;
-    versionId: string | undefined,
-    activeVersionId: string | null,
+    versionId: number | undefined,
+    activeVersionId: number | null,
     onSubmit?: () => void;
 }
 export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }: EditContentFormProps) {

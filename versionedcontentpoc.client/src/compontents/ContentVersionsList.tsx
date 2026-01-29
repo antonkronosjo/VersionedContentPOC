@@ -6,9 +6,9 @@ import { routes } from "../utils/routeResolver";
 import { relativeDateTime } from "../utils/dateUtils";
 
 interface ContentVersionsListProps {
-    contentId: string | undefined,
+    contentId: number | undefined,
     language: Language,
-    versionId: string | null,
+    versionId: number | null,
     onUpdate: () => void
 }
 export default function ContentVersionsList({ contentId, language, versionId }: ContentVersionsListProps) {

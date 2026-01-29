@@ -32,8 +32,8 @@ import type {
 
 export interface Content {
   contentType: string;
-  versionId: string;
-  contentId: string;
+  versionId: number;
+  contentId: number;
   contentRoot?: ContentRoot;
   language: Language;
   languageBranch?: LanguageBranch;
@@ -56,7 +56,7 @@ export interface ContentPropertyValueDto {
 }
 
 export interface ContentRoot {
-  contentId?: string;
+  contentId?: number;
   created?: string;
   /** @nullable */
   startPublish?: string | null;
@@ -66,7 +66,7 @@ export interface ContentRoot {
 }
 
 export interface ContentRootSummary {
-  contentId: string;
+  contentId: number;
   /** @nullable */
   contentTypeName: string | null;
   /** @nullable */
@@ -89,8 +89,8 @@ export interface CreateContentRequest {
 }
 
 export interface CreateContentRequestMetadata {
-  /** @nullable */
-  contentTypeName: string | null;
+  /** @minLength 1 */
+  contentTypeName: string;
   language: Language;
 }
 
@@ -138,10 +138,10 @@ export const Language = {
 } as const;
 
 export interface LanguageBranch {
-  contentId?: string;
+  contentId?: number;
   language?: Language;
   /** @nullable */
-  activeVersionId?: string | null;
+  activeVersionId?: number | null;
 }
 
 export type NewsContentAllOf = {
@@ -173,11 +173,11 @@ export interface UpdateContentRequest {
 }
 
 export interface UpdateContentRequestMetadata {
-  contentId: string;
+  contentId: number;
   /** @nullable */
-  versionId: string | null;
+  versionId: number | null;
   /** @nullable */
-  activeVersionId: string | null;
+  activeVersionId: number | null;
   language: Language;
   /** @nullable */
   created: string | null;
@@ -214,34 +214,34 @@ language?: Language;
 export type PostApiContentCreate200 = EventContent | NewsContent;
 
 export type GetApiContentUpdateschemaParams = {
-contentId?: string;
+contentId?: number;
 language?: Language;
-versionId?: string;
+versionId?: number;
 };
 
 export type PutApiContentUpdate200 = EventContent | NewsContent;
 
 export type GetApiContentVersionsParams = {
-contentId?: string;
+contentId?: number;
 language?: Language;
 };
 
 export type GetApiContentVersions200Item = EventContent | NewsContent;
 
 export type PutApiContentSetasactiveParams = {
-versionId?: string;
+versionId?: number;
 };
 
 export type PutApiContentPublishParams = {
-contentId?: string;
+contentId?: number;
 };
 
 export type PutApiContentUnpublishParams = {
-contentId?: string;
+contentId?: number;
 };
 
 export type DeleteApiContentDeleteParams = {
-contentId?: string;
+contentId?: number;
 };
 
 export type GetApiContentsummaryContentrootsParams = {

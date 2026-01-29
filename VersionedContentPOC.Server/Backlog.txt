@@ -1,8 +1,6 @@
 Todo:
 
 - Frontend technical debt:
-	- Merge SelectContentPage and CreateContentPage - maybe also pre-add language tabs?
-	- Break out components from pages to separate files
 
 - Management API technical debt:
 	- only one endpoint for create/update schema
@@ -10,23 +8,27 @@ Todo:
 	- See if initializing new content instances when creating first new translation can be done better
 	
 - New features:
-	- Wrap up validation solution
-	- Make save button disabled untill changes have been applied
-	- Add interface for versioning so you can choose to not use it
-	- Add "manage-content-button"
-		- Add "delete content feature"
-		- Add "delete language branch feature"
-		- Add "delayed publish feature"
-		- Add "delayed unpublish feature"
-	- Add "Force update feature"
-	- Add sending event on content changes
-		- created, updated, published, unpublished, translated
-	- Add "minimizing menu feature"
-	- Add spinners/etc to give user proper feedback when page loading
-	- Add table for overviewing content on home page
-	- Add uploading files feature
-	- Add DateTimePicker
+	- Key features
+		- Change PK guid => int
+		- Advanced filtering
+		- Add uploading files feature
+		- Add sending event on content changes
+			- created, updated, published, unpublished, translated
+		- Add "manage-content-button"
+			- Add "delete content feature"
+			- Add "delete language branch feature"
+			- Add "delayed publish feature"
+			- Add "delayed unpublish feature"
+		- Add DateTimePicker
 
+	- Nice to have
+		- Preview
+		- Make save button disabled untill changes have been applied
+		- Add interface for versioning so you can choose to not use it
+		- Add "Force update feature"
+		- Add "minimizing menu feature"
+		- Add spinners/etc to give user proper feedback when page loading
+	
 - Bugs:
 	- When working on an new languge version (before saving) created date is not visible
 	- A lot of requests are being sent/canceled on page render. Multiple unneccessary re-renders?

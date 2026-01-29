@@ -5,14 +5,13 @@ namespace VersionedContentPOC.Data.Models;
 
 public class ContentRoot
 {
-    public ContentRoot(Guid contentId, Language mainLanguage)
+    public ContentRoot(Language mainLanguage)
     {
-        ContentId = contentId;
         Created = DateTime.UtcNow;
         MainLanguage = mainLanguage;
     }
 
-    public Guid ContentId { get; set; }
+    public int ContentId { get; set; }
     public DateTime Created { get; set; }
     public DateTime? StartPublish { get; set; }
     public DateTime? StopPublish { get; set; }

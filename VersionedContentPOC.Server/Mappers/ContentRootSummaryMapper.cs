@@ -34,7 +34,7 @@ namespace VersionedContentPOC.Server.Mappers
 
     public class ContentRootSummary
     {
-        public required Guid ContentId { get; set; }
+        public required int ContentId { get; set; }
         public required string ContentTypeName { get; set; }
         public required DateTime? StartPublish {  get; set; }
         public required DateTime? StopPublish { get; set; }

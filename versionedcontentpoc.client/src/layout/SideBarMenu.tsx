@@ -8,13 +8,12 @@ export default function SidebarMenu() {
     const location = useLocation();
     const menuItems = getMenuItems(location.pathname);
 
-
     return (
         <Paper>
             <Box component="nav">
                 <List disablePadding>
                     {menuItems.map((menuItem) => (
-                        <ListItemButton component={RouterLink} to={menuItem.url} selected={location.pathname === menuItem.url}>
+                        <ListItemButton component={RouterLink} to={menuItem.url} selected={location.pathname === menuItem.url} key={menuItem.url}>
                             <ListItemIcon>
                                 {menuItem.icon}
                             </ListItemIcon>

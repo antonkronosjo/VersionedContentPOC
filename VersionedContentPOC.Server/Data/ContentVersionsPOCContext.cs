@@ -20,6 +20,8 @@ namespace VersionedContentPOC.Data
             modelBuilder.Entity<ContentRoot>(entity =>
             {
                 entity.HasKey(x => x.ContentId);
+                entity.Property(x => x.ContentId)
+                    .ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<LanguageBranch>(entity => {
@@ -35,6 +37,8 @@ namespace VersionedContentPOC.Data
             {
                 entity.UseTpcMappingStrategy();
                 entity.HasKey(x => x.VersionId);
+                entity.Property(x => x.VersionId)
+                    .ValueGeneratedOnAdd();
                 entity.HasOne(x => x.LanguageBranch)
                     .WithMany(x => x.Versions)
                     .HasForeignKey(x => new { x.ContentId, x.Language });

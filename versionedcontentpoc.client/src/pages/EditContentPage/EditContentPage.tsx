@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { EditContentPageHeader, EditContentForm, LanguageBranchTabs } from "./EditContentPageComponents";
 
 export default function EditContentPage() {
-    const { contentId, language, versionId } = useParams<{ contentId: string, language: Language, versionId: string | undefined }>();
+    const { contentId, language, versionId } = useParams<{ contentId: number, language: Language, versionId: string | undefined }>();
     const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language, versionId: versionId });
     const queryClient = useQueryClient();
 
