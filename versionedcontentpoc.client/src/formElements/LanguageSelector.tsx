@@ -4,9 +4,10 @@ import { useId } from "react";
 
 interface LanguageSelectorProps {
     value: Language | ""
+    displayEmpty?: boolean
     onChange?: (event: SelectChangeEvent) => void;
 }
-export default function LanguageSelector({ value, onChange }: LanguageSelectorProps)
+export default function LanguageSelector({ value, displayEmpty, onChange }: LanguageSelectorProps)
 {
     const labelId = useId();
 
@@ -18,14 +19,17 @@ export default function LanguageSelector({ value, onChange }: LanguageSelectorPr
                     label="Language"
                     value={value}
                     onChange={onChange}
-                >
-            {
-                Object.values(Language).map(currLang => (
+                    displayEmpty={displayEmpty}
+            >
+
+                {displayEmpty &&
+                    <MenuItem value={undefined}>Show all</MenuItem>
+                }
+                {Object.values(Language).map(currLang => (
                     <MenuItem key={currLang} value={currLang}>
                         { currLang }
                     </MenuItem>
-                ))
-            }
+                ))}
             </Select>
         </FormControl>
     );

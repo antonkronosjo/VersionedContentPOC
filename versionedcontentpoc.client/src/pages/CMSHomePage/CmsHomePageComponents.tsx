@@ -9,7 +9,7 @@ import { routes } from "../../utils/routeResolver";
 export function ContentFilter() {
     const { data: response, isLoading, error } = useGetApiContentTypes();
     const [searchParams, setSearchParams] = useSearchParams();
-    const language = (searchParams.get("language") as Language) ?? null;
+    const language = (searchParams.get("language") as Language | "") ?? "";
     const contentType = searchParams.get("contentType");
     const published = searchParams.get("published") === "true";
 
@@ -22,7 +22,7 @@ export function ContentFilter() {
     const setQueryParam = (key: string, value: string | null) => {
         setSearchParams(prev => {
             const params = new URLSearchParams(prev);
-            if (value === null) params.delete(key);
+            if (value === null || value === undefined) params.delete(key);
             else params.set(key, value);
             return params;
         });
@@ -31,10 +31,18 @@ export function ContentFilter() {
     return (
         <Grid container spacing={2}>
             <Grid size={4}>
-                <ContentTypeSelector includeNull value={contentType} contentTypes={response.data} onChange={(e) => { setQueryParam("contentType", e.target.value) }} />
+                <ContentTypeSelector
+                    value={contentType}
+                    contentTypes={response.data}
+                    displayEmpty onChange={(e) => { setQueryParam("contentType", e.target.value) }}
+                />
             </Grid>
             <Grid size={4}>
-                <LanguageSelector value={language} onChange={(e) => { setQueryParam("language", e.target.value) }} />
+                <LanguageSelector
+                    value={language}
+                    displayEmpty
+                    onChange={(e) => { setQueryParam("language", e.target.value) }}
+                />
             </Grid>
             <Grid size={4}>
                 <FormControlLabel

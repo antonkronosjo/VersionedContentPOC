@@ -5,9 +5,9 @@ interface ContentTypeSelectorProps {
     value: string | null | undefined;
     contentTypes: string[];
     onChange?: (event: SelectChangeEvent) => void;
-    includeNull?: boolean;
+    displayEmpty?: boolean;
 }
-export default function ContentTypeSelector({ value, contentTypes, includeNull, onChange }: ContentTypeSelectorProps)
+export default function ContentTypeSelector({ value, contentTypes, displayEmpty, onChange }: ContentTypeSelectorProps)
 {
     const labelId = useId();
 
@@ -19,9 +19,10 @@ export default function ContentTypeSelector({ value, contentTypes, includeNull, 
                 label="Content type"
                 value={value ?? ""}
                 onChange={onChange}
+                displayEmpty={displayEmpty}
             >
-                {includeNull &&
-                    <MenuItem value={null}>Show all</MenuItem>
+                {displayEmpty &&
+                    <MenuItem value={undefined}>Show all</MenuItem>
                 }
                 {contentTypes.map((contentType) => (
                     <MenuItem value={contentType}>{contentType}</MenuItem>

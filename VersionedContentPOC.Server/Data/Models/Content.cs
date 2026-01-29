@@ -6,9 +6,6 @@ using VersionedContentPOC.Server.Data.Models;
 
 namespace VersionedContentPOC.Data.Models;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "contentType", UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
-[JsonDerivedType(typeof(NewsContent), nameof(NewsContent))]
-[JsonDerivedType(typeof(EventContent), nameof(EventContent))]
 public abstract class Content
 {
     protected Content()
