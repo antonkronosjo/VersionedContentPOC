@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Controllers.Requests;
-using VersionedContentPOC.Server.Extensions;
+using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Extensions;
+using VersionedContentPOC.CMS.Requests;
+using VersionedContentPOC.CMS.Services;
 using VersionedContentPOC.Server.Mappers;
-using VersionedContentPOC.Server.Services;
 
 namespace VersionedContentPOC.Controllers;
 

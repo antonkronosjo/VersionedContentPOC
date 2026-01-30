@@ -3,10 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Extensions;
-using VersionedContentPOC.Server.Services;
+using VersionedContentPOC.CMS.Extensions;
+using VersionedContentPOC.CMS.Services;
 
 namespace VersionedContentPOC.Controllers;
 

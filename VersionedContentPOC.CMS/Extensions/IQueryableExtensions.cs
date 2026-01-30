@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace VersionedContentPOC.Server.Extensions
+namespace VersionedContentPOC.CMS.Extensions
 {
     public static class IQueryableExtensions
     {

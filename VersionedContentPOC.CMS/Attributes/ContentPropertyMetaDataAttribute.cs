@@ -1,8 +1,7 @@
 ﻿
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Data.Enums;
+using VersionedContentPOC.CMS.Data.Enums;
 
-namespace VersionedContentPOC.Attributes;
+namespace VersionedContentPOC.CMS.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class ContentPropertyMetadataAttribute : Attribute

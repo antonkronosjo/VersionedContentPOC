@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.Server.Services;
+using VersionedContentPOC.CMS.Services;
 
-namespace VersionedContentPOC.Extensions
+namespace VersionedContentPOC.CMS.Extensions
 {
     public static class ModelBuilderExtensions
     {

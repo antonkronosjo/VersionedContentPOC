@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.Data;
-using VersionedContentPOC.Server.Extensions;
-using VersionedContentPOC.Server.Services;
+using VersionedContentPOC.CMS.Data;
+using VersionedContentPOC.CMS.Initialization;
+using VersionedContentPOC.CMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

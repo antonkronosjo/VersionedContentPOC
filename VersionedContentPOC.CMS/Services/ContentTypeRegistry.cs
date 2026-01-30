@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using VersionedContentPOC.Attributes;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
+﻿using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Data.Models;
 
-namespace VersionedContentPOC.Server.Services;
+namespace VersionedContentPOC.CMS.Services;
 
 public static class ContentTypeRegistry
 {

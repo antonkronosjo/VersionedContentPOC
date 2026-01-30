@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.Data;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Extensions;
+using VersionedContentPOC.CMS.Data;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Attributes;
 
-namespace VersionedContentPOC.Server.Services;
+namespace VersionedContentPOC.CMS.Services;
 
 public interface IContentRepository
 {

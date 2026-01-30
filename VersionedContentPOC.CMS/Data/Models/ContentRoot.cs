@@ -1,7 +1,7 @@
-﻿using VersionedContentPOC.Data.Enums;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using VersionedContentPOC.CMS.Data.Enums;
 
-namespace VersionedContentPOC.Data.Models;
+namespace VersionedContentPOC.CMS.Data.Models;
 
 public class ContentRoot
 {
@@ -31,7 +31,7 @@ public class ContentRoot
 
     public LanguageBranch AddNewLanguageBranch(Language language)
     {
-        var languageBranch = new LanguageBranch(this.ContentId, language);
+        var languageBranch = new LanguageBranch(ContentId, language);
         LanguageBranches.Add(languageBranch);
         return languageBranch;
     }

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Server.Services;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Services;
 
-namespace VersionedContentPOC.Server.Controllers.Requests;
+namespace VersionedContentPOC.CMS.Requests;
 
 public class UpdateContentRequest
 {

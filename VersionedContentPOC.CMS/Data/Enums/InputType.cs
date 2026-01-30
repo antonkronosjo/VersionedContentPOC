@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.TagHelpers;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace VersionedContentPOC.Server.Data.Enums;
+namespace VersionedContentPOC.CMS.Data.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum InputType

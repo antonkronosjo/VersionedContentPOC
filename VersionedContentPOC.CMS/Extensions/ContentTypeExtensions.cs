@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using VersionedContentPOC.Attributes;
+using VersionedContentPOC.CMS.Attributes;
 
-namespace VersionedContentPOC.Server.Extensions
+namespace VersionedContentPOC.CMS.Extensions
 {
     public static class ContentTypeExtensions
     {

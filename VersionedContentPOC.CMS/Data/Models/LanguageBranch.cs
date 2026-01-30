@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using VersionedContentPOC.Data.Enums;
+using VersionedContentPOC.CMS.Data.Enums;
 
-namespace VersionedContentPOC.Data.Models;
+namespace VersionedContentPOC.CMS.Data.Models;
 
 public class LanguageBranch
 {

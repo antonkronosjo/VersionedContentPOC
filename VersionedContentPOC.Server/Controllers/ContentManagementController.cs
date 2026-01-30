@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Controllers.Requests;
-using VersionedContentPOC.Server.Services;
+using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Requests;
+using VersionedContentPOC.CMS.Services;
 
 namespace VersionedContentPOC.Controllers;
 

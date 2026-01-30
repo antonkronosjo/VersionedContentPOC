@@ -1,7 +1,7 @@
-﻿using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
+﻿using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Data.Models;
 
-namespace VersionedContentPOC.Server.Services
+namespace VersionedContentPOC.CMS.Services
 {
     public interface IContentFactory
     {

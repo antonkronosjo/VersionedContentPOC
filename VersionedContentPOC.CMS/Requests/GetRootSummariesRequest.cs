@@ -1,6 +1,6 @@
-﻿using VersionedContentPOC.Data.Enums;
+﻿using VersionedContentPOC.CMS.Data.Enums;
 
-namespace VersionedContentPOC.Server.Controllers.Requests
+namespace VersionedContentPOC.CMS.Requests
 {
     public class GetRootSummariesRequest
     {

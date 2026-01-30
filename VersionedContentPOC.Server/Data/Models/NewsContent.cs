@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using VersionedContentPOC.Attributes;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Data.Enums;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Attributes;
 
 namespace VersionedContentPOC.Server.Data.Models
 {

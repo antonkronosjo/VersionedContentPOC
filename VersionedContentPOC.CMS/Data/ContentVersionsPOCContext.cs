@@ -1,8 +1,8 @@
-﻿using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Extensions;
+﻿using VersionedContentPOC.CMS.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using VersionedContentPOC.CMS.Extensions;
 
-namespace VersionedContentPOC.Data
+namespace VersionedContentPOC.CMS.Data
 {
     public class VersionedContentPOCContext : DbContext
     {
@@ -35,7 +35,7 @@ namespace VersionedContentPOC.Data
 
             modelBuilder.Entity<Content>(entity =>
             {
-                entity.UseTpcMappingStrategy();
+                //entity.UseTpcMappingStrategy();
                 entity.HasKey(x => x.VersionId);
                 entity.Property(x => x.VersionId)
                     .ValueGeneratedOnAdd();

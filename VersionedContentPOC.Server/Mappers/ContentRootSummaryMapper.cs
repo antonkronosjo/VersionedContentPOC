@@ -1,7 +1,7 @@
-﻿using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Services;
+﻿using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Services;
 
 namespace VersionedContentPOC.Server.Mappers
 {

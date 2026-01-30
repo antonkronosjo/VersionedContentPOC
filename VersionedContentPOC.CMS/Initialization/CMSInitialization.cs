@@ -1,13 +1,18 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Services;
+using System.Threading.Tasks;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Services;
 
-namespace VersionedContentPOC.Server.Extensions
+namespace VersionedContentPOC.CMS.Initialization
 {
-    public static class SwaggerGenExtensions
+    public static class CMSInitialization
     {
         private static string _contentDiscriminator = "contentType";
 

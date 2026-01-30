@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace VersionedContentPOC.Data.Enums
+namespace VersionedContentPOC.CMS.Data.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Language

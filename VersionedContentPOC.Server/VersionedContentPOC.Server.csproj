@@ -25,6 +25,7 @@
     <ProjectReference Include="..\versionedcontentpoc.client\versionedcontentpoc.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\VersionedContentPOC.CMS\VersionedContentPOC.CMS.csproj" />
   </ItemGroup>
 
 </Project>

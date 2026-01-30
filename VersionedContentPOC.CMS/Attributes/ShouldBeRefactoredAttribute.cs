@@ -1,4 +1,4 @@
-﻿namespace VersionedContentPOC.Server.Attributes;
+﻿namespace VersionedContentPOC.CMS.Attributes;
 
 [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
 public class ShouldBeRefactoredAttribute : Attribute

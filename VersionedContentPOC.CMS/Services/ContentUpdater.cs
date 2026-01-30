@@ -1,10 +1,9 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using VersionedContentPOC.Attributes;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Extensions;
+using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Extensions;
 
-namespace VersionedContentPOC.Server.Services;
+namespace VersionedContentPOC.CMS.Services;
 
 public static class ContentUpdater
 {

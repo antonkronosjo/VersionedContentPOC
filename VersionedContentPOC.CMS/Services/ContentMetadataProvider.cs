@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using VersionedContentPOC.Attributes;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Controllers.Requests;
-using VersionedContentPOC.Server.Data.Enums;
-using VersionedContentPOC.Server.Extensions;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Requests;
+using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Extensions;
 
-namespace VersionedContentPOC.Server.Services;
+namespace VersionedContentPOC.CMS.Services;
 
 public static class ContentMetadataProvider
 {

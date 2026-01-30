@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Server.Attributes;
-using VersionedContentPOC.Server.Data.Models;
+using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Data.Enums;
 
-namespace VersionedContentPOC.Data.Models;
+namespace VersionedContentPOC.CMS.Data.Models;
 
 public abstract class Content
 {

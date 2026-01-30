@@ -1,6 +1,5 @@
-﻿using VersionedContentPOC.Data.Enums;
-
-namespace VersionedContentPOC.Attributes
+﻿
+namespace VersionedContentPOC.CMS.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class ContentTypeAttribute : Attribute

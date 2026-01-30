@@ -1,10 +1,6 @@
-﻿using System;
-using System.Reflection;
-using VersionedContentPOC.Attributes;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Attributes;
+﻿using System.Reflection;
 
-namespace VersionedContentPOC.Server.Extensions
+namespace VersionedContentPOC.CMS.Extensions
 {
     public static class TypeExtensions
     {

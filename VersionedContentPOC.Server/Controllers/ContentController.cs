@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.Data.Enums;
-using VersionedContentPOC.Data.Models;
-using VersionedContentPOC.Server.Extensions;
-using VersionedContentPOC.Server.Services;
+using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Services;
+using VersionedContentPOC.CMS.Extensions;
 
 namespace VersionedContentPOC.Controllers;
 
