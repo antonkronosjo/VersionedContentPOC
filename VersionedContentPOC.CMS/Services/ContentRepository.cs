@@ -23,12 +23,12 @@ public interface IContentRepository
     List<Language> GetTranslatedLanguages(int contentId);
 }
 
-public class ContentRepository : IContentRepository
+internal class ContentRepository : IContentRepository
 {
-    VersionedContentPOCContext _context;
+    CMSContext _context;
     IContentVersionRepository _contentVersionRepository;
 
-    public ContentRepository(VersionedContentPOCContext context, IContentVersionRepository contentVersionRepository)
+    public ContentRepository(CMSContext context, IContentVersionRepository contentVersionRepository)
     {
         _context = context;
         _contentVersionRepository = contentVersionRepository;

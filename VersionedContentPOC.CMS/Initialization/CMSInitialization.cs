@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using System.Threading.Tasks;
+using VersionedContentPOC.CMS.Data;
 using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Services;
 
@@ -14,7 +11,24 @@ namespace VersionedContentPOC.CMS.Initialization
 {
     public static class CMSInitialization
     {
-        private static string _contentDiscriminator = "contentType";
+        private static readonly string _contentDiscriminator = "contentType";
+
+        public static IServiceCollection AddCMS(this IServiceCollection services, string connectionString)
+        {
+            services.AddDbContext<CMSContext>(options => options.UseSqlite(connectionString));
+            services.AddTransient<IContentVersionRepository, ContentVersionRepository>();
+            services.AddTransient<IContentRepository, ContentRepository>();
+            services.AddTransient<IContentFactory, ContentFactory>();
+            return services;
+        }
+
+        public static void EnsureDatabaseCreated(this IServiceProvider services)
+        {
+            using var scope = services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<CMSContext>();
+            db.Database.EnsureCreated();
+            db.Database.Migrate();
+        }
 
         public static void SetContentDiscriminator(this SwaggerGenOptions setupAction)
         {
@@ -22,11 +36,7 @@ namespace VersionedContentPOC.CMS.Initialization
             setupAction.SelectDiscriminatorValueUsing(type => typeof(Content).IsAssignableFrom(type) ? type.Name : null);
         }
 
-        /// <summary>
-        /// Registers polymorphic serialization for Content and all its derived types dynamically
-        /// using ContentTypeRegistry. No attributes are required.
-        /// </summary>
-        public static IMvcBuilder AddContentPolymorphism(this IMvcBuilder builder)
+        public static IMvcBuilder AddJsonPolymorphism(this IMvcBuilder builder)
         {
             return builder.AddJsonOptions(opts =>
             {

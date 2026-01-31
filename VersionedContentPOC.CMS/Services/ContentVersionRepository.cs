@@ -15,11 +15,11 @@ public interface IContentVersionRepository
     void SetAsActiveVersion(int versionId);
 }
 
-public class ContentVersionRepository : IContentVersionRepository
+internal class ContentVersionRepository : IContentVersionRepository
 {
-    VersionedContentPOCContext _context;
+    CMSContext _context;
 
-    public ContentVersionRepository(VersionedContentPOCContext context)
+    public ContentVersionRepository(CMSContext context)
     {
         _context = context;
     }

@@ -8,7 +8,7 @@ namespace VersionedContentPOC.CMS.Services
         Content CreateInstance(Type contentType, Language language, int? contentId = null, IDictionary<string, ContentPropertyValueDto>? properties = null);
     }
 
-    public class ContentFactory : IContentFactory
+    internal class ContentFactory : IContentFactory
     {
         public Content CreateInstance(Type contentType, Language language, int? contentId = null, IDictionary<string, ContentPropertyValueDto>? properties = null)
         {
