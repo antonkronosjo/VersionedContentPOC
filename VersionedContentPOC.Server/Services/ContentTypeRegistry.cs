@@ -38,5 +38,11 @@ public static class ContentTypeRegistry
             if (GetRegisteredContentTypes().SingleOrDefault(x => x == type) == null)
                 throw new InvalidOperationException($"Type '{type.FullName}' is not registered by decorating it with ContentType attribute {nameof(Content)}.");
         }
+
+        public static void IsRegiesteredContentType(string contentTypeName)
+        {
+            var type = GetRegisteredContentType(contentTypeName);
+            IsRegiesteredContentType(type);
+        }
     }
 }
