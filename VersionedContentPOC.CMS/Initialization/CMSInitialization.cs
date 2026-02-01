@@ -13,7 +13,7 @@ namespace VersionedContentPOC.CMS.Initialization
     {
         private static readonly string _contentDiscriminator = "contentType";
 
-        public static IServiceCollection AddCMS(this IServiceCollection services, string connectionString)
+        public static IServiceCollection RegisterCMSServices(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<CMSContext>(options => options.UseSqlite(connectionString));
             services.AddTransient<IContentVersionRepository, ContentVersionRepository>();
@@ -30,38 +30,19 @@ namespace VersionedContentPOC.CMS.Initialization
             db.Database.Migrate();
         }
 
-        public static void SetContentDiscriminator(this SwaggerGenOptions setupAction)
+        public static void SetCMSSwaggerGenOptions(this SwaggerGenOptions options)
         {
-            setupAction.SelectDiscriminatorNameUsing(type => typeof(Content).IsAssignableFrom(type) ? _contentDiscriminator : null);
-            setupAction.SelectDiscriminatorValueUsing(type => typeof(Content).IsAssignableFrom(type) ? type.Name : null);
-        }
-
-        public static IMvcBuilder AddJsonPolymorphism(this IMvcBuilder builder)
-        {
-            return builder.AddJsonOptions(opts =>
+            options.UseOneOfForPolymorphism();
+            options.SelectSubTypesUsing(baseType =>
             {
-                opts.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
+                if (baseType == typeof(Content)) // The base class from Project B
                 {
-                    Modifiers = { ti =>
-                    {
-                        if (ti.Type == typeof(Content))
-                        {
-                            ti.PolymorphismOptions = new JsonPolymorphismOptions
-                            {
-                                TypeDiscriminatorPropertyName = _contentDiscriminator,
-                                UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
-                            };
-
-                            foreach (var derived in ContentTypeRegistry.GetRegisteredContentTypes())
-                            {
-                                ti.PolymorphismOptions.DerivedTypes.Add(
-                                    new JsonDerivedType(derived, derived.Name)
-                                );
-                            }
-                        }
-                    }}
-                };
+                    return ContentTypeRegistry.GetRegisteredContentTypes(); // The types in Project A
+                }
+                return Enumerable.Empty<Type>();
             });
+            options.SelectDiscriminatorNameUsing(type => typeof(Content).IsAssignableFrom(type) ? _contentDiscriminator : null);
+            options.SelectDiscriminatorValueUsing(type => typeof(Content).IsAssignableFrom(type) ? type.Name : null);
         }
     }
 }

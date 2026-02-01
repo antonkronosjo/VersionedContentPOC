@@ -1,18 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.CMS.Data;
 using VersionedContentPOC.CMS.Initialization;
-using VersionedContentPOC.CMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddJsonPolymorphism();
-builder.Services.AddCMS("Data Source=app.db");
+builder.Services.AddControllers();
+builder.Services.RegisterCMSServices("Data Source=app.db");
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
-    c.UseAllOfForInheritance();
-    c.UseOneOfForPolymorphism();
-    c.SetContentDiscriminator();
-});
+builder.Services.AddSwaggerGen(c => c.SetCMSSwaggerGenOptions());
 
 var app = builder.Build();
 
@@ -20,7 +13,6 @@ app.Services.EnsureDatabaseCreated();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
