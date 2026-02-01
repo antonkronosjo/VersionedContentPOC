@@ -1,19 +1,20 @@
-import { forwardRef, useImperativeHandle, useRef, useState, type ChangeEventHandler } from "react";
-import { InputType, postApiValidationProperty, type ContentPropertyValueDto, type ContentReference, type ValidationResult } from "../api/client";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { InputType, Language, postApiValidationProperty, type ContentPropertyValueDto, type ContentReference, type ValidationResult } from "../api/client";
 import { Button, Grid, TextField, type TextFieldProps } from "@mui/material";
 import useUpdateEffect from "../hooks/useUpdateEffect";
 import { useDebouncedCallback } from "../hooks/useDebouncedCallback";
-import ContentPicker from "../compontents/ContentPicker";
+import ContentPicker from "./ContentPicker";
 
 interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
     contentTypeName: string;
+    language: Language;
     disabled: boolean;
-    onChange: (key: string, value: string) => void;
+    onChange: (key: string, value: unknown | undefined) => void;
     onSubmit: () => Promise<void>;
     submitText: string;
 }
-export default function ContentForm({ properties, contentTypeName, onChange, onSubmit, submitText, disabled }: ContentFormProps) {
+export default function ContentForm({ properties, contentTypeName, language, onChange, onSubmit, submitText, disabled }: ContentFormProps) {
     const inputRefs = useRef<FormElementTemplateHandles[]>([]);
 
     const handleSubmit = async () => {
@@ -48,7 +49,8 @@ export default function ContentForm({ properties, contentTypeName, onChange, onS
                             propertyName={key}
                             valueDto={properties[key]}
                             disabled={disabled}
-                            onChange={e => onChange(key, e.target.value)}
+                            language={language}
+                            onChange={(value) => onChange(key, value)}
                         />
                     </Grid>
                 ))}
@@ -67,12 +69,13 @@ export type FormElementTemplateProps = {
     propertyName: string;
     valueDto: ContentPropertyValueDto;
     disabled: boolean;
-    onChange: ChangeEventHandler<HTMLInputElement>;
+    language: Language;
+    onChange: (value: unknown | undefined) => void;
 }
 interface FormElementTemplateHandles { validate: () => Promise<boolean>; }
 
 const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTemplateProps>(
-    ({ label, propertyName, contentTypeName, valueDto, disabled, onChange }, ref) => {
+    ({ label, propertyName, contentTypeName, valueDto, disabled, language, onChange }, ref) => {
         const [errors, setErrors] = useState<ValidationResult[]>([]);
         const [touched, setTouched] = useState(false);
 
@@ -97,17 +100,16 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
             debouncedValidate();
         }, [valueDto.value, touched]);
 
-        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            console.log(e);
+        const handleChange = (value: unknown | undefined) => {
             setTouched(true);
-            onChange(e);
+            onChange(value);
         };
 
         const baseProps = {
             label: label,
             variant: "filled",
             value: valueDto.value?.toString() ?? "",
-            onChange: handleChange,
+            onChange: (e) => { handleChange(e.target.value) },
             fullWidth: true,
             error: errors.length > 0,
             helperText: errors[0]?.errorMessage ?? null,
@@ -123,7 +125,7 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
             case InputType.DateTimePicker:
                 return <TextField {...baseProps} type="datetime-local" />;
             case InputType.ContentPicker:
-                return <ContentPicker onChange={handleChange} value={valueDto.value as ContentReference} />
+                return <ContentPicker onChange={handleChange} language={language} value={valueDto.value as ContentReference} />
 
             default:
                 return <>No template defined for property "{propertyName}"</>;

@@ -83,6 +83,7 @@ internal class ContentVersionRepository : IContentVersionRepository
             var version = _context.Content
                 .Where(x => x.VersionId == versionId)
                 .Include(x => x.ContentRoot)
+                .Include(x => x.LanguageBranch)
                 .Single();
 
             //Content has no MainLanguageOnly-properties => No need to change values in other versions => Set as Active

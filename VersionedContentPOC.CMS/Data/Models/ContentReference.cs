@@ -1,9 +1,12 @@
-﻿namespace VersionedContentPOC.CMS.Data.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace VersionedContentPOC.CMS.Data.Models;
 
 public readonly struct ContentReference : IEquatable<ContentReference>
 {
     public int ContentId { get; }
 
+    [JsonConstructor]
     public ContentReference(int contentId)
     {
         ContentId = contentId;

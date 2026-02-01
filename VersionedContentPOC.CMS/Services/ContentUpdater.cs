@@ -55,8 +55,13 @@ public static class ContentUpdater
             throw new InvalidOperationException("Type could not be resolved");
 
         if (rawValue is JsonElement je)
-            return JsonSerializer.Deserialize(je.GetRawText(), type);
+            return JsonSerializer.Deserialize(je.GetRawText(), type, _jsonSerializerOptions);
 
         throw new InvalidOperationException($"Unexpected value type: {rawValue.GetType()}");
     }
+
+    private static JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 }

@@ -65,12 +65,12 @@ export function CreateContentForm({ contentType, language }: CreateContentFormPr
     const onSubmit = async () => {
         const response = await postApiContentCreate(createRequest);
         navigate(routes.edit.build({
-            contentId: response.data.contentId,
+            contentId: response.data.contentId.toString(),
             language: response.data.language
         }));
     }
 
-    const onChange = (key: string, value: string) => {
+    const onChange = (key: string, value: unknown | undefined) => {
         setCreateRequest((currval) => {
             const newval: CreateContentRequest = { ...currval };
             newval.propertiesSchema[key].value = value;
@@ -81,6 +81,7 @@ export function CreateContentForm({ contentType, language }: CreateContentFormPr
     return (
         <ContentForm
             contentTypeName={createRequest.metadata.contentTypeName}
+            language={createRequest.metadata.language}
             properties={createRequest.propertiesSchema}
             onSubmit={onSubmit}
             onChange={onChange}

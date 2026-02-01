@@ -205,8 +205,8 @@ export interface UpdateContentRequestMetadata {
   /** @nullable */
   languageTranslations: Language[] | null;
   forceUpdate?: boolean;
-  /** @nullable */
-  contentTypeName: string | null;
+  /** @minLength 1 */
+  contentTypeName: string;
 }
 
 export interface ValidationResult {

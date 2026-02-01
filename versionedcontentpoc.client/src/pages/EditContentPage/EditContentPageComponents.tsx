@@ -72,7 +72,7 @@ export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }
         onSubmit?.();
     }
 
-    const onChange = (key: string, value: string) => {
+    const onChange = (key: string, value: unknown | undefined) => {
         setUpdateRequest((currval) => {
             const newval: UpdateContentRequest = { ...currval };
             newval.propertiesSchema[key].value = value;
@@ -83,6 +83,7 @@ export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }
     return (
         <ContentForm
             contentTypeName={updateRequest.metadata.contentTypeName}
+            language={updateRequest.metadata.language}
             properties={updateRequest.propertiesSchema}
             onSubmit={internalOnSubmit}
             onChange={onChange}

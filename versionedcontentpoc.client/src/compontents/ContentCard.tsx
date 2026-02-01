@@ -1,30 +1,33 @@
-import { Avatar, Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Avatar, Card, CardActionArea, CardContent, CardHeader, Typography } from "@mui/material";
 import type { EventContent, GetApiContentAll200Item, NewsContent } from "../api/client";
 import type { JSX } from "react";
 import { blue, purple, red } from "@mui/material/colors";
 import { relativeDateTime } from "../utils/dateUtils";
 
-interface ContentCardProps {
-    content: GetApiContentAll200Item
+type ContentCardProps = {
+    readonly content: GetApiContentAll200Item,
+    readonly onClick?: (content: GetApiContentAll200Item) => void;
 }
-export function ContentCard({ content }: ContentCardProps) {
+export function ContentCard({ content, onClick }: ContentCardProps) {
     return (
         <Card variant="outlined">
-            <CardHeader
-                avatar={
-                    <Avatar
-                        sx={{ bgcolor: getContentTypeColor(content.contentType) }}
-                        aria-label={content.contentType}
-                    >
-                        {content.contentType.substring(0, 1)}
-                    </Avatar>
-                }
-                title={content.contentType}
-                subheader={"Created: " + relativeDateTime(content.contentRoot?.created)}
-            />
-            <CardContent>
-                {resolveTemplate(content)}
-            </CardContent>
+            <CardActionArea onClick={() => onClick?.(content)}>
+                <CardHeader
+                    avatar={
+                        <Avatar
+                            sx={{ bgcolor: getContentTypeColor(content.contentType) }}
+                            aria-label={content.contentType}
+                        >
+                            {content.contentType?.substring(0, 1)}
+                        </Avatar>
+                    }
+                    title={content.contentType}
+                    subheader={"Created: " + relativeDateTime(content.contentRoot?.created)}
+                />
+                <CardContent>
+                    {resolveTemplate(content)}
+                </CardContent>
+            </CardActionArea>
         </Card>
     );
 }
