@@ -31,7 +31,6 @@ import type {
 } from 'axios';
 
 export interface Content {
-  contentType: string;
   versionId: number;
   contentId: number;
   contentRoot?: ContentRoot;
@@ -94,27 +93,6 @@ export interface CreateContentRequestMetadata {
   language: Language;
 }
 
-export type EventContentAllOf = {
-  /** @minLength 1 */
-  heading: string;
-  startDate: string;
-  endDate: string;
-  /** @minLength 1 */
-  description: string;
-};
-
-export type EventContentContentType = typeof EventContentContentType[keyof typeof EventContentContentType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EventContentContentType = {
-  EventContent: 'EventContent',
-} as const;
-
-export type EventContent = Omit<Content & EventContentAllOf, 'contentType'> & {
-  contentType: EventContentContentType;
-};
-
 export type InputType = typeof InputType[keyof typeof InputType];
 
 
@@ -126,6 +104,7 @@ export const InputType = {
   DatePicker: 'DatePicker',
   DateTimePicker: 'DateTimePicker',
   Select: 'Select',
+  ContentPicker: 'ContentPicker',
 } as const;
 
 export type Language = typeof Language[keyof typeof Language];
@@ -143,27 +122,6 @@ export interface LanguageBranch {
   /** @nullable */
   activeVersionId?: number | null;
 }
-
-export type NewsContentAllOf = {
-  /** @minLength 1 */
-  heading: string;
-  /** @nullable */
-  lead?: string | null;
-  /** @minLength 1 */
-  text: string;
-};
-
-export type NewsContentContentType = typeof NewsContentContentType[keyof typeof NewsContentContentType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const NewsContentContentType = {
-  NewsContent: 'NewsContent',
-} as const;
-
-export type NewsContent = Omit<Content & NewsContentAllOf, 'contentType'> & {
-  contentType: NewsContentContentType;
-};
 
 export type UpdateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto};
 
@@ -204,14 +162,10 @@ language?: Language;
 published?: boolean;
 };
 
-export type GetApiContentAll200Item = EventContent | NewsContent;
-
 export type GetApiContentCreationschemaParams = {
 contentTypeName?: string;
 language?: Language;
 };
-
-export type PostApiContentCreate200 = EventContent | NewsContent;
 
 export type GetApiContentUpdateschemaParams = {
 contentId?: number;
@@ -219,14 +173,10 @@ language?: Language;
 versionId?: number;
 };
 
-export type PutApiContentUpdate200 = EventContent | NewsContent;
-
 export type GetApiContentVersionsParams = {
 contentId?: number;
 language?: Language;
 };
-
-export type GetApiContentVersions200Item = EventContent | NewsContent;
 
 export type PutApiContentSetasactiveParams = {
 versionId?: number;
@@ -257,7 +207,7 @@ propertyName?: string;
 
 export const getApiContentAll = (
     params?: GetApiContentAllParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetApiContentAll200Item[]>> => {
+ ): Promise<AxiosResponse<Content[]>> => {
     
     
     return axios.default.get(
@@ -601,7 +551,7 @@ export function useGetApiContentCreationschema<TData = Awaited<ReturnType<typeof
 
 export const postApiContentCreate = (
     createContentRequest: CreateContentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostApiContentCreate200>> => {
+ ): Promise<AxiosResponse<Content>> => {
     
     
     return axios.default.post(
@@ -744,7 +694,7 @@ export function useGetApiContentUpdateschema<TData = Awaited<ReturnType<typeof g
 
 export const putApiContentUpdate = (
     updateContentRequest: UpdateContentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PutApiContentUpdate200>> => {
+ ): Promise<AxiosResponse<Content>> => {
     
     
     return axios.default.put(
@@ -800,7 +750,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
     
 export const getApiContentVersions = (
     params?: GetApiContentVersionsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetApiContentVersions200Item[]>> => {
+ ): Promise<AxiosResponse<Content[]>> => {
     
     
     return axios.default.get(

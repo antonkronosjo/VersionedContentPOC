@@ -3,6 +3,7 @@ import { InputType, postApiValidationProperty, type ContentPropertyValueDto, typ
 import { Button, Grid, TextField, type TextFieldProps } from "@mui/material";
 import useUpdateEffect from "../hooks/useUpdateEffect";
 import { useDebouncedCallback } from "../hooks/useDebouncedCallback";
+import ContentPicker from "../compontents/ContentPicker";
 
 interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
@@ -60,7 +61,7 @@ export default function ContentForm({ properties, contentTypeName, onChange, onS
 }
 
 
-type FormElementTemplateProps = {
+export type FormElementTemplateProps = {
     label: string;
     contentTypeName: string;
     propertyName: string;
@@ -97,6 +98,7 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
         }, [valueDto.value, touched]);
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            console.log(e);
             setTouched(true);
             onChange(e);
         };
@@ -120,8 +122,10 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
                 return <TextField {...baseProps} multiline rows={7} />;
             case InputType.DateTimePicker:
                 return <TextField {...baseProps} type="datetime-local" />;
+            case InputType.ContentPicker:
+                return <ContentPicker onChange={handleChange} value={valueDto.value as ContentReference} />
             default:
-                return <>No template defined for content type</>;
+                return <>No template defined for property "{propertyName}"</>;
         }
     }
 );

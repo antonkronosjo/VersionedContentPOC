@@ -11,4 +11,5 @@ public enum InputType
     DatePicker = 3,
     DateTimePicker = 4,
     Select = 5,
+    ContentPicker = 6
 }

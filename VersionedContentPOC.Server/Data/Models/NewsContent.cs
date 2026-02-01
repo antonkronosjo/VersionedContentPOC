@@ -23,5 +23,8 @@ namespace VersionedContentPOC.Server.Data.Models
         [ContentPropertyMetadata(editable: true, inputType: InputType.TextArea)]
         [Required]
         public required string Text { get; set; }
+
+        [ContentPropertyMetadata(editable: true, inputType: InputType.ContentPicker)]
+        public ContentReference RelatedContent { get; set; }
     }
 }
