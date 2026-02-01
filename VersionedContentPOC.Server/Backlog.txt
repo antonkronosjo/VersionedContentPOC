@@ -2,7 +2,7 @@ Todo:
 
 - Frontend technical debt:
 
-- Management API technical debt:
+- Management API technical debt: 
 	- only one endpoint for create/update schema
 	- schema response type should be overlooked
 	- See if initializing new content instances when creating first new translation can be done better

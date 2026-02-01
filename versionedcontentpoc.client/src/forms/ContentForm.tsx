@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef, useState, type ChangeEventHandler } from "react";
-import { InputType, postApiValidationProperty, type ContentPropertyValueDto, type ValidationResult } from "../api/client";
+import { InputType, postApiValidationProperty, type ContentPropertyValueDto, type ContentReference, type ValidationResult } from "../api/client";
 import { Button, Grid, TextField, type TextFieldProps } from "@mui/material";
 import useUpdateEffect from "../hooks/useUpdateEffect";
 import { useDebouncedCallback } from "../hooks/useDebouncedCallback";
@@ -124,6 +124,7 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
                 return <TextField {...baseProps} type="datetime-local" />;
             case InputType.ContentPicker:
                 return <ContentPicker onChange={handleChange} value={valueDto.value as ContentReference} />
+
             default:
                 return <>No template defined for property "{propertyName}"</>;
         }

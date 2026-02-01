@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -11,7 +12,7 @@ namespace VersionedContentPOC.CMS.Initialization
 {
     public static class CMSInitialization
     {
-        private static readonly string _contentDiscriminator = "contentType";
+        public static readonly string _contentDiscriminator = "contentType";
 
         public static IServiceCollection RegisterCMSServices(this IServiceCollection services, string connectionString)
         {

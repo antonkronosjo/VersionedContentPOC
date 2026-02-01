@@ -1,8 +1,9 @@
 import { Button, Chip, Dialog, TextField, type TextFieldProps } from "@mui/material";
 import { useState } from "react";
+import type { ContentReference } from "../api/client";
 
 type ContentPickerProps = {
-    value: number | undefined,
+    value: ContentReference | undefined,
     onChange: (value: number | undefined) => void,
 }
 export default function ContentPicker({ value, onChange }: ContentPickerProps) {
@@ -12,8 +13,8 @@ export default function ContentPicker({ value, onChange }: ContentPickerProps) {
         <>
             {value &&
                 <Chip
-                    label={value}
-                    onDelete={() => onChange(undefined)}
+                    label={value.contentId}
+                onDelete={() => onChange({ target: { value: undefined } })}
                 />
             }
             {!value &&
@@ -25,7 +26,7 @@ export default function ContentPicker({ value, onChange }: ContentPickerProps) {
             <Dialog open={open} onClose={() => setOpen(false)}>
                 <ContentPicker2 onSelect={(value: number) => {
                     setOpen(false);
-                    onChange?.(value);
+                    onChange?.({ target: { value: value } });
                 }} />
             </Dialog>
         </>
@@ -33,15 +34,15 @@ export default function ContentPicker({ value, onChange }: ContentPickerProps) {
 }
 
 type ContentPicker2Props = {
-    onSelect: (value:number) => void;
+    onSelect: (value: ContentReference) => void;
 }
 function ContentPicker2({ onSelect }: ContentPicker2Props) {
     return (
         <>
-            <Button onClick={() => onSelect(1)}>
+            <Button onClick={() => onSelect({contentId: 1})}>
                 1
             </Button>
-            <Button onClick={() => onSelect(2)}>
+            <Button onClick={() => onSelect({contentId: 2})}>
                 2
             </Button>
         </>

@@ -110,7 +110,7 @@ export function LanguageBranchTabs({ metadata }: LanguageBranchTabsProps) {
                 onChange={(e, value) => {
                     navigate(
                         routes.edit.build({
-                            contentId: metadata.contentId!,
+                            contentId: metadata.contentId.toString(),
                             language: value!
                         })
                     );
@@ -124,7 +124,7 @@ export function LanguageBranchTabs({ metadata }: LanguageBranchTabsProps) {
                         handleSelect={(value) => {
                             navigate(
                                 routes.edit.build({
-                                    contentId: metadata.contentId,
+                                    contentId: metadata.contentId.toString(),
                                     language: value!
                                 })
                             );
