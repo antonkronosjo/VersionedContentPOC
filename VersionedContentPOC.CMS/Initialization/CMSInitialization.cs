@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -11,7 +12,7 @@ namespace VersionedContentPOC.CMS.Initialization
 {
     public static class CMSInitialization
     {
-        private static readonly string _contentDiscriminator = "contentType";
+        public static readonly string _contentDiscriminator = "contentType";
 
         public static IServiceCollection AddCMS(this IServiceCollection services, string connectionString)
         {
@@ -62,6 +63,26 @@ namespace VersionedContentPOC.CMS.Initialization
                     }}
                 };
             });
+        }
+    }
+
+    public class PolymorphicSchemaFilter : ISchemaFilter
+    {
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        {
+            if (context.Type == typeof(Content))
+            {
+                schema.Discriminator = new OpenApiDiscriminator
+                {
+                    PropertyName = CMSInitialization._contentDiscriminator,
+                    Mapping = ContentTypeRegistry.GetRegisteredContentTypes()
+                        .ToDictionary(x => x.Name, x => $"#/components/schemas/{x.Name}")
+                };
+                schema.OneOf = ContentTypeRegistry.GetRegisteredContentTypes().Select(x => 
+                {
+                    return context.SchemaGenerator.GenerateSchema(x, context.SchemaRepository);
+                }).ToList();
+            }
         }
     }
 }
