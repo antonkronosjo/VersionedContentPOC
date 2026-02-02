@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VersionedContentPOC.CMS.Data.Models;
+using System.Linq;
 using VersionedContentPOC.CMS.Data.Enums;
-using VersionedContentPOC.CMS.Services;
+using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Extensions;
+using VersionedContentPOC.CMS.Services;
 
 namespace VersionedContentPOC.Controllers;
 
@@ -17,6 +18,20 @@ public class ContentController : ControllerBase
     public ContentController(IContentRepository contentRepository)
     {
         _contentRepository = contentRepository;
+    }
+
+    [HttpGet]
+    [Route("get")]
+    [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
+    public ActionResult<Content> GetById([FromQuery] int contentId, [FromQuery] Language language, [FromQuery] bool published)
+    {
+        var utcNow = DateTime.UtcNow;
+        var content = _contentRepository
+            .Query<Content>(language)
+            .WhereIf(published, x => x.ContentRoot.StartPublish < utcNow)
+            .FirstOrDefault(x => x.ContentId == contentId);
+
+        return Ok(content);
     }
 
     [HttpGet]

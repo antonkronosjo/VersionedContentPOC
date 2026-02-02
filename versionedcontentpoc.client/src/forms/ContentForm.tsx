@@ -125,7 +125,7 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
             case InputType.DateTimePicker:
                 return <TextField {...baseProps} type="datetime-local" />;
             case InputType.ContentPicker:
-                return <ContentPicker onChange={handleChange} language={language} value={valueDto.value as ContentReference} />
+                return <ContentPicker label={label} onChange={handleChange} language={language} value={valueDto.value as ContentReference} />
 
             default:
                 return <>No template defined for property "{propertyName}"</>;
