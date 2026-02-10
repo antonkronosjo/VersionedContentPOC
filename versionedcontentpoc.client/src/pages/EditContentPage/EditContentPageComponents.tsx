@@ -3,7 +3,7 @@ import { Language, putApiContentPublish, putApiContentSetasactive, putApiContent
 import { Box, Button, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography } from "@mui/material";
 import ContentForm from "../../forms/ContentForm";
 import LanguageSelectButton from "../../compontents/LanguageSelectButton";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { routes } from "../../utils/routeResolver";
 import { relativeDateTime } from "../../utils/dateUtils";
 
@@ -67,15 +67,11 @@ export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }
     const internalOnSubmit = async () => {
         if (currentlyEditingActiveVersion) {
             await putApiContentUpdate(updateRequest);
-            onSubmit?.();
         }
         else {
             await putApiContentSetasactive({ versionId: versionId });
-            navigate(routes.edit.build({
-                contentId: updateRequest.metadata.contentId.toString(),
-                language: updateRequest.metadata.language
-            }))
         }
+        onSubmit?.();
     }
 
     const onChange = (key: string, value: unknown | undefined) => {

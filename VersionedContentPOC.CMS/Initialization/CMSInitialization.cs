@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
@@ -23,7 +25,7 @@ namespace VersionedContentPOC.CMS.Initialization
             return services;
         }
 
-        public static void EnsureDatabaseCreated(this IServiceProvider services)
+        public static void EnsureCMSDatabaseCreated(this IServiceProvider services)
         {
             using var scope = services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<CMSContext>();
@@ -44,6 +46,25 @@ namespace VersionedContentPOC.CMS.Initialization
             });
             options.SelectDiscriminatorNameUsing(type => typeof(Content).IsAssignableFrom(type) ? _contentDiscriminator : null);
             options.SelectDiscriminatorValueUsing(type => typeof(Content).IsAssignableFrom(type) ? type.Name : null);
+        }
+
+        public static void SetCMSJsonOptions(this JsonOptions options)
+        {
+            var resolver = new DefaultJsonTypeInfoResolver();
+            resolver.Modifiers.Add(ti =>
+            {
+                if (ti.Type == typeof(Content))
+                {
+                    ti.PolymorphismOptions = new JsonPolymorphismOptions
+                    {
+                        TypeDiscriminatorPropertyName = "contentType",
+                        UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
+                    };
+                    foreach (var contentType in ContentTypeRegistry.GetRegisteredContentTypes())
+                        ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(contentType, contentType.Name));
+                }
+            });
+            options.JsonSerializerOptions.TypeInfoResolver = resolver;
         }
     }
 }

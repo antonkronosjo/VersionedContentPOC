@@ -4,6 +4,8 @@ import ContentVersionsList from "../../compontents/ContentVersionsList";
 import { useQueryClient } from '@tanstack/react-query';
 import { EditContentPageHeader, EditContentForm, LanguageBranchTabs } from "./EditContentPageComponents";
 import { useTypedParams } from "../../hooks/useTypedParams";
+import { routes } from "../../utils/routeResolver";
+import { useNavigate } from "react-router-dom";
 
 export default function EditContentPage() {
     const { contentId, language, versionId } = useTypedParams({
@@ -11,6 +13,7 @@ export default function EditContentPage() {
         language: (v) => v as Language,
         versionId: (v) => v ? Number(v) : undefined,
     });
+    const navigate = useNavigate();
 
     const { data: response, isLoading, error } = useGetApiContentUpdateschema({ contentId: contentId, language: language, versionId: versionId });
     const queryClient = useQueryClient();
@@ -43,7 +46,13 @@ export default function EditContentPage() {
                     <Box sx={{ p: 1 }}>
                         <EditContentForm
                             schema={response.data}
-                            onSubmit={refetch}
+                            onSubmit={() => {
+                                refetch();
+                                navigate(routes.edit.build({
+                                    contentId: contentId.toString(),
+                                    language: language
+                                }))
+                            }}
                             versionId={versionId}
                             activeVersionId={response.data.metadata.activeVersionId}
                             key={response.data.metadata.activeVersionId}

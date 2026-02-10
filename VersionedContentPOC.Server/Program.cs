@@ -7,31 +7,14 @@ using VersionedContentPOC.Server.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    var resolver = new DefaultJsonTypeInfoResolver();
-    resolver.Modifiers.Add(ti =>
-    {
-        if (ti.Type == typeof(Content))
-        {
-            ti.PolymorphismOptions = new JsonPolymorphismOptions
-            {
-                TypeDiscriminatorPropertyName = "contentType",
-                UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
-            };
-            foreach (var contentType in ContentTypeRegistry.GetRegisteredContentTypes())
-                ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(contentType, contentType.Name));
-        }
-    });
-    options.JsonSerializerOptions.TypeInfoResolver = resolver;
-}); ;
+builder.Services.AddControllers().AddJsonOptions(x => x.SetCMSJsonOptions());
 builder.Services.RegisterCMSServices("Data Source=app.db");
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => c.SetCMSSwaggerGenOptions());
 
 var app = builder.Build();
 
-app.Services.EnsureDatabaseCreated();
+app.Services.EnsureCMSDatabaseCreated();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
