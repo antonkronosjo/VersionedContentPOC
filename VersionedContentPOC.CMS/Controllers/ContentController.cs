@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Extensions;
 using VersionedContentPOC.CMS.Services;
 
-namespace VersionedContentPOC.Controllers;
+namespace VersionedContentPOC.CMS.Controllers;
 
 [ApiController]
 [Route("api/content")]

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Data.Enums;
@@ -6,7 +7,7 @@ using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Requests;
 using VersionedContentPOC.CMS.Services;
 
-namespace VersionedContentPOC.Controllers;
+namespace VersionedContentPOC.CMS.Controllers;
 
 [ApiController]
 [Route("api/content")]

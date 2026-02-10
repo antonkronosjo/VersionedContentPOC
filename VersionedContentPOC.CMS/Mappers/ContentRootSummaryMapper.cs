@@ -3,7 +3,7 @@ using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Services;
 
-namespace VersionedContentPOC.Server.Mappers
+namespace VersionedContentPOC.CMS.Mappers
 {
     public static class ContentRootSummaryMapper
     {

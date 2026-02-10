@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Extensions;
+using VersionedContentPOC.CMS.Mappers;
 using VersionedContentPOC.CMS.Requests;
 using VersionedContentPOC.CMS.Services;
-using VersionedContentPOC.Server.Mappers;
 
-namespace VersionedContentPOC.Controllers;
+namespace VersionedContentPOC.CMS.Controllers;
 
 [ApiController]
 [Route("api/contentsummary")]

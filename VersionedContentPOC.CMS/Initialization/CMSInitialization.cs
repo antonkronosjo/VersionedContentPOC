@@ -6,9 +6,11 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using VersionedContentPOC.CMS.Controllers;
 using VersionedContentPOC.CMS.Data;
 using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Services;
+using VersionedContentPOC.Controllers;
 
 namespace VersionedContentPOC.CMS.Initialization
 {
@@ -65,6 +67,14 @@ namespace VersionedContentPOC.CMS.Initialization
                 }
             });
             options.JsonSerializerOptions.TypeInfoResolver = resolver;
+        }
+
+        public static IMvcBuilder RegisterCMSControllers(this IMvcBuilder builder)
+        {
+            return builder.AddApplicationPart(typeof(ContentManagementController).Assembly)
+                .AddApplicationPart(typeof(ContentSummaryController).Assembly)
+                .AddApplicationPart(typeof(ContentValidationController).Assembly)
+                .AddApplicationPart(typeof(ContentController).Assembly);
         }
     }
 }

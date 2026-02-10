@@ -1,13 +1,11 @@
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Initialization;
-using VersionedContentPOC.CMS.Services;
-using VersionedContentPOC.Server.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddJsonOptions(x => x.SetCMSJsonOptions());
+builder.Services
+    .AddControllers()
+    .RegisterCMSControllers()
+    .AddJsonOptions(x => x.SetCMSJsonOptions());
 builder.Services.RegisterCMSServices("Data Source=app.db");
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => c.SetCMSSwaggerGenOptions());
