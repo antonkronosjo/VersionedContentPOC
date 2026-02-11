@@ -8,6 +8,7 @@ namespace VersionedContentPOC.CMS.Mappers
     public static class ContentRootSummaryMapper
     {
         [ShouldBeRefactored("ContentTypeName should be stored in the database somehow. Don't know how")]
+        [ShouldBeRefactored("DBR: Look over stop/start publish")]
         public static IEnumerable<ContentRootSummary> ToSummary(this IEnumerable<ContentRoot> contentRoots, IContentRepository contentRepository)
         {
             return contentRoots.Select(x => new ContentRootSummary()
@@ -17,14 +18,13 @@ namespace VersionedContentPOC.CMS.Mappers
                     .GetContentRootType(x.ContentId)
                     .Name,
                 Created = x.Created,
-                StartPublish = x.StartPublish,
-                StopPublish = x.StopPublish,
-                LanguageVersions = x
-                    .LanguageBranches
-                    .Select(x => x.Language)
+                StartPublish = null,//x.StartPublish,
+                StopPublish = null,//x.StopPublish,
+                LanguageVersions = x.Versions
+                    .GroupBy(x => x.Language)
+                    .Select(x => x.Key)
                     .ToList(),
-                LastUpdated = x.LanguageBranches
-                    .SelectMany(x => x.Versions)
+                LastUpdated = x.Versions
                     .OrderByDescending(x => x.VersionCreated)
                     .FirstOrDefault()
                     ?.VersionCreated

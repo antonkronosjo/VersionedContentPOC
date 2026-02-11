@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Language, putApiContentPublish, putApiContentSetasactive, putApiContentUnpublish, putApiContentUpdate, type UpdateContentRequest, type UpdateContentRequestMetadata } from "../../api/client";
+import { Language, putApiContentPublish, putApiContentUnpublish, putApiContentUpdate, type UpdateContentRequest, type UpdateContentRequestMetadata } from "../../api/client";
 import { Box, Button, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography } from "@mui/material";
 import ContentForm from "../../forms/ContentForm";
 import LanguageSelectButton from "../../compontents/LanguageSelectButton";
@@ -28,7 +28,7 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
                     sx={{ ml: "auto" }}
                     onClick={async () => {
                         if (contentIsPublished) { await putApiContentUnpublish({ contentId: metadata.contentId }) }
-                        else { await putApiContentPublish({ contentId: metadata.contentId }); }
+                        /*else { await putApiContentPublish({ contentId: metadata.contentId }); }*/
                         refetch();
                     }}
                 >

@@ -25,14 +25,14 @@ public class ContentSummaryController : ControllerBase
     [Route("contentroots")]
     [ProducesResponseType(typeof(List<ContentRootSummary>), StatusCodes.Status200OK)]
     [ShouldBeRefactored("This query is very un-optimized")]
+    [ShouldBeRefactored("DBR: Look over stop/start publish")]
     public IActionResult GetRootSummaries([FromQuery] GetRootSummariesRequest request)
     {
         var utcNow = DateTime.UtcNow;
 
         var contentRoots = _contentRepository.QueryRoots()
-            .Include(x => x.LanguageBranches)
-                .ThenInclude(x => x.Versions)
-            .WhereIf(request.Published == true, x => x.StartPublish < utcNow && (x.StopPublish == null || x.StopPublish > utcNow))
+            .Include(x => x.Versions)
+            //.WhereIf(request.Published == true, x => x.StartPublish < utcNow && (x.StopPublish == null || x.StopPublish > utcNow))
             .ToList()
             .ToSummary(_contentRepository)
             .Where(x => String.IsNullOrEmpty(request.ContentType) || request.ContentType == x.ContentTypeName)

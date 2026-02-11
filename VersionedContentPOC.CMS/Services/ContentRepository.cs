@@ -3,6 +3,7 @@ using VersionedContentPOC.CMS.Data;
 using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Extensions;
 
 namespace VersionedContentPOC.CMS.Services;
 
@@ -12,14 +13,12 @@ public interface IContentRepository
     bool Exists(int contentId);
     ContentRoot Get(int contentId);
     Type GetContentRootType(int contentId);
-    void SetPublishState(int contentId, DateTime? startPublish, DateTime? stopPublish);
     T Create<T>(T content) where T : Content;
-    T Update<T>(int contentId, T contentVersion, bool forceUpdate = false) where T : Content;
-    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content;
+    T Update<T>(int contentId, T contentVersion, bool forceNewVersion = false) where T : Content;
+    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content;
     void Delete(int contentId);
     IQueryable<T> Query<T>(Language languageBranch) where T : Content;
     IQueryable<ContentRoot> QueryRoots();
-    void SetAsActiveVersion(int versionId);
     List<Language> GetTranslatedLanguages(int contentId);
 }
 
@@ -57,16 +56,7 @@ internal class ContentRepository : IContentRepository
     {
         return _context.ContentRoots
             .Where(x => x.ContentId == contentId)
-            .Include(x => x.LanguageBranches)
             .Single();
-    }
-
-    public void SetPublishState(int contentId, DateTime? startPublish, DateTime? stopPublish)
-    {
-        var contentRoot = _context.ContentRoots.Single(x => x.ContentId == contentId);
-        contentRoot.StartPublish = startPublish;
-        contentRoot.StopPublish = stopPublish;
-        _context.SaveChanges();
     }
 
     [ShouldBeRefactored("To get type of ContentRoot should be done in a more eligant way")]
@@ -84,13 +74,11 @@ internal class ContentRepository : IContentRepository
         try
         {
             var contentRoot = new ContentRoot(initialVersion.Language);
-            var languageBranch = contentRoot.AddNewLanguageBranch(initialVersion.Language);
             _context.Add(contentRoot);
             _context.SaveChanges();
 
-            languageBranch.AddVersion(initialVersion, setAsActive: true);
+            initialVersion.ContentId = contentRoot.ContentId;
             _context.Add(initialVersion);
-            _context.Update(languageBranch);
             _context.SaveChanges();
 
             transaction.Commit();
@@ -117,15 +105,23 @@ internal class ContentRepository : IContentRepository
     /// Updates content with new version. NOTE: Will throw exception if content.VersionId does not match currently active content version
     /// </summary>
     [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
-    public T Update<T>(int contentId, T updatedVersion, bool forceUpdate = false) where T : Content
+    public T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : Content
     {
-        return _contentVersionRepository.AddVersion(contentId, updatedVersion, forceUpdate);
+        if (forceNewVersion)
+            return _contentVersionRepository.AddVersion(contentId, updatedVersion);
+
+        updatedVersion.VersionId = 0;
+        updatedVersion.ContentId = contentId;
+        _context.Add(updatedVersion);
+        _context.SaveChanges();
+
+        return updatedVersion;
     }
 
     /// <summary>
     /// Updates content with new version based on key/values.
     /// </summary>
-    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceUpdate = false) where T : Content
+    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content
     {
         //var entity = _context.Entities.Find(id);
         _context.Entry(content).State = EntityState.Detached; //Need to detach state before applying updates
@@ -134,30 +130,14 @@ internal class ContentRepository : IContentRepository
     }
 
     /// <summary>
-    /// Returns all versions of given content
-    /// </summary>
-    public IQueryable<T> Versions<T>(int contentId, Language language) where T : Content
-    {
-        return _context.Content.OfType<T>()
-            .Where(x => x.ContentId == contentId && x.Language == language)
-            .Include(x => x.ContentRoot)
-            .Include(x => x.LanguageBranch);
-    }
-
-    public void SetAsActiveVersion(int versionId)
-    {
-        _contentVersionRepository.SetAsActiveVersion(versionId);
-    }
-
-    /// <summary>
     /// Returns a base query used when querying content
     /// </summary>
+    [ShouldBeRefactored("DBR: Look over published version filter")]
     public IQueryable<T> Query<T>(Language language) where T : Content
     {
         return _context.Content.OfType<T>()
             .Where(x => x.Language == language)
-            .Include(x => x.LanguageBranch)
-            .Where(x => x.LanguageBranch.ActiveVersionId == x.VersionId)
+            .ResolveContentVersions()
             .Include(x => x.ContentRoot);
     }
 
@@ -176,10 +156,11 @@ internal class ContentRepository : IContentRepository
     public List<Language> GetTranslatedLanguages(int contentId)
     {
         return _context.ContentRoots
-            .Include(x => x.LanguageBranches)
+            .Include(x => x.Versions)
             .Single(x => x.ContentId == contentId)
-            .LanguageBranches
-            .Select(x => x.Language)
+            .Versions
+            .GroupBy(x => x.Language)
+            .Select(x => x.Key)
             .ToList();
     }
 }

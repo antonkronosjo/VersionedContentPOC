@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -24,6 +22,7 @@ namespace VersionedContentPOC.CMS.Initialization
             services.AddTransient<IContentVersionRepository, ContentVersionRepository>();
             services.AddTransient<IContentRepository, ContentRepository>();
             services.AddTransient<IContentFactory, ContentFactory>();
+            services.AddTransient<IContentPublishingService, ContentPublishingService>();
             return services;
         }
 
@@ -59,7 +58,7 @@ namespace VersionedContentPOC.CMS.Initialization
                 {
                     ti.PolymorphismOptions = new JsonPolymorphismOptions
                     {
-                        TypeDiscriminatorPropertyName = "contentType",
+                        TypeDiscriminatorPropertyName = _contentDiscriminator,
                         UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
                     };
                     foreach (var contentType in ContentTypeRegistry.GetRegisteredContentTypes())

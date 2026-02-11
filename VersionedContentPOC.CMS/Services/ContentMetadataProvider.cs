@@ -26,6 +26,7 @@ public static class ContentMetadataProvider
     [ShouldBeRefactored("Would be good to not need to inject translated languages")]
     [ShouldBeRefactored("Should be a new schema created for translations where i need current active version of main language")]
     [ShouldBeRefactored("I need to have current active version here")]
+    [ShouldBeRefactored("DBR: Look over stop/start publish/active version")]
     public static UpdateContentRequest GetUpdateSchema(Content content, ContentRoot contentRoot, List<Language> contentLanguages)
     {
         return new UpdateContentRequest
@@ -34,11 +35,11 @@ public static class ContentMetadataProvider
                 ContentId = content.ContentId,
                 ContentTypeName = content.GetType().Name,
                 VersionId = content.VersionId,
-                ActiveVersionId = content.LanguageBranch?.ActiveVersionId,
+                ActiveVersionId = null,//content.LanguageBranch?.ActiveVersionId,
                 Language = content.Language,
                 Created = contentRoot.Created,
-                StartPublish = contentRoot.StartPublish,
-                StopPublish = contentRoot.StopPublish,
+                StartPublish = null,//contentRoot.StartPublish,
+                StopPublish = null,//contentRoot.StopPublish,
                 LanguageTranslations = contentLanguages
             },
             PropertiesSchema = GetPropertySchema(content.GetType(), contentRoot.MainLanguage, content)

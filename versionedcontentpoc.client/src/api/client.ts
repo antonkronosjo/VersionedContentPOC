@@ -34,12 +34,14 @@ export interface Content {
   contentType: string;
   versionId: number;
   contentId: number;
-  contentRoot?: ContentRoot;
+  status: PublishStatus;
   language: Language;
-  languageBranch?: LanguageBranch;
-  versionCreated?: string;
   /** @nullable */
-  readonly isActiveVersion?: boolean | null;
+  startPublish?: string | null;
+  /** @nullable */
+  stopPublish?: string | null;
+  contentRoot?: ContentRoot;
+  versionCreated?: string;
 }
 
 /**
@@ -62,10 +64,6 @@ export interface ContentReference {
 export interface ContentRoot {
   contentId?: number;
   created?: string;
-  /** @nullable */
-  startPublish?: string | null;
-  /** @nullable */
-  stopPublish?: string | null;
   mainLanguage?: Language;
 }
 
@@ -138,6 +136,46 @@ export const InputType = {
   ContentPicker: 'ContentPicker',
 } as const;
 
+export type JobContentContentType = typeof JobContentContentType[keyof typeof JobContentContentType];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const JobContentContentType = {
+  JobContent: 'JobContent',
+} as const;
+
+export type JobContent = Omit<Content, 'contentType'> & {
+  /** @minLength 1 */
+  heading: string;
+  /** @minLength 1 */
+  lead: string;
+  /** @minLength 1 */
+  department: string;
+  /** @minLength 1 */
+  textBody: string;
+  /** @minLength 1 */
+  workDescription: string;
+  /** @minLength 1 */
+  requirements: string;
+  applicationEndDate: string;
+  contentType: JobContentContentType;
+} & Required<Pick<Omit<Content, 'contentType'> & {
+  /** @minLength 1 */
+  heading: string;
+  /** @minLength 1 */
+  lead: string;
+  /** @minLength 1 */
+  department: string;
+  /** @minLength 1 */
+  textBody: string;
+  /** @minLength 1 */
+  workDescription: string;
+  /** @minLength 1 */
+  requirements: string;
+  applicationEndDate: string;
+  contentType: JobContentContentType;
+}, 'applicationEndDate' | 'department' | 'heading' | 'lead' | 'requirements' | 'textBody' | 'workDescription'>>;
+
 export type Language = typeof Language[keyof typeof Language];
 
 
@@ -146,13 +184,6 @@ export const Language = {
   SV: 'SV',
   EN: 'EN',
 } as const;
-
-export interface LanguageBranch {
-  contentId?: number;
-  language?: Language;
-  /** @nullable */
-  activeVersionId?: number | null;
-}
 
 export type NewsContentContentType = typeof NewsContentContentType[keyof typeof NewsContentContentType];
 
@@ -181,6 +212,17 @@ export type NewsContent = Omit<Content, 'contentType'> & {
   relatedContent?: ContentReference;
   contentType: NewsContentContentType;
 }, 'heading' | 'text'>>;
+
+export type PublishStatus = typeof PublishStatus[keyof typeof PublishStatus];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PublishStatus = {
+  NUMBER_1: 1,
+  NUMBER_2: 2,
+  NUMBER_3: 3,
+  NUMBER_4: 4,
+} as const;
 
 export type UpdateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto};
 
@@ -222,21 +264,21 @@ language?: Language;
 published?: boolean;
 };
 
-export type GetApiContentGet200 = EventContent | NewsContent;
+export type GetApiContentGet200 = EventContent | JobContent | NewsContent;
 
 export type GetApiContentAllParams = {
 language?: Language;
 published?: boolean;
 };
 
-export type GetApiContentAll200Item = EventContent | NewsContent;
+export type GetApiContentAll200Item = EventContent | JobContent | NewsContent;
 
 export type GetApiContentCreationschemaParams = {
 contentTypeName?: string;
 language?: Language;
 };
 
-export type PostApiContentCreate200 = EventContent | NewsContent;
+export type PostApiContentCreate200 = EventContent | JobContent | NewsContent;
 
 export type GetApiContentUpdateschemaParams = {
 contentId?: number;
@@ -244,25 +286,21 @@ language?: Language;
 versionId?: number;
 };
 
-export type PutApiContentUpdate200 = EventContent | NewsContent;
+export type PutApiContentUpdate200 = EventContent | JobContent | NewsContent;
 
 export type GetApiContentVersionsParams = {
 contentId?: number;
 language?: Language;
 };
 
-export type GetApiContentVersions200Item = EventContent | NewsContent;
+export type GetApiContentVersions200Item = EventContent | JobContent | NewsContent;
 
-export type PutApiContentSetasactiveParams = {
+export type PutApiContentPublishParams = {
 versionId?: number;
 };
 
-export type PutApiContentPublishParams = {
-contentId?: number;
-};
-
 export type PutApiContentUnpublishParams = {
-contentId?: number;
+versionId?: number;
 };
 
 export type DeleteApiContentDeleteParams = {
@@ -442,91 +480,6 @@ export function useGetApiContentAll<TData = Awaited<ReturnType<typeof getApiCont
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetApiContentAllQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-
-export const getApiContentLatest = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    
-    return axios.default.get(
-      `/api/content/latest`,options
-    );
-  }
-
-
-
-
-export const getGetApiContentLatestQueryKey = () => {
-    return [
-    `/api/content/latest`
-    ] as const;
-    }
-
-    
-export const getGetApiContentLatestQueryOptions = <TData = Awaited<ReturnType<typeof getApiContentLatest>>, TError = AxiosError<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentLatest>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetApiContentLatestQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiContentLatest>>> = ({ signal }) => getApiContentLatest({ signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiContentLatest>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetApiContentLatestQueryResult = NonNullable<Awaited<ReturnType<typeof getApiContentLatest>>>
-export type GetApiContentLatestQueryError = AxiosError<unknown>
-
-
-export function useGetApiContentLatest<TData = Awaited<ReturnType<typeof getApiContentLatest>>, TError = AxiosError<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentLatest>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiContentLatest>>,
-          TError,
-          Awaited<ReturnType<typeof getApiContentLatest>>
-        > , 'initialData'
-      >, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiContentLatest<TData = Awaited<ReturnType<typeof getApiContentLatest>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentLatest>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiContentLatest>>,
-          TError,
-          Awaited<ReturnType<typeof getApiContentLatest>>
-        > , 'initialData'
-      >, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiContentLatest<TData = Awaited<ReturnType<typeof getApiContentLatest>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentLatest>>, TError, TData>>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-
-export function useGetApiContentLatest<TData = Awaited<ReturnType<typeof getApiContentLatest>>, TError = AxiosError<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiContentLatest>>, TError, TData>>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetApiContentLatestQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -997,63 +950,6 @@ export function useGetApiContentVersions<TData = Awaited<ReturnType<typeof getAp
 
 
 
-export const putApiContentSetasactive = (
-    params?: PutApiContentSetasactiveParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    
-    return axios.default.put(
-      `/api/content/setasactive`,undefined,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-
-
-export const getPutApiContentSetasactiveMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentSetasactive>>, TError,{params?: PutApiContentSetasactiveParams}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof putApiContentSetasactive>>, TError,{params?: PutApiContentSetasactiveParams}, TContext> => {
-
-const mutationKey = ['putApiContentSetasactive'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiContentSetasactive>>, {params?: PutApiContentSetasactiveParams}> = (props) => {
-          const {params} = props ?? {};
-
-          return  putApiContentSetasactive(params,axiosOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PutApiContentSetasactiveMutationResult = NonNullable<Awaited<ReturnType<typeof putApiContentSetasactive>>>
-    
-    export type PutApiContentSetasactiveMutationError = AxiosError<unknown>
-
-    export const usePutApiContentSetasactive = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiContentSetasactive>>, TError,{params?: PutApiContentSetasactiveParams}, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putApiContentSetasactive>>,
-        TError,
-        {params?: PutApiContentSetasactiveParams},
-        TContext
-      > => {
-
-      const mutationOptions = getPutApiContentSetasactiveMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    
 export const putApiContentPublish = (
     params?: PutApiContentPublishParams, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {

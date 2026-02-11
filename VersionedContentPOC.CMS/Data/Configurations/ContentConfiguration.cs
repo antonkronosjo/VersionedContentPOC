@@ -19,11 +19,8 @@ namespace VersionedContentPOC.CMS.Data.Configurations
                 .ValueGeneratedOnAdd()
                 .UseIdentityColumn(1, 1);
             builder.BuildContentDiscriminator();
-            builder.HasOne(x => x.LanguageBranch)
+            builder.HasOne(x => x.ContentRoot)
                 .WithMany(x => x.Versions)
-                .HasForeignKey(x => new { x.ContentId, x.Language });
-            builder.HasOne(v => v.ContentRoot)
-                .WithMany()
                 .HasForeignKey(x => x.ContentId);
         }
     }

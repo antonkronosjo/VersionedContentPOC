@@ -17,12 +17,15 @@ public class ContentManagementController : ControllerBase
     IContentRepository _contentRepository;
     IContentFactory _contentFactory;
     IContentVersionRepository _contentVersionRepository;
+    IContentPublishingService _contentPublishingService;
 
-    public ContentManagementController(IContentRepository contentRepository, IContentFactory contentFactory, IContentVersionRepository contentVersionRepository)
+    public ContentManagementController(IContentRepository contentRepository,
+        IContentFactory contentFactory, IContentVersionRepository contentVersionRepository, IContentPublishingService contentPublishingService)
     {
         _contentRepository = contentRepository;
         _contentFactory = contentFactory;
         _contentVersionRepository = contentVersionRepository;
+        _contentPublishingService = contentPublishingService;
     }
 
     [HttpGet]
@@ -145,26 +148,18 @@ public class ContentManagementController : ControllerBase
     }
 
     [HttpPut]
-    [Route("setasactive")]
-    public IActionResult SetAsActiveVersion([FromQuery] int versionId)
-    {
-        _contentRepository.SetAsActiveVersion(versionId);
-        return Ok();
-    }
-
-    [HttpPut]
     [Route("publish")]
-    public IActionResult Publish([FromQuery] int contentId)
+    public IActionResult Publish([FromQuery] int versionId)
     {
-        _contentRepository.SetPublishState(contentId, startPublish: DateTime.UtcNow, stopPublish: null);
+        _contentPublishingService.Publish(versionId);
         return Ok();
     }
 
     [HttpPut]
     [Route("unpublish")]
-    public IActionResult UnPublish([FromQuery] int contentId)
+    public IActionResult UnPublish([FromQuery] int versionId)
     {
-        _contentRepository.SetPublishState(contentId, startPublish: null, stopPublish: DateTime.UtcNow);
+        _contentPublishingService.Unpublish(versionId);
         return Ok();
     }
 

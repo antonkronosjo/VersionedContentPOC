@@ -13,26 +13,8 @@ public class ContentRoot
 
     public int ContentId { get; set; }
     public DateTime Created { get; set; }
-    public DateTime? StartPublish { get; set; }
-    public DateTime? StopPublish { get; set; }
     public Language MainLanguage { get; set; }
 
     [JsonIgnore]
-    public ICollection<LanguageBranch> LanguageBranches { get; set; } = new List<LanguageBranch>();
-
-    public LanguageBranch? AddNewLanguageBranchIfNotExist(Language language)
-    {
-        var languageBranch = LanguageBranches.FirstOrDefault(x => x.Language == language);
-        if (languageBranch != null)
-            return null;
-
-        return AddNewLanguageBranch(language);
-    }
-
-    public LanguageBranch AddNewLanguageBranch(Language language)
-    {
-        var languageBranch = new LanguageBranch(ContentId, language);
-        LanguageBranches.Add(languageBranch);
-        return languageBranch;
-    }
+    public ICollection<Content> Versions { get; set; } = new List<Content>();
 }
