@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Data.Enums;
 
 namespace VersionedContentPOC.CMS.Data.Models;
@@ -33,7 +32,6 @@ public abstract class Content
     public DateTime? StartPublish { get; set; }
     public DateTime? StopPublish { get; set; }
 
-    [ShouldBeRefactored("Should this be marked as nullable??? In practice instances can exist with this set to null")]
     public ContentRoot ContentRoot { get; set; }
 
     public DateTime VersionCreated { get; set; }

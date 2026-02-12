@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Data.Enums;
@@ -116,17 +117,26 @@ public class ContentManagementController : ControllerBase
         var contentExists = _contentRepository.Exists(request.Metadata.ContentId);
         if (!contentExists)
             return NotFound();
+        
+        var contentRoot = _contentRepository
+            .QueryRoots()
+            .Include(x => x.Versions)
+            .Single(x => x.ContentId == request.Metadata.ContentId);
 
-        var content = _contentRepository.Get<Content>(request.Metadata.ContentId, request.Metadata.Language);
-        if (content != null)
+        if (contentRoot.Versions.Any(x => x.Language == request.Metadata.Language))
         {
-            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceNewVersion);
+            var contentVersion = _contentVersionRepository.GetVersion<Content>(
+                request.Metadata.ContentId,
+                request.Metadata.VersionId,
+                request.Metadata.Language
+);
+            var updatedContent = _contentRepository.Update(contentVersion, request.PropertiesSchema, request.Metadata.ForceNewVersion);
             return Ok(updatedContent);
         }
         else
         {
             var contentType = _contentRepository.GetContentRootType(request.Metadata.ContentId);
-            content = _contentFactory.CreateInstance(contentType, request.Metadata.Language, contentId: request.Metadata.ContentId);
+            var content = _contentFactory.CreateInstance(contentType, request.Metadata.Language, contentId: request.Metadata.ContentId);
             var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceNewVersion);
             return Ok(updatedContent);
         }

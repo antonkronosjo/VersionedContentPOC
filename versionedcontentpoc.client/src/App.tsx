@@ -9,6 +9,9 @@ import { AppBar, Box, Container, Grid, Toolbar, Typography } from '@mui/material
 import SideBarMenu from './layout/SideBarMenu';
 import CMSHomePage from './pages/CMSHomePage/CMSHomePage';
 import { routes } from './utils/routeResolver';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from './lib/dayjs';
 
 const appTheme = createTheme({
     palette: {
@@ -30,19 +33,20 @@ const appTheme = createTheme({
 function App() {
     return (
         <ThemeProvider theme={appTheme}>
-            <CssBaseline />
-            <Router>
-                <Box sx={{
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <CssBaseline />
+                <Router>
+                    <Box sx={{
                     display: "flex",
                     flexDirection: "column",
                     minHeight: "100vh", // full viewport height
-                }}>
-                    <AppBar position="static" >
-                        <Toolbar>
-                            <Typography variant="h1">VersionedContentPOC</Typography>
-                        </Toolbar>
-                    </AppBar>
-                    <Container maxWidth={false} sx={{ flex: 1, mb: 1, mt: 1, pl: 1, pr: 1 }} disableGutters>
+                    }}>
+                        <AppBar position="static" >
+                            <Toolbar>
+                                <Typography variant="h1">VersionedContentPOC</Typography>
+                            </Toolbar>
+                        </AppBar>
+                        <Container maxWidth={false} sx={{ flex: 1, mb: 1, mt: 1, pl: 1, pr: 1 }} disableGutters>
                         <Grid container spacing={1}>
                             <Grid size={2}>
                                 <SideBarMenu />
@@ -51,15 +55,15 @@ function App() {
                                 <AppRoutes />
                             </Grid>
                         </Grid>
-                    </Container>
-                    {/* Footer */}
-                    <Box component="footer" sx={{ py: 2, textAlign: 'center', bgcolor: 'grey.900' }}>
-                        <Typography variant="body2">VersionedContentPOC</Typography>
+                        </Container>
+                        <Box component="footer" sx={{ py: 2, textAlign: 'center', bgcolor: 'grey.900' }}>
+                            <Typography variant="body2">VersionedContentPOC</Typography>
+                        </Box>
                     </Box>
-                </Box>
-            </Router>
+                </Router>
+            </LocalizationProvider>
         </ThemeProvider>
-  )
+    )
 }
 
 export default App

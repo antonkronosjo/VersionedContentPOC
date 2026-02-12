@@ -9,6 +9,7 @@ Todo:
 	
 - New features:
 	- Key features
+		- ALL CLEANUP AFTER ADDING NEW VERSION AND NON-LANG-SPECIFIC-PROPS SHOULD BE SEPARATED TO OTHER FUNCTION
 		- SelectionFactories
 		- Advanced filtering
 		- Add uploading files feature
@@ -34,3 +35,28 @@ Todo:
 	- DateTime fields does not get populated on save
 	- When working on an new languge version (before saving) created date is not visible
 	- A lot of requests are being sent/canceled on page render. Multiple unneccessary re-renders?
+
+
+- Möte
+	- Databas för generiskt content, TPH, TPC, TPT (discriminators, etc)
+		- Hur hanterar vi 
+		- Hur hanterar graphql discriminators? (Bör inte vara några problem)
+		- Kraftfullt med att hantera content som samma basklass då man då kan slå bland ALLT content i en query (kan ge nice-to-haves i redaktörs-ui:t)
+		- Exempelvis listor över allt innehåll som jag skapat, eller innehåll som behöver faktagranskas, eller vad vet jag?
+
+	- Formulär för redigering av content
+		- Ett och samma formulär för all redigering av content är kraftfullt
+		- Ger konsekvent beteende
+		- Är lätt-testat
+		- Enkelt att underhålla och patcha men svårare att sätta upp
+		- Hur ska vi hantera validering?
+
+	- Hur hanterar vi egenskaper som enbart skall behöva anges en gång per contentinstans och inte behöva populeras på nytt per språk?
+		- Kräver ett "Main-language" eller vara aggregerat per språk i en dictionary
+		- Att ha det aggregerat per språk i en dict gör det svårt att querya (eller?)
+		- Tål att tänkas på hur vi löser det, enkla vägen är att bara kopiera över värden från huvudspråket men kan bli knas om flera personer jobbar på samma innehåll samtidigt
+
+	- Hur hanterar vi relationer mellan content, särskillt om vi skall ha det versionshanterat och redigerbart
+		- Skall vi ha versionshanterat innehåll kräver detta en platt modellstruktur utan FK:s
+		- Relationer skall vara redigerbara
+		- Aktuellt för exempelvis filer

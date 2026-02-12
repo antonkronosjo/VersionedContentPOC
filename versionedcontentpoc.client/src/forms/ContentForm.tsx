@@ -4,6 +4,8 @@ import { Button, Grid, TextField, type TextFieldProps } from "@mui/material";
 import useUpdateEffect from "../hooks/useUpdateEffect";
 import { useDebouncedCallback } from "../hooks/useDebouncedCallback";
 import ContentPicker from "./ContentPicker";
+import { DateTimePicker } from "@mui/x-date-pickers";
+import dayjs from "../lib/dayjs";
 
 interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
@@ -123,6 +125,23 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
             case InputType.TextArea:
                 return <TextField {...baseProps} multiline rows={7} />;
             case InputType.DateTimePicker:
+                return <DateTimePicker
+                    slotProps={{
+                        textField: {
+                            label: label,
+                            variant: 'filled',
+                            fullWidth: true,
+                            error: errors.length > 0,
+                            helperText: errors[0]?.errorMessage ?? null,
+                            disabled: valueDto.readOnly || disabled,
+                            required: valueDto.isRequired
+                        },
+                    }}
+                    ampm={false}
+                    value={dayjs.utc(valueDto.value?.toString()).local()}
+                    onChange={(v) => { handleChange(v?.utc().toISOString()) }}
+                />;
+            case InputType.DateTimePicker  + "test":
                 return <TextField {...baseProps} type="datetime-local" />;
             case InputType.ContentPicker:
                 return <ContentPicker label={label} onChange={handleChange} language={language} value={valueDto.value as ContentReference} />
