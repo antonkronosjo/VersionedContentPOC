@@ -9,10 +9,10 @@ interface ContentFormProps {
     properties: { [key: string]: ContentPropertyValueDto };
     contentTypeName: string;
     language: Language;
-    disabled: boolean;
     onChange: (key: string, value: unknown | undefined) => void;
     onSubmit: () => Promise<void>;
     submitText: string;
+    disabled?: boolean;
 }
 export default function ContentForm({ properties, contentTypeName, language, onChange, onSubmit, submitText, disabled }: ContentFormProps) {
     const inputRefs = useRef<FormElementTemplateHandles[]>([]);
@@ -68,9 +68,9 @@ export type FormElementTemplateProps = {
     contentTypeName: string;
     propertyName: string;
     valueDto: ContentPropertyValueDto;
-    disabled: boolean;
     language: Language;
     onChange: (value: unknown | undefined) => void;
+    disabled?: boolean;
 }
 interface FormElementTemplateHandles { validate: () => Promise<boolean>; }
 

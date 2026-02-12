@@ -120,14 +120,14 @@ public class ContentManagementController : ControllerBase
         var content = _contentRepository.Get<Content>(request.Metadata.ContentId, request.Metadata.Language);
         if (content != null)
         {
-            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceUpdate);
+            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceNewVersion);
             return Ok(updatedContent);
         }
         else
         {
             var contentType = _contentRepository.GetContentRootType(request.Metadata.ContentId);
             content = _contentFactory.CreateInstance(contentType, request.Metadata.Language, contentId: request.Metadata.ContentId);
-            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceUpdate);
+            var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceNewVersion);
             return Ok(updatedContent);
         }
     }

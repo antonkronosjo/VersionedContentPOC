@@ -19,7 +19,7 @@ namespace VersionedContentPOC.CMS.Extensions
             if (publishedContent != null)
                 return publishedContent;
 
-            return contentList.OrderByDescending(x => x.VersionCreated).Single();
+            return contentList.OrderByDescending(x => x.VersionCreated).First();
         }
     }
 }

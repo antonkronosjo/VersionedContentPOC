@@ -32,20 +32,19 @@ internal class ContentPublishingService : IContentPublishingService
         if (content.Status == PublishStatus.Published)
             throw new Exception("Content already published!");
 
-
-        var alreadyPublishedContent = _context.Content.FirstOrDefault(x => x.ContentId == content.ContentId && content.Status == PublishStatus.Published);
+        var alreadyPublishedContent = _context.Content.FirstOrDefault(x => x.ContentId == content.ContentId && x.Status == PublishStatus.Published);
         if (alreadyPublishedContent != null)
         {
             alreadyPublishedContent.Status = PublishStatus.Unpublished;
             alreadyPublishedContent.StopPublish = DateTime.UtcNow;
             _context.Update(alreadyPublishedContent);
-            _context.SaveChanges();
         }
 
         content.StartPublish = DateTime.UtcNow;
         content.StopPublish = null;
         content.Status = PublishStatus.Published;
-        _contentVersionRepository.AddVersion(content.ContentId, content);
+        _context.Update(content);
+        _context.SaveChanges();
     }
 
     public void Publish(int versionId)

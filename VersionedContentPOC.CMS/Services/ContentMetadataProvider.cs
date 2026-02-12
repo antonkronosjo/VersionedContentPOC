@@ -35,11 +35,11 @@ public static class ContentMetadataProvider
                 ContentId = content.ContentId,
                 ContentTypeName = content.GetType().Name,
                 VersionId = content.VersionId,
-                ActiveVersionId = null,//content.LanguageBranch?.ActiveVersionId,
                 Language = content.Language,
                 Created = contentRoot.Created,
-                StartPublish = null,//contentRoot.StartPublish,
-                StopPublish = null,//contentRoot.StopPublish,
+                StartPublish = content.StartPublish,
+                StopPublish = content.StopPublish,
+                Status = content.Status,
                 LanguageTranslations = contentLanguages
             },
             PropertiesSchema = GetPropertySchema(content.GetType(), contentRoot.MainLanguage, content)

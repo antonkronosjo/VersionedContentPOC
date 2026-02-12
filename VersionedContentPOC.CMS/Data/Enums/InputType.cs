@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-
 namespace VersionedContentPOC.CMS.Data.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -1,5 +1,5 @@
-import { Check, Home } from "@mui/icons-material";
-import { useGetApiContentVersions, Language } from "../api/client";
+import { CheckCircle, Description, Unpublished, Schedule } from "@mui/icons-material";
+import { useGetApiContentVersions, Language, PublishStatus } from "../api/client";
 import { List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
 import { routes } from "../utils/routeResolver";
@@ -40,10 +40,7 @@ export default function ContentVersionsList({ contentId, language, versionId }: 
                         versionId: contentVersion.versionId.toString()
                 })}>
                     <ListItemIcon>
-                        {contentVersion.languageBranch?.activeVersionId === contentVersion.versionId
-                            ? <Check color="success" />
-                            : <Home />
-                        }
+                        {statusIconMap[contentVersion.status]}
                     </ListItemIcon>
                     <ListItemText
                         primary={"ID: " + contentVersion.versionId}
@@ -54,3 +51,10 @@ export default function ContentVersionsList({ contentId, language, versionId }: 
         </List>
     );
 }
+
+const statusIconMap = {
+    [PublishStatus.Published]: <CheckCircle color="success" />,
+    [PublishStatus.Draft]: <Description color="primary" />,
+    [PublishStatus.Unpublished]: <Unpublished color="error" />,
+    [PublishStatus.DelayedPublish]: <Schedule color="secondary" />
+};

@@ -218,10 +218,10 @@ export type PublishStatus = typeof PublishStatus[keyof typeof PublishStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PublishStatus = {
-  NUMBER_1: 1,
-  NUMBER_2: 2,
-  NUMBER_3: 3,
-  NUMBER_4: 4,
+  Draft: 'Draft',
+  Published: 'Published',
+  DelayedPublish: 'DelayedPublish',
+  Unpublished: 'Unpublished',
 } as const;
 
 export type UpdateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto};
@@ -235,18 +235,17 @@ export interface UpdateContentRequestMetadata {
   contentId: number;
   /** @nullable */
   versionId: number | null;
-  /** @nullable */
-  activeVersionId: number | null;
   language: Language;
   /** @nullable */
   created: string | null;
+  status: PublishStatus;
   /** @nullable */
   startPublish: string | null;
   /** @nullable */
   stopPublish: string | null;
   /** @nullable */
   languageTranslations: Language[] | null;
-  forceUpdate?: boolean;
+  forceNewVersion?: boolean;
   /** @minLength 1 */
   contentTypeName: string;
 }
@@ -261,14 +260,12 @@ export interface ValidationResult {
 export type GetApiContentGetParams = {
 contentId?: number;
 language?: Language;
-published?: boolean;
 };
 
 export type GetApiContentGet200 = EventContent | JobContent | NewsContent;
 
 export type GetApiContentAllParams = {
 language?: Language;
-published?: boolean;
 };
 
 export type GetApiContentAll200Item = EventContent | JobContent | NewsContent;

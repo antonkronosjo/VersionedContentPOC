@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
+namespace VersionedContentPOC.CMS.Data.Enums;
 
-namespace VersionedContentPOC.CMS.Data.Enums
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum PublishStatus
 {
-    public enum PublishStatus
-    {
-        Draft = 1,
-        Published = 2,
-        DelayedPublish = 3,
-        Unpublished = 4
-    }
+    Draft = 1,
+    Published = 2,
+    DelayedPublish = 3,
+    Unpublished = 4
 }

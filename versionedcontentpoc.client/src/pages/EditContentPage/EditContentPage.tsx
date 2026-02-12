@@ -45,6 +45,7 @@ export default function EditContentPage() {
                     <LanguageBranchTabs metadata={response.data.metadata} />
                     <Box sx={{ p: 1 }}>
                         <EditContentForm
+                            key={response.data.metadata.versionId}
                             schema={response.data}
                             onSubmit={() => {
                                 refetch();
@@ -53,9 +54,6 @@ export default function EditContentPage() {
                                     language: language
                                 }))
                             }}
-                            versionId={versionId}
-                            activeVersionId={response.data.metadata.activeVersionId}
-                            key={response.data.metadata.activeVersionId}
                         />
                     </Box>
                 </Paper>
@@ -66,11 +64,11 @@ export default function EditContentPage() {
                         Version history
                     </Typography>
                     <ContentVersionsList
+                        key={response.data.metadata.versionId}
                         contentId={contentId}
                         versionId={response.data.metadata.versionId}
                         language={language!}                       
                         onUpdate={refetch}
-                        key={response.data.metadata.activeVersionId}
                     />
                 </Paper>
             </Grid>

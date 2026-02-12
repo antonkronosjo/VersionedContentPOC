@@ -28,6 +28,7 @@ internal class ContentVersionRepository : IContentVersionRepository
     /// Adds new version to content + updates non cultural specific properties on other language branches
     /// </summary>
     [ShouldBeRefactored("DBR: Need to look over this")]
+    []
     public T AddVersion<T>(int contentId, T version) where T : Content
     {
         using var transaction = _context.Database.BeginTransaction();
@@ -36,7 +37,14 @@ internal class ContentVersionRepository : IContentVersionRepository
             .Include(x => x.Versions)
             .Single(r => r.ContentId == contentId);
 
-        var activeMainLanguageVersion = root.Versions.ResolveContentETC();
+        var activeMainLanguageVersion = root.Versions
+            .Where(x => x.Language == root.MainLanguage)
+            .ResolveContentETC();
+
+        if (activeMainLanguageVersion == version)
+        {
+            //TODO: Handle if 
+        }
 
         //Content has no MainLanguageOnly-properties => Just add new version
         if (NoMainLanguageOnlyProperties(version))
@@ -137,6 +145,9 @@ internal class ContentVersionRepository : IContentVersionRepository
         version.ContentId = contentId;
         version.VersionId = 0;
         version.VersionCreated = DateTime.UtcNow;
+        version.StartPublish = null;
+        version.StopPublish = null;
+        version.Status = PublishStatus.Draft;
         _context.Add(version);
         _context.SaveChanges();
         return version;

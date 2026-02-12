@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Language, putApiContentPublish, putApiContentUnpublish, putApiContentUpdate, type UpdateContentRequest, type UpdateContentRequestMetadata } from "../../api/client";
+import { Language, PublishStatus, putApiContentPublish, putApiContentUnpublish, putApiContentUpdate, type UpdateContentRequest, type UpdateContentRequestMetadata } from "../../api/client";
 import { Box, Button, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography } from "@mui/material";
 import ContentForm from "../../forms/ContentForm";
 import LanguageSelectButton from "../../compontents/LanguageSelectButton";
@@ -9,10 +9,11 @@ import { relativeDateTime } from "../../utils/dateUtils";
 
 interface EditContentPageHeaderProps {
     metadata: UpdateContentRequestMetadata;
-    refetch: () => void;
+    refetch: () => void
 }
 export function EditContentPageHeader({ metadata, refetch }: EditContentPageHeaderProps) {
-    const contentIsPublished = metadata.startPublish != null;  //Actually does not check this correctly but will work for now
+    const navigate = useNavigate();
+    const contentIsPublished = metadata.status == PublishStatus.Published;
 
     return (
         <Grid container>
@@ -27,9 +28,15 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
                     color={contentIsPublished ? "error" : "success"}
                     sx={{ ml: "auto" }}
                     onClick={async () => {
-                        if (contentIsPublished) { await putApiContentUnpublish({ contentId: metadata.contentId }) }
-                        /*else { await putApiContentPublish({ contentId: metadata.contentId }); }*/
-                        refetch();
+                        if (contentIsPublished) { await putApiContentUnpublish({ versionId: metadata.versionId }) }
+                        else {
+                            await putApiContentPublish({ versionId: metadata.versionId });
+                            navigate(routes.edit.build({
+                                contentId: metadata.contentId.toString(),
+                                language: metadata.language
+                            }))
+                            refetch();
+                        }
                     }}
                 >
                     {contentIsPublished ? "Unpublish" : "Publish"}
@@ -44,7 +51,10 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
                         <ListItemText primary="Created" secondary={relativeDateTime(metadata.created)} sx={{ m: 0 }} />
                     </ListItem>
                     <ListItem disableGutters>
-                        <ListItemText primary="Published" secondary={relativeDateTime(metadata.startPublish)} />
+                        <ListItemText primary="Start publish" secondary={relativeDateTime(metadata.startPublish)} />
+                    </ListItem>
+                    <ListItem disableGutters>
+                        <ListItemText primary="Stop publish" secondary={relativeDateTime(metadata.stopPublish)} />
                     </ListItem>
                 </List>
             </Grid>
@@ -54,23 +64,13 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
 
 interface EditContentFormProps {
     schema: UpdateContentRequest;
-    versionId: number | undefined,
-    activeVersionId: number | null,
     onSubmit?: () => void;
 }
-export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }: EditContentFormProps) {
-    const [updateRequest, setUpdateRequest] = useState <UpdateContentRequest>(schema);
-    const currentlyEditingActiveVersion = versionId === undefined
-        || versionId === activeVersionId; //Todo: can this be done in another way?
-    const navigate = useNavigate();
+export function EditContentForm({ schema, onSubmit }: EditContentFormProps) {
+    const [updateRequest, setUpdateRequest] = useState<UpdateContentRequest>(schema);
 
     const internalOnSubmit = async () => {
-        if (currentlyEditingActiveVersion) {
-            await putApiContentUpdate(updateRequest);
-        }
-        else {
-            await putApiContentSetasactive({ versionId: versionId });
-        }
+        await putApiContentUpdate(updateRequest);
         onSubmit?.();
     }
 
@@ -89,10 +89,9 @@ export function EditContentForm({ schema, versionId, activeVersionId, onSubmit }
             properties={updateRequest.propertiesSchema}
             onSubmit={internalOnSubmit}
             onChange={onChange}
-            disabled={!currentlyEditingActiveVersion}
-            submitText={currentlyEditingActiveVersion
+            submitText={updateRequest.metadata.status === PublishStatus.Draft
                 ? "Save"
-                : "Set as active version"
+                : "Save as new draft"
             }
         />
     );

@@ -107,12 +107,17 @@ internal class ContentRepository : IContentRepository
     [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
     public T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : Content
     {
-        if (forceNewVersion)
+        bool addNewVersion = forceNewVersion
+            || updatedVersion.Status != PublishStatus.Draft
+            || updatedVersion.VersionId == 0; //Not sure if this can happen
+            
+        if (addNewVersion)
+        {
             return _contentVersionRepository.AddVersion(contentId, updatedVersion);
+        }
+            
 
-        updatedVersion.VersionId = 0;
-        updatedVersion.ContentId = contentId;
-        _context.Add(updatedVersion);
+        _context.Update(updatedVersion);
         _context.SaveChanges();
 
         return updatedVersion;
@@ -124,7 +129,7 @@ internal class ContentRepository : IContentRepository
     public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content
     {
         //var entity = _context.Entities.Find(id);
-        _context.Entry(content).State = EntityState.Detached; //Need to detach state before applying updates
+        //_context.Entry(content).State = EntityState.Detached; //Need to detach state before applying updates
         ContentUpdater.ApplyUpdates(content, updates);
         return Update<T>(content.ContentId, content);
     }
