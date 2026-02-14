@@ -64,7 +64,7 @@ export default function EditContentPage() {
                         Version history
                     </Typography>
                     <ContentVersionsList
-                        key={response.data.metadata.versionId}
+                        key={response.data.metadata.versionId + response.data.metadata.status}
                         contentId={contentId}
                         versionId={response.data.metadata.versionId}
                         language={language!}                       
