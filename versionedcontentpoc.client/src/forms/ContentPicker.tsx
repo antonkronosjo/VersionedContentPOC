@@ -15,22 +15,16 @@ export default function ContentPicker({ label, value, language, onChange }: Cont
     const [displayName, setDisplayName] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    //const loadDisplayName = async (contentId?: string) => {
-    //    if (!contentId) return;
-
-    //    setLoading(true);
-
-    //};
-
     useEffect(() => {
-        getApiContentGet({ contentId: value?.contentId, language: language, published: false }).then((res) => {
-            console.warn("RES", res);
-            setDisplayName([
-                res.data.heading,
-                "(" + res.data.contentId + ")"
-            ].join(" "));
-            setLoading(false);
-        });
+        if (value && value.contentId) {
+            getApiContentGet({ contentId: value?.contentId, language: language }).then((res) => {
+                setDisplayName([
+                    res.data.heading,
+                    "(" + res.data.contentId + ")"
+                ].join(" "));
+                setLoading(false);
+            });
+        }
     }, [value?.contentId]);
 
     return (
@@ -51,7 +45,7 @@ export default function ContentPicker({ label, value, language, onChange }: Cont
                             userSelect: "none",
                         },
                         readOnly: true,
-                        startAdornment: value ? (
+                        startAdornment: value && value.contentId ? (
                             <InputAdornment position="start">
                                 <Chip
                                     color="primary"

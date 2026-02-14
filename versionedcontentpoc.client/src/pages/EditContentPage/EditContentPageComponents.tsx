@@ -28,15 +28,18 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
                     color={contentIsPublished ? "error" : "success"}
                     sx={{ ml: "auto" }}
                     onClick={async () => {
-                        if (contentIsPublished) { await putApiContentUnpublish({ versionId: metadata.versionId }) }
+                        if (contentIsPublished) {
+                            await putApiContentUnpublish({ versionId: metadata.versionId })
+                        }
                         else {
                             await putApiContentPublish({ versionId: metadata.versionId });
-                            navigate(routes.edit.build({
-                                contentId: metadata.contentId.toString(),
-                                language: metadata.language
-                            }))
-                            refetch();
                         }
+                        navigate(routes.edit.build({
+                            contentId: metadata.contentId.toString(),
+                            language: metadata.language,
+                            versionId: metadata.versionId?.toString()
+                        }))
+                        refetch();
                     }}
                 >
                     {contentIsPublished ? "Unpublish" : "Publish"}

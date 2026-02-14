@@ -67,7 +67,7 @@ export default function EditContentPage() {
                         key={response.data.metadata.versionId + response.data.metadata.status}
                         contentId={contentId}
                         versionId={response.data.metadata.versionId}
-                        language={language!}                       
+                        language={language!}
                         onUpdate={refetch}
                     />
                 </Paper>

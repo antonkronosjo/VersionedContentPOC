@@ -137,6 +137,7 @@ const FormElementTemplate = forwardRef<FormElementTemplateHandles, FormElementTe
                             required: valueDto.isRequired
                         },
                     }}
+                    disabled={valueDto.readOnly || disabled}
                     ampm={false}
                     value={dayjs.utc(valueDto.value?.toString()).local()}
                     onChange={(v) => { handleChange(v?.utc().toISOString()) }}

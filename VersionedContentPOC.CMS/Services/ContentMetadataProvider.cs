@@ -57,7 +57,7 @@ public static class ContentMetadataProvider
                     Value = content != null
                         ? p.GetValue(content)
                         : null,
-                    ReadOnly = false
+                    ReadOnly = content != null && content.Status != PublishStatus.Draft
                 }
             );
     }
