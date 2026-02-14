@@ -1,6 +1,5 @@
 ﻿using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Data.Models;
-
 namespace VersionedContentPOC.CMS.Services;
 
 public static class ContentTypeRegistry
@@ -24,8 +23,6 @@ public static class ContentTypeRegistry
             throw new KeyNotFoundException($"Content type '{typeName}' is not registered.");
         return contentType;
     }
-
-
 
     public static class Guards {
         public static void IsRegiesteredContentType(Type type)

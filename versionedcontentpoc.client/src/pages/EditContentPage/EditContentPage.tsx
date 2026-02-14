@@ -47,11 +47,11 @@ export default function EditContentPage() {
                         <EditContentForm
                             key={response.data.metadata.versionId}
                             schema={response.data}
-                            onSubmit={() => {
-                                refetch();
+                            onSubmit={(content) => {
                                 navigate(routes.edit.build({
                                     contentId: contentId.toString(),
-                                    language: language
+                                    language: language,
+                                    versionId: content.versionId.toString()
                                 }))
                             }}
                         />

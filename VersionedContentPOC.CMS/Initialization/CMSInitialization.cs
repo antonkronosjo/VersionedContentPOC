@@ -14,7 +14,7 @@ namespace VersionedContentPOC.CMS.Initialization
 {
     public static class CMSInitialization
     {
-        public static readonly string _contentDiscriminator = "contentType";
+        private static readonly string _contentDiscriminator = "contentType";
 
         public static IServiceCollection RegisterCMSServices(this IServiceCollection services, string connectionString)
         {

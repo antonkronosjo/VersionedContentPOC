@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VersionedContentPOC.CMS.Attributes;
+using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Extensions;
 using VersionedContentPOC.CMS.Mappers;
 using VersionedContentPOC.CMS.Requests;
@@ -25,14 +26,11 @@ public class ContentSummaryController : ControllerBase
     [Route("contentroots")]
     [ProducesResponseType(typeof(List<ContentRootSummary>), StatusCodes.Status200OK)]
     [ShouldBeRefactored("This query is very un-optimized")]
-    [ShouldBeRefactored("DBR: Look over stop/start publish")]
     public IActionResult GetRootSummaries([FromQuery] GetRootSummariesRequest request)
     {
-        var utcNow = DateTime.UtcNow;
-
         var contentRoots = _contentRepository.QueryRoots()
             .Include(x => x.Versions)
-            //.WhereIf(request.Published == true, x => x.StartPublish < utcNow && (x.StopPublish == null || x.StopPublish > utcNow))
+            .WhereIf(request.Published == true, x => x.Versions.Any(x => x.Status == PublishStatus.Published))
             .ToList()
             .ToSummary(_contentRepository)
             .Where(x => String.IsNullOrEmpty(request.ContentType) || request.ContentType == x.ContentTypeName)

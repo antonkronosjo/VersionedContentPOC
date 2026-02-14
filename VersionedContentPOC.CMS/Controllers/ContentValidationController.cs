@@ -12,13 +12,6 @@ namespace VersionedContentPOC.Controllers;
 [Produces("application/json")]
 public class ContentValidationController : ControllerBase
 {
-    IContentRepository _contentRepository;
-
-    public ContentValidationController(IContentRepository contentRepository)
-    {
-        _contentRepository = contentRepository;
-    }
-
     [HttpPost]
     [Route("property")]
     [ProducesResponseType(typeof(List<ValidationResult>), StatusCodes.Status200OK)]

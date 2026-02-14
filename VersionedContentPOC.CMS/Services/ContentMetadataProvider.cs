@@ -24,18 +24,15 @@ public static class ContentMetadataProvider
     }
 
     [ShouldBeRefactored("Would be good to not need to inject translated languages")]
-    [ShouldBeRefactored("Should be a new schema created for translations where i need current active version of main language")]
-    [ShouldBeRefactored("I need to have current active version here")]
-    [ShouldBeRefactored("DBR: Look over stop/start publish/active version")]
     public static UpdateContentRequest GetUpdateSchema(Content content, ContentRoot contentRoot, List<Language> contentLanguages)
     {
         return new UpdateContentRequest
         {
             Metadata = new UpdateContentRequestMetadata {
                 ContentId = content.ContentId,
-                ContentTypeName = content.GetType().Name,
                 VersionId = content.VersionId,
                 Language = content.Language,
+                ContentTypeName = content.GetType().Name,
                 Created = contentRoot.Created,
                 StartPublish = content.StartPublish,
                 StopPublish = content.StopPublish,
@@ -60,20 +57,9 @@ public static class ContentMetadataProvider
                     Value = content != null
                         ? p.GetValue(content)
                         : null,
-                    ReadOnly = GetReadOnly(p, mainLanguage, content)
+                    ReadOnly = false
                 }
             );
-    }
-
-    private static bool GetReadOnly(PropertyInfo propertyInfo, Language mainLanguage, Content? content)
-    {
-        if (content == null)
-            return false;
-
-        if (content.Language == mainLanguage)
-            return false;
-
-        return propertyInfo.GetCustomAttribute<MainLanguageOnlyAttribute>()?.IsActive == true;
     }
 }
 

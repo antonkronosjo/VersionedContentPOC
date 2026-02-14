@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Language, PublishStatus, putApiContentPublish, putApiContentUnpublish, putApiContentUpdate, type UpdateContentRequest, type UpdateContentRequestMetadata } from "../../api/client";
+import { Language, PublishStatus, putApiContentPublish, putApiContentUnpublish, putApiContentUpdate, type PutApiContentUpdate200, type UpdateContentRequest, type UpdateContentRequestMetadata } from "../../api/client";
 import { Box, Button, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography } from "@mui/material";
 import ContentForm from "../../forms/ContentForm";
 import LanguageSelectButton from "../../compontents/LanguageSelectButton";
@@ -64,14 +64,14 @@ export function EditContentPageHeader({ metadata, refetch }: EditContentPageHead
 
 interface EditContentFormProps {
     schema: UpdateContentRequest;
-    onSubmit?: () => void;
+    onSubmit?: (content: PutApiContentUpdate200) => void;
 }
 export function EditContentForm({ schema, onSubmit }: EditContentFormProps) {
     const [updateRequest, setUpdateRequest] = useState<UpdateContentRequest>(schema);
 
     const internalOnSubmit = async () => {
-        await putApiContentUpdate(updateRequest);
-        onSubmit?.();
+        const res = await putApiContentUpdate(updateRequest);
+        onSubmit?.(res.data);
     }
 
     const onChange = (key: string, value: unknown | undefined) => {

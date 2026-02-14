@@ -10,15 +10,5 @@ namespace VersionedContentPOC.CMS.Extensions
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanWrite && p.CanRead);
         }
-
-        public static IEnumerable<PropertyInfo> FilterByAttribute<T>(this IEnumerable<PropertyInfo> propertyInfos, Func<T?, bool> predicate) where T : Attribute
-        {
-            return propertyInfos
-                .Where(p =>
-                {
-                    var attr = p.GetCustomAttribute<T>(inherit: true);
-                    return predicate(attr);
-                });
-        }
     }
 }
