@@ -15,6 +15,8 @@ public class ContentRoot
     public DateTime Created { get; set; }
     public Language MainLanguage { get; set; }
 
+    public SharedContentProperties? SharedContentProperties { get; set; }
+
     [JsonIgnore]
     public ICollection<Content> Versions { get; set; } = new List<Content>();
 }

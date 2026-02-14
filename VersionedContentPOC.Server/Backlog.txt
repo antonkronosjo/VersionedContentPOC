@@ -52,8 +52,15 @@ Todo:
 		- Hur ska vi hantera validering?
 
 	- Hur hanterar vi egenskaper som enbart skall behöva anges en gång per contentinstans och inte behöva populeras på nytt per språk?
+	- Jag ser två möjliga vägar framåt:
+		- Att språkspecifik data lagras i en dictionary: Dictionary<Language, value>
+			- Att ha det aggregerat per språk i en dict gör det svårt att querya (eller?)
+			- Att ha det aggregerat per språk fuckar versionshantering av content
+		- Att icke-språkspecifik data lagras i Content-roten men kräver då en unik content-root implementation per content-typ
+			- Gör query-lite yxigare men det är görbart
+			- Gör s.a. icke-språkspecifika egenskaper inte kan vara en del av versionshistoriken
 		- Kräver ett "Main-language" eller vara aggregerat per språk i en dictionary
-		- Att ha det aggregerat per språk i en dict gör det svårt att querya (eller?)
+		
 		- Tål att tänkas på hur vi löser det, enkla vägen är att bara kopiera över värden från huvudspråket men kan bli knas om flera personer jobbar på samma innehåll samtidigt
 
 	- Hur hanterar vi relationer mellan content, särskillt om vi skall ha det versionshanterat och redigerbart

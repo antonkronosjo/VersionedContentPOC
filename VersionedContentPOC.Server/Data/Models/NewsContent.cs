@@ -27,4 +27,11 @@ namespace VersionedContentPOC.Server.Data.Models
         [ContentPropertyMetadata(editable: true, inputType: InputType.ContentPicker)]
         public ContentReference RelatedContent { get; set; }
     }
+
+    [SharedContentProperties(typeof(NewsContent))]
+    public class NewsContentSharedProperties : SharedContentProperties
+    {
+        [ContentPropertyMetadata(editable: true, inputType: InputType.ContentPicker)]
+        public ContentReference RelatedContent { get; set; }
+    }
 }

@@ -39,14 +39,32 @@ namespace VersionedContentPOC.CMS.Initialization
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(baseType =>
             {
-                if (baseType == typeof(Content)) // The base class from Project B
-                {
-                    return ContentTypeRegistry.GetRegisteredContentTypes(); // The types in Project A
-                }
+                if (baseType == typeof(Content))
+                    return ContentTypeRegistry.GetRegisteredContentTypes();
+                
+                if (baseType == typeof(SharedContentProperties))
+                    return ContentTypeRegistry.GetRegisteredSharedContentProperties();
+                
                 return Enumerable.Empty<Type>();
             });
-            options.SelectDiscriminatorNameUsing(type => typeof(Content).IsAssignableFrom(type) ? _contentDiscriminator : null);
-            options.SelectDiscriminatorValueUsing(type => typeof(Content).IsAssignableFrom(type) ? type.Name : null);
+            options.SelectDiscriminatorNameUsing(type => {
+                if (typeof(Content).IsAssignableFrom(type))
+                    return _contentDiscriminator;
+
+                if (typeof(SharedContentProperties).IsAssignableFrom(type))
+                    return _contentDiscriminator;
+
+                return null;
+            });
+            options.SelectDiscriminatorValueUsing(type => {
+                if (typeof(Content).IsAssignableFrom(type))
+                    return type.Name;
+
+                if (typeof(SharedContentProperties).IsAssignableFrom(type))
+                    return type.Name;
+
+                return null;
+            });
         }
 
         public static void SetCMSJsonOptions(this JsonOptions options)
@@ -63,6 +81,16 @@ namespace VersionedContentPOC.CMS.Initialization
                     };
                     foreach (var contentType in ContentTypeRegistry.GetRegisteredContentTypes())
                         ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(contentType, contentType.Name));
+                }
+                if (ti.Type == typeof(SharedContentProperties))
+                {
+                    ti.PolymorphismOptions = new JsonPolymorphismOptions
+                    {
+                        TypeDiscriminatorPropertyName = _contentDiscriminator,
+                        UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
+                    };
+                    foreach (var sharedPropertiesType in ContentTypeRegistry.GetRegisteredSharedContentProperties())
+                        ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(sharedPropertiesType, sharedPropertiesType.Name));
                 }
             });
             options.JsonSerializerOptions.TypeInfoResolver = resolver;

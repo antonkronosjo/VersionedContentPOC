@@ -13,7 +13,7 @@ public interface IContentRepository
     bool Exists(int contentId);
     ContentRoot Get(int contentId);
     Type GetContentRootType(int contentId);
-    T Create<T>(T content) where T : Content;
+    T Create<T, T2>(T content, T2? sharedProperties = null) where T : Content where T2 : SharedContentProperties;
     T Update<T>(int contentId, T contentVersion, bool forceNewVersion = false) where T : Content;
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content;
     void Delete(int contentId);
@@ -68,27 +68,30 @@ internal class ContentRepository : IContentRepository
     /// <summary>
     /// Creates new content with underlying root object, language branch and version handling
     /// </summary>
-    public T Create<T>(T initialVersion) where T : Content
+    public T Create<T, T2>(T initialVersion, T2? sharedProperties = null)
+        where T : Content 
+        where T2 : SharedContentProperties
     {
         using var transaction = _context.Database.BeginTransaction();
-        try
-        {
-            var contentRoot = new ContentRoot(initialVersion.Language);
-            _context.Add(contentRoot);
-            _context.SaveChanges();
 
-            initialVersion.ContentId = contentRoot.ContentId;
-            _context.Add(initialVersion);
-            _context.SaveChanges();
+        var contentRoot = new ContentRoot(initialVersion.Language);
+        _context.Add(contentRoot);
+        _context.SaveChanges();
 
-            transaction.Commit();
-            return initialVersion;
-        }
-        catch
+        initialVersion.ContentId = contentRoot.ContentId;
+        _context.Add(initialVersion);
+
+        if (sharedProperties != null)
         {
-            transaction.Rollback();
-            throw;
+            sharedProperties.ContentId = contentRoot.ContentId;
+            _context.Add(sharedProperties);
         }
+
+        _context.SaveChanges();
+
+        transaction.Commit();
+        return initialVersion;
+
     }
 
     /// <summary>
@@ -143,7 +146,8 @@ internal class ContentRepository : IContentRepository
         return _context.Content.OfType<T>()
             .Where(x => x.Language == language)
             .ResolveContentVersions()
-            .Include(x => x.ContentRoot);
+            .Include(x => x.ContentRoot)
+            .ThenInclude(x => x.SharedContentProperties);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using VersionedContentPOC.CMS.Attributes;
+﻿using System.Reflection;
+using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Data.Models;
 namespace VersionedContentPOC.CMS.Services;
 
@@ -22,6 +23,23 @@ public static class ContentTypeRegistry
         if (contentType == null)
             throw new KeyNotFoundException($"Content type '{typeName}' is not registered.");
         return contentType;
+    }
+
+    public static IEnumerable<Type> GetRegisteredSharedContentProperties()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(x => x.GetTypes())
+            .Where(x =>
+                x.IsClass &&
+                !x.IsAbstract &&
+                typeof(SharedContentProperties).IsAssignableFrom(x) &&
+                x.IsDefined(typeof(SharedContentPropertiesAttribute), false));
+    }
+
+    public static Type GetSharedContentPropertiesForContentType(Type contentType)
+    {
+        var test = GetRegisteredSharedContentProperties();
+        return test.Single(x => x.GetCustomAttribute<SharedContentPropertiesAttribute>()?.ContentType == contentType);
     }
 
     public static class Guards {

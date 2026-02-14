@@ -66,8 +66,11 @@ public class ContentManagementController : ControllerBase
         try
         {
             var contentType = ContentTypeRegistry.GetRegisteredContentType(request.Metadata.ContentTypeName);
-            var contentInstance = _contentFactory.CreateInstance(contentType, request.Metadata.Language, properties: request.PropertiesSchema);
-            var createdContent = _contentRepository.Create(contentInstance);
+            var contentInstance = _contentFactory.CreateContentInstance(contentType, request.Metadata.Language, properties: request.PropertiesSchema);
+
+            var sharedPropertiesType = ContentTypeRegistry.GetSharedContentPropertiesForContentType(contentType);
+            var sharedProperties = _contentFactory.CreateSharedPropertiesInstance(sharedPropertiesType);
+            var createdContent = _contentRepository.Create(contentInstance, sharedProperties);
             return CreatedAtAction(nameof(CreateContent), createdContent);
         }
         catch (ValidationException ex)
@@ -103,7 +106,8 @@ public class ContentManagementController : ControllerBase
         {
             var contentRoot = _contentRepository.QueryRoots().Single(x => x.ContentId == contentId);
             var contentType = _contentRepository.GetContentRootType(contentId);
-            var contentInstance = _contentFactory.CreateInstance(contentType, language, contentId: contentId);
+            var contentInstance = _contentFactory.CreateContentInstance(contentType, language, contentId: contentId);
+
             var updateSchema = ContentMetadataProvider.GetUpdateSchema(contentInstance, contentRoot, contentLanguages);
             return Ok(updateSchema);
         }
@@ -136,7 +140,7 @@ public class ContentManagementController : ControllerBase
         else
         {
             var contentType = _contentRepository.GetContentRootType(request.Metadata.ContentId);
-            var content = _contentFactory.CreateInstance(contentType, request.Metadata.Language, contentId: request.Metadata.ContentId);
+            var content = _contentFactory.CreateContentInstance(contentType, request.Metadata.Language, contentId: request.Metadata.ContentId);
             var updatedContent = _contentRepository.Update(content, request.PropertiesSchema, request.Metadata.ForceNewVersion);
             return Ok(updatedContent);
         }

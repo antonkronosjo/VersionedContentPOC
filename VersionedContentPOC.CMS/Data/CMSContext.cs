@@ -14,11 +14,13 @@ internal class CMSContext : DbContext
 
     internal DbSet<ContentRoot> ContentRoots => Set<ContentRoot>();
     internal DbSet<Content> Content => Set<Content>();
+    internal DbSet<SharedContentProperties> SharedContentProperties => Set<SharedContentProperties>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ContentRootConfiguration());
         modelBuilder.ApplyConfiguration(new ContentConfiguration());
+        modelBuilder.ApplyConfiguration(new SharedContentPropertiesConfiguration());
 
         var propertyConverterRegistry = new PropertyConverterRegistry();
         propertyConverterRegistry.AddRegisteredConverters(modelBuilder);
