@@ -17,11 +17,14 @@ public class UpdateContentRequestMetadata
 {
     [Required]
     public required int ContentId { get; set; }
+
     [Required]
     public required int VersionId { get; set; }
+
     [Required]
     public required Language Language { get; set; }
     public required DateTime? Created { get; set; }
+
     [Required]
     public required PublishStatus Status { get; set; }
     public required DateTime? StartPublish { get; set; }

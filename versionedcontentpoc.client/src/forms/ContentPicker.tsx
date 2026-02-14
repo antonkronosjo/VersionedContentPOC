@@ -1,8 +1,8 @@
-import { Button, Chip, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, Paper, TextField, Typography, type TextFieldProps } from "@mui/material";
+import { Chip, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, Paper, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getApiContentGet, useGetApiContentGet, type ContentReference, type Language } from "../api/client";
+import { getApiContentGet, type ContentReference, type Language } from "../api/client";
 import ContentSelector from "../compontents/ContentSelector";
-import { ArrowDropDown, Clear, Close } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 
 type ContentPickerProps = {
     value: ContentReference | undefined;
