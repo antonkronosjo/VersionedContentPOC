@@ -14,7 +14,7 @@ internal class CMSContext : DbContext
 
     internal DbSet<ContentRoot> ContentRoots => Set<ContentRoot>();
     internal DbSet<Content> Content => Set<Content>();
-    internal DbSet<SharedContentProperties> SharedContentProperties => Set<SharedContentProperties>();
+    internal DbSet<InvariantVersion> SharedContentProperties => Set<InvariantVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

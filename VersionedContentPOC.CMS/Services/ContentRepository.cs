@@ -13,7 +13,7 @@ public interface IContentRepository
     bool Exists(int contentId);
     ContentRoot Get(int contentId);
     Type GetContentRootType(int contentId);
-    T Create<T, T2>(T content, T2? sharedProperties = null) where T : Content where T2 : SharedContentProperties;
+    T Create<T, T2>(T content, T2? sharedProperties = null) where T : Content where T2 : InvariantVersion;
     T Update<T>(int contentId, T contentVersion, bool forceNewVersion = false) where T : Content;
     T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content;
     void Delete(int contentId);
@@ -70,7 +70,7 @@ internal class ContentRepository : IContentRepository
     /// </summary>
     public T Create<T, T2>(T initialVersion, T2? sharedProperties = null)
         where T : Content 
-        where T2 : SharedContentProperties
+        where T2 : InvariantVersion
     {
         using var transaction = _context.Database.BeginTransaction();
 

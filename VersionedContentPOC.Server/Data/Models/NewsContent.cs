@@ -29,7 +29,7 @@ namespace VersionedContentPOC.Server.Data.Models
     }
 
     [SharedContentProperties(typeof(NewsContent))]
-    public class NewsContentSharedProperties : SharedContentProperties
+    public class NewsContentSharedProperties : InvariantVersion
     {
         [ContentPropertyMetadata(editable: true, inputType: InputType.ContentPicker)]
         public ContentReference RelatedContent { get; set; }

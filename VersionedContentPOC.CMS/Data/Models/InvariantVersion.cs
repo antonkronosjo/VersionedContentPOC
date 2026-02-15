@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using VersionedContentPOC.CMS.Data.Interfaces;
 
 namespace VersionedContentPOC.CMS.Data.Models
 {
-    public abstract class SharedContentProperties
+    public abstract class InvariantVersion : IContentVersion//<T> : IContentVersion where T : Content
     {
         [Required]
         [JsonIgnore]

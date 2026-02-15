@@ -165,7 +165,8 @@ public class ContentManagementController : ControllerBase
     [Route("publish")]
     public IActionResult Publish([FromQuery] int versionId)
     {
-        _contentPublishingService.Publish(versionId);
+        var version = _contentVersionRepository.GetVersion<Content>(versionId);
+        _contentPublishingService.Publish(version);
         return Ok();
     }
 
@@ -173,7 +174,8 @@ public class ContentManagementController : ControllerBase
     [Route("unpublish")]
     public IActionResult UnPublish([FromQuery] int versionId)
     {
-        _contentPublishingService.Unpublish(versionId);
+        var version = _contentVersionRepository.GetVersion<Content>(versionId);
+        _contentPublishingService.Unpublish(version);
         return Ok();
     }
 

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.CMS.Data.Enums;
+using VersionedContentPOC.CMS.Data.Interfaces;
 
 namespace VersionedContentPOC.CMS.Data.Models;
 
-public abstract class Content
+public abstract class Content : IVersionable, IPublishable
 {
     protected Content()
     {

@@ -1,16 +1,14 @@
 ﻿using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Data;
 using VersionedContentPOC.CMS.Data.Enums;
-using VersionedContentPOC.CMS.Data.Models;
+using VersionedContentPOC.CMS.Data.Interfaces;
 
 namespace VersionedContentPOC.CMS.Services;
 
 public interface IContentPublishingService
 {
-    void Publish(int versionId);
-    void Publish(Content content);
-    void Unpublish(int versionId);
-    void Unpublish(Content content);
+    void Publish(IPublishable content);
+    void Unpublish(IPublishable content);
 }
 internal class ContentPublishingService : IContentPublishingService
 {
@@ -21,13 +19,8 @@ internal class ContentPublishingService : IContentPublishingService
         _context = context;
     }
 
-    public void Publish(int versionId)
-    {
-        var content = _context.Content.Single(x => x.VersionId == versionId);
-        Publish(content);
-    }
-
-    public void Publish(Content content) 
+    [ShouldBeRefactored("Does not commit publish/unpublish in one transaction")]
+    public void Publish(IPublishable content) 
     {
         if (content.Status == PublishStatus.Published)
             throw new Exception("Content already published!");
@@ -38,11 +31,7 @@ internal class ContentPublishingService : IContentPublishingService
         );
 
         if (currentlyPublishedVersion != null)
-        {
-            currentlyPublishedVersion.Status = PublishStatus.Unpublished;
-            currentlyPublishedVersion.StopPublish = DateTime.UtcNow;
-            _context.Update(currentlyPublishedVersion);
-        }
+            Unpublish(currentlyPublishedVersion);
 
         content.StartPublish = DateTime.UtcNow;
         content.StopPublish = null;
@@ -52,17 +41,10 @@ internal class ContentPublishingService : IContentPublishingService
         _context.SaveChanges();
     }
 
-    [ShouldBeRefactored("This does not take in consideration if content has been unpublished on main language or similar")]
-    public void Unpublish(Content content)
+    public void Unpublish(IPublishable content)
     {
         content.StopPublish = DateTime.UtcNow;
         content.Status = PublishStatus.Unpublished;
         _context.SaveChanges();
-    }
-
-    public void Unpublish(int versionId)
-    {
-        var content = _context.Content.Single(x => x.VersionId == versionId);
-        Unpublish(content);
     }
 }
