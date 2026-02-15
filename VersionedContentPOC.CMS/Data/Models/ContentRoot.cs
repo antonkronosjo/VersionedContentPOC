@@ -5,15 +5,13 @@ namespace VersionedContentPOC.CMS.Data.Models;
 
 public class ContentRoot
 {
-    public ContentRoot(Language mainLanguage)
+    public ContentRoot()
     {
         Created = DateTime.UtcNow;
-        MainLanguage = mainLanguage;
     }
 
     public int ContentId { get; set; }
     public DateTime Created { get; set; }
-    public Language MainLanguage { get; set; }
 
     public SharedContentProperties? SharedContentProperties { get; set; }
 

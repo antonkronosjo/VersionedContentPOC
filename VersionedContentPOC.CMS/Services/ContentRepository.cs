@@ -74,7 +74,7 @@ internal class ContentRepository : IContentRepository
     {
         using var transaction = _context.Database.BeginTransaction();
 
-        var contentRoot = new ContentRoot(initialVersion.Language);
+        var contentRoot = new ContentRoot();
         _context.Add(contentRoot);
         _context.SaveChanges();
 

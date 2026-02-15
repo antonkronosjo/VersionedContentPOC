@@ -86,17 +86,30 @@ export function EditContentForm({ schema, onSubmit }: EditContentFormProps) {
     }
 
     return (
-        <ContentForm
-            contentTypeName={updateRequest.metadata.contentTypeName}
-            language={updateRequest.metadata.language}
-            properties={updateRequest.propertiesSchema}
-            onSubmit={internalOnSubmit}
-            onChange={onChange}
-            submitText={updateRequest.metadata.status === PublishStatus.Draft
-                ? "Save"
-                : "Save as new draft"
+        <>
+            <ContentForm
+                contentTypeName={updateRequest.metadata.contentTypeName}
+                language={updateRequest.metadata.language}
+                properties={updateRequest.propertiesSchema}
+                onSubmit={internalOnSubmit}
+                onChange={onChange}
+                submitText={updateRequest.metadata.status === PublishStatus.Draft
+                    ? "Save"
+                    : "Save as new draft"
+                }
+            />
+            {updateRequest.sharedPropertiesSchema != null && 
+                <ContentForm
+                    contentTypeName={updateRequest.metadata.contentTypeName}
+                    language={updateRequest.metadata.language}
+                    properties={updateRequest.sharedPropertiesSchema}
+                    onSubmit={internalOnSubmit}
+                    onChange={onChange}
+                    submitText={"Save global properties"}
+                />
             }
-        />
+        </>
+
     );
 }
 

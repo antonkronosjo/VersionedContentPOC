@@ -10,7 +10,8 @@ public class UpdateContentRequest
     public virtual required UpdateContentRequestMetadata Metadata { get; set; }
 
     [Required]
-    public required IDictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
+    public required Dictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
+    public required Dictionary<string, ContentPropertyValueDto> SharedPropertiesSchema { get; set; } = new();
 }
 
 public class UpdateContentRequestMetadata

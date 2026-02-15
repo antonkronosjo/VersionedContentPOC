@@ -12,6 +12,8 @@ public static class ContentMetadataProvider
 {
     public static CreateContentRequest GetCreationSchema(Type contentType, Language language)
     {
+        var sharedPropertiesType = ContentTypeRegistry.GetSharedContentPropertiesForContentType(contentType);
+
         return new CreateContentRequest
         {
             Metadata = new CreateContentRequestMetadata
@@ -19,13 +21,16 @@ public static class ContentMetadataProvider
                 ContentTypeName = contentType.Name,
                 Language = language,
             },
-            PropertiesSchema = GetPropertySchema(contentType, language)
+            PropertiesSchema = GetPropertySchema(contentType),
+            SharedPropertiesSchema = GetPropertySchema(sharedPropertiesType)
         };  
     }
 
     [ShouldBeRefactored("Would be good to not need to inject translated languages")]
     public static UpdateContentRequest GetUpdateSchema(Content content, ContentRoot contentRoot, List<Language> contentLanguages)
     {
+        var sharedPropertiesType = ContentTypeRegistry.GetSharedContentPropertiesForContentType(content.GetType());
+
         return new UpdateContentRequest
         {
             Metadata = new UpdateContentRequestMetadata {
@@ -39,13 +44,16 @@ public static class ContentMetadataProvider
                 Status = content.Status,
                 LanguageTranslations = contentLanguages
             },
-            PropertiesSchema = GetPropertySchema(content.GetType(), contentRoot.MainLanguage, content)
+            PropertiesSchema = GetPropertySchema(content.GetType(), content),
+            SharedPropertiesSchema = GetPropertySchema(sharedPropertiesType)
         };
     }
 
-    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, Language mainLanguage, Content? content = null)
+    [ShouldBeRefactored("Guard should be re-added")]
+    [ShouldBeRefactored("Maybe not use object as param?")]
+    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, object? instance = null)
     {
-        ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
+        //ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
         return contentType.GetContentProperties()
             .ToDictionary(
@@ -54,10 +62,10 @@ public static class ContentMetadataProvider
                 {
                     InputType = p.GetCustomAttribute<ContentPropertyMetadataAttribute>().PropertyInputType,
                     IsRequired = p.IsDefined(typeof(RequiredAttribute), inherit: true),
-                    Value = content != null
-                        ? p.GetValue(content)
+                    Value = instance != null
+                        ? p.GetValue(instance)
                         : null,
-                    ReadOnly = content != null && content.Status != PublishStatus.Draft
+                    ReadOnly = instance is Content content && content.Status != PublishStatus.Draft
                 }
             );
     }
