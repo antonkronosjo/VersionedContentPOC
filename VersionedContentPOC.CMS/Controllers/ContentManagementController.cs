@@ -34,7 +34,8 @@ public class ContentManagementController : ControllerBase
     [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
     public ActionResult<List<string>> GetContentTypes()
     {
-        var contentTypes = ContentTypeRegistry.LocalizedVersions.GetRegisteredTypes()
+        var contentTypes = ContentTypeRegistry.GetRegisteredTypes()
+            .Where(x => typeof(LocalizableVersion).IsAssignableFrom(x))
             .Select(x => x.Name)
             .ToList();
 
@@ -48,7 +49,7 @@ public class ContentManagementController : ControllerBase
     {
         try
         {
-            var contentType = ContentTypeRegistry.LocalizedVersions.GetRegisteredType(contentTypeName);
+            var contentType = ContentTypeRegistry.GetRegisteredType(contentTypeName);
             var creationSchema = ContentMetadataProvider.GetCreationSchema(contentType, language);
             return Ok(creationSchema);
         }
@@ -63,10 +64,10 @@ public class ContentManagementController : ControllerBase
     [ProducesResponseType(typeof(LocalizableVersion), StatusCodes.Status200OK)]
     public ActionResult<LocalizableVersion> CreateContent([FromBody] CreateContentRequest request)
     {
-        var contentType = ContentTypeRegistry.LocalizedVersions.GetRegisteredType(request.Metadata.ContentTypeName);
+        var contentType = ContentTypeRegistry.GetRegisteredType(request.Metadata.ContentTypeName);
         var contentInstance = _contentFactory.CreateContentInstance(contentType, request.Metadata.Language, properties: request.PropertiesSchema);
 
-        var sharedPropertiesType = ContentTypeRegistry.InvariantVersions.GetRegisteredType(contentType);
+        var sharedPropertiesType = ContentTypeRegistry.GetInvariantContentType(contentType);
         var sharedProperties = _contentFactory.CreateSharedPropertiesInstance(sharedPropertiesType);
 
         var createdContent = _contentRepository.Create(contentInstance, sharedProperties);
@@ -83,10 +84,12 @@ public class ContentManagementController : ControllerBase
 
         if (language == Language.Invariant)
         {
-            var version = _contentVersionRepository.QueryVersions<InvariantVersion>()
-                .Where(x => x.ContentId == contentId)
-                .OrderByDescending(x => x.VersionCreated)
-                .Single();
+            var version = versionId.HasValue
+                ? _contentVersionRepository.GetVersion<InvariantVersion>(versionId.Value)
+                : _contentVersionRepository.QueryVersions<InvariantVersion>()
+                    .Where(x => x.ContentId == contentId)
+                    .OrderByDescending(x => x.VersionCreated)
+                    .First();
 
             var updateSchema = ContentMetadataProvider.GetUpdateSchema(version, contentLanguages);
             return Ok(updateSchema);
@@ -121,7 +124,13 @@ public class ContentManagementController : ControllerBase
         var contentExists = _contentRepository.Exists(request.Metadata.ContentId);
         if (!contentExists)
             return NotFound();
-        
+
+        if (request.Metadata.Language == Language.Invariant)
+        {
+            var contentVersion = _contentVersionRepository.GetVersion<InvariantVersion>(request.Metadata.VersionId);
+            var updatedContent = _contentRepository.Update(contentVersion, request.PropertiesSchema, request.Metadata.ForceNewVersion);
+        }
+
         var contentRoot = _contentRepository
             .QueryRoots()
             .Include(x => x.Versions)
@@ -147,14 +156,24 @@ public class ContentManagementController : ControllerBase
     [ProducesResponseType(typeof(List<LocalizableVersion>), StatusCodes.Status200OK)]
     public ActionResult<List<LocalizableVersion>> Versions([FromQuery] int contentId, Language language)
     {
-
-        var contentVersions = _contentVersionRepository
-            .QueryVersions<LocalizableVersion>()
-            .Where(x => x.Language == language && x.ContentId == contentId)
-            .OrderByDescending(x => x.VersionCreated)
-            .ToList();
-
-        return Ok(contentVersions);
+        if (language == Language.Invariant)
+        {
+            var contentVersions = _contentVersionRepository
+                .QueryVersions<InvariantVersion>()
+                .Where(x => x.ContentId == contentId)
+                .OrderByDescending(x => x.VersionCreated)
+                .ToList();
+            return Ok(contentVersions);
+        }
+        else
+        {
+            var contentVersions = _contentVersionRepository
+                .QueryVersions<LocalizableVersion>()
+                .Where(x => x.ContentId == contentId && x.Language == language)
+                .OrderByDescending(x => x.VersionCreated)
+                .ToList();
+            return Ok(contentVersions);
+        }
     }
 
     [HttpPut]

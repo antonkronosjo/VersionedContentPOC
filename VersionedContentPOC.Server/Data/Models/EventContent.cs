@@ -5,7 +5,7 @@ using VersionedContentPOC.CMS.Attributes;
 
 namespace VersionedContentPOC.Server.Data.Models
 {
-    [ContentType]
+    [ContentVersion]
     public class EventContent : LocalizableVersion
     {
         public EventContent(Language language) : base(language)

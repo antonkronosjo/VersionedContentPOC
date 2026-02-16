@@ -30,7 +30,9 @@ internal class ContentPublishingService : IContentPublishingService
             && x.Status == PublishStatus.Published
         );
 
-        if (currentlyPublishedVersion != null)
+        var isOnSameLanguage = (currentlyPublishedVersion as ILocalizable)?.Language == (content as ILocalizable)?.Language;
+
+        if (currentlyPublishedVersion != null && isOnSameLanguage)
             Unpublish(currentlyPublishedVersion);
 
         content.StartPublish = DateTime.UtcNow;

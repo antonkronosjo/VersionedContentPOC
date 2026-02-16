@@ -13,7 +13,7 @@ public static class ContentMetadataProvider
 {
     public static CreateContentRequest GetCreationSchema(Type contentType, Language language)
     {
-        var sharedPropertiesType = ContentTypeRegistry.InvariantVersions.GetRegisteredType(contentType);
+        var sharedPropertiesType = ContentTypeRegistry.GetInvariantContentType(contentType);
 
         return new CreateContentRequest
         {

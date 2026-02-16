@@ -5,7 +5,7 @@ using VersionedContentPOC.CMS.Attributes;
 
 namespace VersionedContentPOC.Server.Data.Models
 {
-    [ContentType]
+    [ContentVersion]
     public class NewsContent : LocalizableVersion
     {
         public NewsContent(Language language) : base(language)
@@ -29,6 +29,7 @@ namespace VersionedContentPOC.Server.Data.Models
     }
 
     [SharedContentProperties(typeof(NewsContent))]
+    [ContentVersion]
     public class NewsContentSharedProperties : InvariantVersion
     {
         [ContentPropertyMetadata(editable: true, inputType: InputType.ContentPicker)]

@@ -4,6 +4,7 @@ using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Data.Models;
 using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Extensions;
+using VersionedContentPOC.CMS.Data.Interfaces;
 
 namespace VersionedContentPOC.CMS.Services;
 
@@ -14,8 +15,8 @@ public interface IContentRepository
     ContentRoot Get(int contentId);
     Type GetContentRootType(int contentId);
     T Create<T, T2>(T content, T2? sharedProperties = null) where T : LocalizableVersion where T2 : InvariantVersion;
-    T Update<T>(int contentId, T contentVersion, bool forceNewVersion = false) where T : LocalizableVersion;
-    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : LocalizableVersion;
+    T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : ContentVersion;
+    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : ContentVersion;
     void Delete(int contentId);
     IQueryable<T> Query<T>(Language languageBranch) where T : LocalizableVersion;
     IQueryable<ContentRoot> QueryRoots();
@@ -108,12 +109,15 @@ internal class ContentRepository : IContentRepository
     /// Updates content with new version. NOTE: Will throw exception if content.VersionId does not match currently active content version
     /// </summary>
     [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
-    public T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : LocalizableVersion
+    public T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : ContentVersion
     {
+        //var versionable = updatedVersion as IVersionable;
         bool addNewVersion = forceNewVersion
-            || updatedVersion.Status != PublishStatus.Draft
-            || updatedVersion.VersionId == 0; //Not sure if this can happen
-            
+            || (updatedVersion is IPublishable versionable && versionable.Status != PublishStatus.Draft)
+            || (updatedVersion is not ILocalizable)
+            || updatedVersion.VersionId == 0; //Not sure if this can happen;
+
+
         if (addNewVersion)
         {
             return _contentVersionRepository.AddVersion(contentId, updatedVersion);
@@ -129,10 +133,8 @@ internal class ContentRepository : IContentRepository
     /// <summary>
     /// Updates content with new version based on key/values.
     /// </summary>
-    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : LocalizableVersion
+    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : ContentVersion
     {
-        //var entity = _context.Entities.Find(id);
-        //_context.Entry(content).State = EntityState.Detached; //Need to detach state before applying updates
         ContentUpdater.ApplyUpdates(content, updates);
         return Update<T>(content.ContentId, content);
     }

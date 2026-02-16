@@ -39,7 +39,7 @@ export default function LanguageSelectButton({ text, languages, handleSelect }: 
                 onClose={handleClose}
             >
                 {Object.values(Language)
-                    .filter(x => !languages?.includes(x))
+                    .filter(x => !languages?.includes(x) && x !== Language.Invariant)
                     .map(language => (
                         <MenuItem onClick={() => {
                             handleSelect(language);

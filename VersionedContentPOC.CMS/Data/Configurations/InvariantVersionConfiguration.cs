@@ -26,7 +26,7 @@ namespace VersionedContentPOC.CMS.Data.Configurations
         {
             var discriminatorBuilder = builder.HasDiscriminator<string>(_contentDiscriminator);
 
-            foreach (var type in ContentTypeRegistry.InvariantVersions.GetRegisteredTypes())
+            foreach (var type in ContentTypeRegistry.GetRegisteredTypes().Where(x => typeof(InvariantVersion).IsAssignableFrom(x)))
                 discriminatorBuilder.HasValue(type, type.Name);
         }
     }
