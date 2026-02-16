@@ -5,6 +5,7 @@ using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Requests;
 using VersionedContentPOC.CMS.Attributes;
 using VersionedContentPOC.CMS.Extensions;
+using VersionedContentPOC.CMS.Data.Interfaces;
 
 namespace VersionedContentPOC.CMS.Services;
 
@@ -12,7 +13,7 @@ public static class ContentMetadataProvider
 {
     public static CreateContentRequest GetCreationSchema(Type contentType, Language language)
     {
-        var sharedPropertiesType = ContentTypeRegistry.GetSharedContentPropertiesForContentType(contentType);
+        var sharedPropertiesType = ContentTypeRegistry.InvariantVersions.GetRegisteredType(contentType);
 
         return new CreateContentRequest
         {
@@ -27,25 +28,26 @@ public static class ContentMetadataProvider
     }
 
     [ShouldBeRefactored("Would be good to not need to inject translated languages")]
-    public static UpdateContentRequest GetUpdateSchema(Content content, ContentRoot contentRoot, List<Language> contentLanguages)
+    public static UpdateContentRequest GetUpdateSchema(ContentVersion content, List<Language> contentLanguages)
     {
-        var sharedPropertiesType = ContentTypeRegistry.GetSharedContentPropertiesForContentType(content.GetType());
+        var iPublishable = content as IPublishable;
+        var iLocalizable = content as ILocalizable;
 
         return new UpdateContentRequest
         {
             Metadata = new UpdateContentRequestMetadata {
                 ContentId = content.ContentId,
                 VersionId = content.VersionId,
-                Language = content.Language,
+                Created = content.VersionCreated,
                 ContentTypeName = content.GetType().Name,
-                Created = contentRoot.Created,
-                StartPublish = content.StartPublish,
-                StopPublish = content.StopPublish,
-                Status = content.Status,
-                LanguageTranslations = contentLanguages
+                Language = iLocalizable?.Language ?? Language.Invariant,
+                Publishable = iPublishable != null,
+                StartPublish = iPublishable?.StartPublish,
+                StopPublish = iPublishable?.StopPublish,
+                Status = iPublishable?.Status ?? PublishStatus.Draft,
+                LanguageTranslations = contentLanguages,
             },
-            PropertiesSchema = GetPropertySchema(content.GetType(), content),
-            SharedPropertiesSchema = GetPropertySchema(sharedPropertiesType)
+            PropertiesSchema = GetPropertySchema(content.GetType(), content)
         };
     }
 
@@ -65,7 +67,7 @@ public static class ContentMetadataProvider
                     Value = instance != null
                         ? p.GetValue(instance)
                         : null,
-                    ReadOnly = instance is Content content && content.Status != PublishStatus.Draft
+                    ReadOnly = instance is LocalizableVersion content && content.Status != PublishStatus.Draft
                 }
             );
     }

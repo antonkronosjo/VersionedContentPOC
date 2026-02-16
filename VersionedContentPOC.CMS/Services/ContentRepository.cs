@@ -9,15 +9,15 @@ namespace VersionedContentPOC.CMS.Services;
 
 public interface IContentRepository
 {
-    T? Get<T>(int contentId, Language language) where T : Content;
+    T? Get<T>(int contentId, Language language) where T : LocalizableVersion;
     bool Exists(int contentId);
     ContentRoot Get(int contentId);
     Type GetContentRootType(int contentId);
-    T Create<T, T2>(T content, T2? sharedProperties = null) where T : Content where T2 : InvariantVersion;
-    T Update<T>(int contentId, T contentVersion, bool forceNewVersion = false) where T : Content;
-    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content;
+    T Create<T, T2>(T content, T2? sharedProperties = null) where T : LocalizableVersion where T2 : InvariantVersion;
+    T Update<T>(int contentId, T contentVersion, bool forceNewVersion = false) where T : LocalizableVersion;
+    T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : LocalizableVersion;
     void Delete(int contentId);
-    IQueryable<T> Query<T>(Language languageBranch) where T : Content;
+    IQueryable<T> Query<T>(Language languageBranch) where T : LocalizableVersion;
     IQueryable<ContentRoot> QueryRoots();
     List<Language> GetTranslatedLanguages(int contentId);
 }
@@ -36,7 +36,7 @@ internal class ContentRepository : IContentRepository
     /// <summary>
     /// Returns currently active version of content for language. Returns null if entity not found or not active
     /// </summary>
-    public T? Get<T>(int contentId, Language language) where T : Content 
+    public T? Get<T>(int contentId, Language language) where T : LocalizableVersion 
     {
         return Query<T>(language).FirstOrDefault(x => x.ContentId == contentId);
     }
@@ -69,7 +69,7 @@ internal class ContentRepository : IContentRepository
     /// Creates new content with underlying root object, language branch and version handling
     /// </summary>
     public T Create<T, T2>(T initialVersion, T2? sharedProperties = null)
-        where T : Content 
+        where T : LocalizableVersion 
         where T2 : InvariantVersion
     {
         using var transaction = _context.Database.BeginTransaction();
@@ -108,7 +108,7 @@ internal class ContentRepository : IContentRepository
     /// Updates content with new version. NOTE: Will throw exception if content.VersionId does not match currently active content version
     /// </summary>
     [ShouldBeRefactored("Refactor this so that it makes sense regarding force update")]
-    public T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : Content
+    public T Update<T>(int contentId, T updatedVersion, bool forceNewVersion = false) where T : LocalizableVersion
     {
         bool addNewVersion = forceNewVersion
             || updatedVersion.Status != PublishStatus.Draft
@@ -129,7 +129,7 @@ internal class ContentRepository : IContentRepository
     /// <summary>
     /// Updates content with new version based on key/values.
     /// </summary>
-    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : Content
+    public T Update<T>(T content, IDictionary<string, ContentPropertyValueDto> updates, bool forceNewVersion = false) where T : LocalizableVersion
     {
         //var entity = _context.Entities.Find(id);
         //_context.Entry(content).State = EntityState.Detached; //Need to detach state before applying updates
@@ -141,7 +141,7 @@ internal class ContentRepository : IContentRepository
     /// Returns a base query used when querying content
     /// </summary>
     [ShouldBeRefactored("DBR: Look over published version filter")]
-    public IQueryable<T> Query<T>(Language language) where T : Content
+    public IQueryable<T> Query<T>(Language language) where T : LocalizableVersion
     {
         return _context.Content.OfType<T>()
             .Where(x => x.Language == language)

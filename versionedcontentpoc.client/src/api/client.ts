@@ -30,20 +30,6 @@ import type {
   AxiosResponse
 } from 'axios';
 
-export interface Content {
-  contentType: string;
-  versionId: number;
-  contentId: number;
-  status: PublishStatus;
-  language: Language;
-  /** @nullable */
-  startPublish?: string | null;
-  /** @nullable */
-  stopPublish?: string | null;
-  contentRoot?: ContentRoot;
-  versionCreated?: string;
-}
-
 /**
  * @nullable
  */
@@ -61,16 +47,9 @@ export interface ContentReference {
   contentId?: number;
 }
 
-/**
- * @nullable
- */
-export type ContentRootSharedContentProperties = NewsContentSharedProperties | null;
-
 export interface ContentRoot {
   contentId?: number;
   created?: string;
-  /** @nullable */
-  sharedContentProperties?: ContentRootSharedContentProperties;
 }
 
 export interface ContentRootSummary {
@@ -117,7 +96,7 @@ export const EventContentContentType = {
   EventContent: 'EventContent',
 } as const;
 
-export type EventContent = Omit<Content, 'contentType'> & {
+export type EventContent = Omit<LocalizableVersion, 'contentType'> & {
   /** @minLength 1 */
   heading: string;
   startDate: string;
@@ -125,7 +104,7 @@ export type EventContent = Omit<Content, 'contentType'> & {
   /** @minLength 1 */
   description: string;
   contentType: EventContentContentType;
-} & Required<Pick<Omit<Content, 'contentType'> & {
+} & Required<Pick<Omit<LocalizableVersion, 'contentType'> & {
   /** @minLength 1 */
   heading: string;
   startDate: string;
@@ -157,7 +136,7 @@ export const JobContentContentType = {
   JobContent: 'JobContent',
 } as const;
 
-export type JobContent = Omit<Content, 'contentType'> & {
+export type JobContent = Omit<LocalizableVersion, 'contentType'> & {
   /** @minLength 1 */
   heading: string;
   /** @minLength 1 */
@@ -172,7 +151,7 @@ export type JobContent = Omit<Content, 'contentType'> & {
   requirements: string;
   applicationEndDate: string;
   contentType: JobContentContentType;
-} & Required<Pick<Omit<Content, 'contentType'> & {
+} & Required<Pick<Omit<LocalizableVersion, 'contentType'> & {
   /** @minLength 1 */
   heading: string;
   /** @minLength 1 */
@@ -194,9 +173,24 @@ export type Language = typeof Language[keyof typeof Language];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Language = {
+  Invariant: 'Invariant',
   SV: 'SV',
   EN: 'EN',
 } as const;
+
+export interface LocalizableVersion {
+  contentType: string;
+  versionId: number;
+  versionCreated?: string;
+  contentId: number;
+  contentRoot?: ContentRoot;
+  status: PublishStatus;
+  language: Language;
+  /** @nullable */
+  startPublish?: string | null;
+  /** @nullable */
+  stopPublish?: string | null;
+}
 
 export type NewsContentContentType = typeof NewsContentContentType[keyof typeof NewsContentContentType];
 
@@ -206,7 +200,7 @@ export const NewsContentContentType = {
   NewsContent: 'NewsContent',
 } as const;
 
-export type NewsContent = Omit<Content, 'contentType'> & {
+export type NewsContent = Omit<LocalizableVersion, 'contentType'> & {
   /** @minLength 1 */
   heading: string;
   /** @nullable */
@@ -215,7 +209,7 @@ export type NewsContent = Omit<Content, 'contentType'> & {
   text: string;
   relatedContent?: ContentReference;
   contentType: NewsContentContentType;
-} & Required<Pick<Omit<Content, 'contentType'> & {
+} & Required<Pick<Omit<LocalizableVersion, 'contentType'> & {
   /** @minLength 1 */
   heading: string;
   /** @nullable */
@@ -225,19 +219,6 @@ export type NewsContent = Omit<Content, 'contentType'> & {
   relatedContent?: ContentReference;
   contentType: NewsContentContentType;
 }, 'heading' | 'text'>>;
-
-export type NewsContentSharedPropertiesContentType = typeof NewsContentSharedPropertiesContentType[keyof typeof NewsContentSharedPropertiesContentType];
-
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const NewsContentSharedPropertiesContentType = {
-  NewsContentSharedProperties: 'NewsContentSharedProperties',
-} as const;
-
-export type NewsContentSharedProperties = Omit<SharedContentProperties, 'contentType'> & {
-  relatedContent?: ContentReference;
-  contentType: NewsContentSharedPropertiesContentType;
-};
 
 export type PublishStatus = typeof PublishStatus[keyof typeof PublishStatus];
 
@@ -250,22 +231,11 @@ export const PublishStatus = {
   Unpublished: 'Unpublished',
 } as const;
 
-export interface SharedContentProperties {
-  contentType: string;
-}
-
 export type UpdateContentRequestPropertiesSchema = {[key: string]: ContentPropertyValueDto};
-
-/**
- * @nullable
- */
-export type UpdateContentRequestSharedPropertiesSchema = {[key: string]: ContentPropertyValueDto} | null;
 
 export interface UpdateContentRequest {
   metadata: UpdateContentRequestMetadata;
   propertiesSchema: UpdateContentRequestPropertiesSchema;
-  /** @nullable */
-  sharedPropertiesSchema: UpdateContentRequestSharedPropertiesSchema;
 }
 
 export interface UpdateContentRequestMetadata {
@@ -284,6 +254,7 @@ export interface UpdateContentRequestMetadata {
   forceNewVersion?: boolean;
   /** @minLength 1 */
   contentTypeName: string;
+  publishable: boolean;
 }
 
 export interface ValidationResult {

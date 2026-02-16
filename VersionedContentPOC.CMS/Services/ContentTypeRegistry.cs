@@ -5,51 +5,57 @@ namespace VersionedContentPOC.CMS.Services;
 
 public static class ContentTypeRegistry
 {
-    [ShouldBeRefactored("Maybe add cache here to avoid using reflection as much as possible?")]
-    public static IEnumerable<Type> GetRegisteredContentTypes()
+    public static class LocalizedVersions
     {
-        return AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x =>
-                x.IsClass &&
-                !x.IsAbstract &&
-                typeof(Content).IsAssignableFrom(x) &&
-                x.IsDefined(typeof(ContentTypeAttribute), false));
-    }
-    
-    public static Type GetRegisteredContentType(string typeName)
-    {
-        var contentType = GetRegisteredContentTypes().SingleOrDefault(x => x.Name == typeName);
-        if (contentType == null)
-            throw new KeyNotFoundException($"Content type '{typeName}' is not registered.");
-        return contentType;
+        [ShouldBeRefactored("Maybe add cache here to avoid using reflection as much as possible?")]
+        public static IEnumerable<Type> GetRegisteredTypes()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x =>
+                    x.IsClass &&
+                    !x.IsAbstract &&
+                    typeof(LocalizableVersion).IsAssignableFrom(x) &&
+                    x.IsDefined(typeof(ContentTypeAttribute), false));
+        }
+
+        public static Type GetRegisteredType(string typeName)
+        {
+            var contentType = GetRegisteredTypes().SingleOrDefault(x => x.Name == typeName);
+            if (contentType == null)
+                throw new KeyNotFoundException($"Content type '{typeName}' is not registered.");
+            return contentType;
+        }
     }
 
-    public static IEnumerable<Type> GetRegisteredSharedContentProperties()
+    public static class InvariantVersions
     {
-        return AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x =>
-                x.IsClass &&
-                !x.IsAbstract &&
-                typeof(SharedContentProperties).IsAssignableFrom(x) &&
-                x.IsDefined(typeof(SharedContentPropertiesAttribute), false));
-    }
+        public static IEnumerable<Type> GetRegisteredTypes()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x =>
+                    x.IsClass &&
+                    !x.IsAbstract &&
+                    typeof(InvariantVersion).IsAssignableFrom(x) &&
+                    x.IsDefined(typeof(SharedContentPropertiesAttribute), false));
+        }
 
-    public static Type GetSharedContentPropertiesForContentType(Type contentType)
-    {
-        var test = GetRegisteredSharedContentProperties();
-        return test.Single(x => x.GetCustomAttribute<SharedContentPropertiesAttribute>()?.ContentType == contentType);
+        public static Type GetRegisteredType(Type contentType)
+        {
+            var test = InvariantVersions.GetRegisteredTypes();
+            return test.Single(x => x.GetCustomAttribute<SharedContentPropertiesAttribute>()?.ContentType == contentType);
+        }
     }
 
     public static class Guards {
         public static void IsRegiesteredContentType(Type type)
         {
-            if (!typeof(Content).IsAssignableFrom(type))
-                throw new InvalidOperationException($"Type '{type.FullName}' does not inherit from {nameof(Content)}.");
+            if (!typeof(LocalizableVersion).IsAssignableFrom(type))
+                throw new InvalidOperationException($"Type '{type.FullName}' does not inherit from {nameof(LocalizableVersion)}.");
 
-            if (GetRegisteredContentTypes().SingleOrDefault(x => x == type) == null)
-                throw new InvalidOperationException($"Type '{type.FullName}' is not registered by decorating it with ContentType attribute {nameof(Content)}.");
+            if (LocalizedVersions.GetRegisteredTypes().SingleOrDefault(x => x == type) == null)
+                throw new InvalidOperationException($"Type '{type.FullName}' is not registered by decorating it with ContentType attribute {nameof(LocalizableVersion)}.");
         }
     }
 }

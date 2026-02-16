@@ -5,28 +5,28 @@ using VersionedContentPOC.CMS.Services;
 
 namespace VersionedContentPOC.CMS.Data.Configurations
 {
-    internal class SharedContentPropertiesConfiguration : IEntityTypeConfiguration<SharedContentProperties>
+    internal class InvariantVersionConfiguration : IEntityTypeConfiguration<InvariantVersion>
     {
         private static readonly string _contentDiscriminator = "ContentType";
 
-        public void Configure(EntityTypeBuilder<SharedContentProperties> builder)
+        public void Configure(EntityTypeBuilder<InvariantVersion> builder)
         {
-            builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id)
+            builder.HasKey(x => x.VersionId);
+            builder.Property(x => x.VersionId)
                 .ValueGeneratedOnAdd()
                 .UseIdentityColumn(1, 1);
             builder.HasOne(x => x.ContentRoot)
-                .WithOne(x => x.SharedContentProperties)
-                .HasForeignKey<SharedContentProperties>(x => x.ContentId)
+                .WithMany(x => x.SharedContentProperties)
+                .HasForeignKey(x => x.ContentId)
                 .OnDelete(DeleteBehavior.Cascade);
             BuildContentDiscriminator(builder);
         }
 
-        private static void BuildContentDiscriminator(EntityTypeBuilder<SharedContentProperties> builder)
+        private static void BuildContentDiscriminator(EntityTypeBuilder<InvariantVersion> builder)
         {
             var discriminatorBuilder = builder.HasDiscriminator<string>(_contentDiscriminator);
 
-            foreach (var type in ContentTypeRegistry.GetRegisteredSharedContentProperties())
+            foreach (var type in ContentTypeRegistry.InvariantVersions.GetRegisteredTypes())
                 discriminatorBuilder.HasValue(type, type.Name);
         }
     }

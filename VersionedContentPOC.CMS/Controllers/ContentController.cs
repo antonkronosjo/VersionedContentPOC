@@ -21,12 +21,12 @@ public class ContentController : ControllerBase
 
     [HttpGet]
     [Route("get")]
-    [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
-    public ActionResult<Content> GetById([FromQuery] int contentId, [FromQuery] Language language)
+    [ProducesResponseType(typeof(LocalizableVersion), StatusCodes.Status200OK)]
+    public ActionResult<LocalizableVersion> GetById([FromQuery] int contentId, [FromQuery] Language language)
     {
         var utcNow = DateTime.UtcNow;
         var content = _contentRepository
-            .Query<Content>(language)
+            .Query<LocalizableVersion>(language)
             .FirstOrDefault(x => x.ContentId == contentId);
 
         return Ok(content);
@@ -34,12 +34,12 @@ public class ContentController : ControllerBase
 
     [HttpGet]
     [Route("all")]
-    [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
-    public ActionResult<List<Content>> GetAllContent([FromQuery] Language language)
+    [ProducesResponseType(typeof(List<LocalizableVersion>), StatusCodes.Status200OK)]
+    public ActionResult<List<LocalizableVersion>> GetAllContent([FromQuery] Language language)
     {
         var utcNow = DateTime.UtcNow;
         var news = _contentRepository
-            .Query<Content>(language)
+            .Query<LocalizableVersion>(language)
             .Include(x => x.ContentRoot)
             .OrderByDescending(x => x.ContentRoot.Created)
             .ToList();

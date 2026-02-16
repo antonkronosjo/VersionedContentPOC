@@ -45,7 +45,7 @@ export default function EditContentPage() {
                     <LanguageBranchTabs metadata={response.data.metadata} />
                     <Box sx={{ p: 1 }}>
                         <EditContentForm
-                            key={response.data.metadata.versionId}
+                            key={response.data.metadata.versionId + response.data.metadata.language}
                             schema={response.data}
                             onSubmit={(content) => {
                                 navigate(routes.edit.build({

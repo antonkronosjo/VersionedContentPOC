@@ -6,7 +6,7 @@ using VersionedContentPOC.CMS.Attributes;
 namespace VersionedContentPOC.Server.Data.Models
 {
     [ContentType]
-    public class JobContent : Content
+    public class JobContent : LocalizableVersion
     {
         public JobContent(Language language) : base(language)
         {
@@ -39,7 +39,6 @@ namespace VersionedContentPOC.Server.Data.Models
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
         [Required]
-        [MainLanguageOnly]
         public required DateTime ApplicationEndDate { get; set; }
     }
 }

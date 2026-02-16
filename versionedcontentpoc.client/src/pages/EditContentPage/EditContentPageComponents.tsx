@@ -98,16 +98,6 @@ export function EditContentForm({ schema, onSubmit }: EditContentFormProps) {
                     : "Save as new draft"
                 }
             />
-            {updateRequest.sharedPropertiesSchema != null && 
-                <ContentForm
-                    contentTypeName={updateRequest.metadata.contentTypeName}
-                    language={updateRequest.metadata.language}
-                    properties={updateRequest.sharedPropertiesSchema}
-                    onSubmit={internalOnSubmit}
-                    onChange={onChange}
-                    submitText={"Save global properties"}
-                />
-            }
         </>
 
     );
@@ -118,7 +108,7 @@ interface LanguageBranchTabsProps {
 }
 export function LanguageBranchTabs({ metadata }: LanguageBranchTabsProps) {
     const navigate = useNavigate();
-    const languageTabs = Array.from(new Set([...metadata.languageTranslations!, metadata.language]));
+    const languageTabs = Array.from(new Set([...metadata.languageTranslations!, metadata.language])).filter(x => x !== Language.Invariant);
     const showAddTranslationButton = languageTabs.length != Object.values(Language).length;
 
     return (
@@ -133,6 +123,7 @@ export function LanguageBranchTabs({ metadata }: LanguageBranchTabsProps) {
                         })
                     );
                 }}>
+                <Tab label="Shared properties" value={Language.Invariant} />
                 {languageTabs.map((languageTranslation) => (
                     <Tab label={languageTranslation} value={languageTranslation} />
                 ))}

@@ -5,11 +5,11 @@ using VersionedContentPOC.CMS.Services;
 
 namespace VersionedContentPOC.CMS.Data.Configurations
 {
-    internal class ContentConfiguration : IEntityTypeConfiguration<Content>
+    internal class ContentConfiguration : IEntityTypeConfiguration<LocalizableVersion>
     {
         private static readonly string _contentDiscriminator = "ContentType";
 
-        public void Configure(EntityTypeBuilder<Content> builder)
+        public void Configure(EntityTypeBuilder<LocalizableVersion> builder)
         {
             builder.HasKey(x => x.VersionId);
             builder.Property(x => x.VersionId)
@@ -21,11 +21,11 @@ namespace VersionedContentPOC.CMS.Data.Configurations
             BuildContentDiscriminator(builder);
         }
 
-        private static void BuildContentDiscriminator(EntityTypeBuilder<Content> builder)
+        private static void BuildContentDiscriminator(EntityTypeBuilder<LocalizableVersion> builder)
         {
             var discriminatorBuilder = builder.HasDiscriminator<string>(_contentDiscriminator);
 
-            foreach (var type in ContentTypeRegistry.GetRegisteredContentTypes())
+            foreach (var type in ContentTypeRegistry.LocalizedVersions.GetRegisteredTypes())
                 discriminatorBuilder.HasValue(type, type.Name);
         }
     }

@@ -6,7 +6,7 @@ using VersionedContentPOC.CMS.Attributes;
 namespace VersionedContentPOC.Server.Data.Models
 {
     [ContentType]
-    public class NewsContent : Content
+    public class NewsContent : LocalizableVersion
     {
         public NewsContent(Language language) : base(language)
         {

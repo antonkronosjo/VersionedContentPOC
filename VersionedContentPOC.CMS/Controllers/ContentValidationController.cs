@@ -18,7 +18,8 @@ public class ContentValidationController : ControllerBase
     public ActionResult<List<ValidationResult>> ValidateProperty([FromQuery] string contentTypeName, [FromQuery] string propertyName, [FromBody] ContentPropertyValueDto contentPropertyValueDto)
     {
         var contentType = ContentTypeRegistry
-            .GetRegisteredContentType(contentTypeName);
+            .LocalizedVersions
+            .GetRegisteredType(contentTypeName);
 
         var property = contentType
             .GetContentProperties()

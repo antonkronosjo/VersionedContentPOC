@@ -4,6 +4,7 @@ namespace VersionedContentPOC.CMS.Data.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Language
 {
+    Invariant,
     SV = 1,
     EN = 2
 }

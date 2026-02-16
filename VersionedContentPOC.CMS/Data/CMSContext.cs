@@ -13,14 +13,14 @@ internal class CMSContext : DbContext
     }
 
     internal DbSet<ContentRoot> ContentRoots => Set<ContentRoot>();
-    internal DbSet<Content> Content => Set<Content>();
+    internal DbSet<LocalizableVersion> Content => Set<LocalizableVersion>();
     internal DbSet<InvariantVersion> SharedContentProperties => Set<InvariantVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ContentRootConfiguration());
         modelBuilder.ApplyConfiguration(new ContentConfiguration());
-        modelBuilder.ApplyConfiguration(new SharedContentPropertiesConfiguration());
+        modelBuilder.ApplyConfiguration(new InvariantVersionConfiguration());
 
         var propertyConverterRegistry = new PropertyConverterRegistry();
         propertyConverterRegistry.AddRegisteredConverters(modelBuilder);

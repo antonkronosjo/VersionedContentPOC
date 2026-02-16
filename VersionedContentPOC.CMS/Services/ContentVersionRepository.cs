@@ -7,12 +7,9 @@ namespace VersionedContentPOC.CMS.Services;
 
 public interface IContentVersionRepository
 {
-    T AddVersion<T>(int contentId, T version) where T : Content, IVersionable;
-    T GetVersion<T>(int contentId, int versionId, Language language) where T : Content;
-    IQueryable<T> QueryVersions<T>(Language language) where T : Content;
-    T GetVersion<T>(int versionId) where T : Content;
-
-
+    T AddVersion<T>(int contentId, T version) where T : ContentVersion;
+    IQueryable<T> QueryVersions<T>() where T : ContentVersion;
+    T GetVersion<T>(int versionId) where T : ContentVersion;
 }
 
 internal class ContentVersionRepository : IContentVersionRepository
@@ -27,7 +24,7 @@ internal class ContentVersionRepository : IContentVersionRepository
     /// <summary>
     /// Adds new version to content + updates non cultural specific properties on other language branches
     /// </summary>
-    public T AddVersion<T>(int contentId, T version) where T: Content, IVersionable
+    public T AddVersion<T>(int contentId, T version) where T: ContentVersion
     {
         version.ContentId = contentId;
         version.VersionId = 0;
@@ -46,27 +43,15 @@ internal class ContentVersionRepository : IContentVersionRepository
         return version;
     }
 
-    /// <summary>
-    /// Queries all version 
-    /// </summary>
-    public IQueryable<T> QueryVersions<T>(Language language) where T : Content
+    public IQueryable<T> QueryVersions<T>() where T : ContentVersion
     {
-        return _context.Content.OfType<T>()
-            .Where(x => x.Language == language)
+        return _context.Set<T>()
             .Include(x => x.ContentRoot);
     }
 
-    /// <summary>
-    /// Returns version of content for language. Returns null if not found,
-    /// </summary>
-    public T GetVersion<T>(int contentId, int versionId, Language language) where T : Content
+    public T GetVersion<T>(int versionId) where T : ContentVersion
     {
-        return QueryVersions<T>(language)
-            .Single(x => x.ContentId == contentId && x.VersionId == versionId);
-    }
-
-    public T GetVersion<T>(int versionId) where T : Content
-    {
-        return _context.Content.OfType<T>().Single(x => x.VersionId == versionId);
+        return QueryVersions<T>()
+            .Single(x => x.VersionId == versionId);
     }
 }

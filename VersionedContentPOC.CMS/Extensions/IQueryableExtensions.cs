@@ -20,7 +20,7 @@ namespace VersionedContentPOC.CMS.Extensions
         /// Returns current representation of content. If content is published it returns published version, else it returns last created version
         /// </summary>
         [ShouldBeRefactored("DBR: Resolves wrong version if content is published but have new unpublished version")]
-        public static IQueryable<T> ResolveContentVersions<T>(this IQueryable<T> query) where T : Content
+        public static IQueryable<T> ResolveContentVersions<T>(this IQueryable<T> query) where T : LocalizableVersion
         {
             return query.Where(x =>
                 x.VersionId ==

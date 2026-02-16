@@ -11,7 +11,6 @@ public class UpdateContentRequest
 
     [Required]
     public required Dictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; }
-    public required Dictionary<string, ContentPropertyValueDto> SharedPropertiesSchema { get; set; } = new();
 }
 
 public class UpdateContentRequestMetadata
@@ -35,6 +34,7 @@ public class UpdateContentRequestMetadata
 
     [Required]
     public required string ContentTypeName { get; set; }
+    public required bool Publishable { get; set; }
 }
     
 

@@ -1,6 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using VersionedContentPOC.CMS.Data.Enums;
-
 namespace VersionedContentPOC.CMS.Data.Models;
 
 public class ContentRoot
@@ -13,8 +11,9 @@ public class ContentRoot
     public int ContentId { get; set; }
     public DateTime Created { get; set; }
 
-    public SharedContentProperties? SharedContentProperties { get; set; }
+    [JsonIgnore]
+    public ICollection<InvariantVersion> SharedContentProperties { get; set; }
 
     [JsonIgnore]
-    public ICollection<Content> Versions { get; set; } = new List<Content>();
+    public ICollection<LocalizableVersion> Versions { get; set; } = new List<LocalizableVersion>();
 }

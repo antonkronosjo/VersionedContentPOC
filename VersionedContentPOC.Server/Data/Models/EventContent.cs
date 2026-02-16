@@ -6,7 +6,7 @@ using VersionedContentPOC.CMS.Attributes;
 namespace VersionedContentPOC.Server.Data.Models
 {
     [ContentType]
-    public class EventContent : Content
+    public class EventContent : LocalizableVersion
     {
         public EventContent(Language language) : base(language)
         {
@@ -19,12 +19,10 @@ namespace VersionedContentPOC.Server.Data.Models
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
         [Required]
-        [MainLanguageOnly]
         public required DateTime StartDate { get; set; }
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.DateTimePicker)]
         [Required]
-        [MainLanguageOnly]
         public required DateTime EndDate { get; set; }
 
         [ContentPropertyMetadata(editable: true, inputType: InputType.TextArea)]

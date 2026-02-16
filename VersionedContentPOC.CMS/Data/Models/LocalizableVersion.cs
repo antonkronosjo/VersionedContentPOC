@@ -1,28 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using VersionedContentPOC.CMS.Data.Enums;
 using VersionedContentPOC.CMS.Data.Interfaces;
-
 namespace VersionedContentPOC.CMS.Data.Models;
 
-public abstract class Content : IVersionable, IPublishable
+public abstract class LocalizableVersion : ContentVersion, IPublishable, ILocalizable
 {
-    protected Content()
-    {
-            
-    }
-
-    public Content(Language language)
+    public LocalizableVersion(Language language) : base()
     {
         VersionCreated = DateTime.UtcNow;
         Language = language;
         Status = PublishStatus.Draft;
     }
-
-    [Required]
-    public int VersionId { get; set; }
-
-    [Required]
-    public int ContentId { get; set; }
 
     [Required]
     public PublishStatus Status { get; set; }
@@ -33,7 +21,4 @@ public abstract class Content : IVersionable, IPublishable
     public DateTime? StartPublish { get; set; }
     public DateTime? StopPublish { get; set; }
 
-    public ContentRoot ContentRoot { get; set; }
-
-    public DateTime VersionCreated { get; set; }
 }

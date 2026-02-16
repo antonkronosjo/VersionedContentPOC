@@ -39,28 +39,28 @@ namespace VersionedContentPOC.CMS.Initialization
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(baseType =>
             {
-                if (baseType == typeof(Content))
-                    return ContentTypeRegistry.GetRegisteredContentTypes();
+                if (baseType == typeof(LocalizableVersion))
+                    return ContentTypeRegistry.LocalizedVersions.GetRegisteredTypes();
                 
-                if (baseType == typeof(SharedContentProperties))
-                    return ContentTypeRegistry.GetRegisteredSharedContentProperties();
+                if (baseType == typeof(InvariantVersion))
+                    return ContentTypeRegistry.LocalizedVersions.GetRegisteredTypes();
                 
                 return Enumerable.Empty<Type>();
             });
             options.SelectDiscriminatorNameUsing(type => {
-                if (typeof(Content).IsAssignableFrom(type))
+                if (typeof(LocalizableVersion).IsAssignableFrom(type))
                     return _contentDiscriminator;
 
-                if (typeof(SharedContentProperties).IsAssignableFrom(type))
+                if (typeof(InvariantVersion).IsAssignableFrom(type))
                     return _contentDiscriminator;
 
                 return null;
             });
             options.SelectDiscriminatorValueUsing(type => {
-                if (typeof(Content).IsAssignableFrom(type))
+                if (typeof(LocalizableVersion).IsAssignableFrom(type))
                     return type.Name;
 
-                if (typeof(SharedContentProperties).IsAssignableFrom(type))
+                if (typeof(InvariantVersion).IsAssignableFrom(type))
                     return type.Name;
 
                 return null;
@@ -72,24 +72,24 @@ namespace VersionedContentPOC.CMS.Initialization
             var resolver = new DefaultJsonTypeInfoResolver();
             resolver.Modifiers.Add(ti =>
             {
-                if (ti.Type == typeof(Content))
+                if (ti.Type == typeof(LocalizableVersion))
                 {
                     ti.PolymorphismOptions = new JsonPolymorphismOptions
                     {
                         TypeDiscriminatorPropertyName = _contentDiscriminator,
                         UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
                     };
-                    foreach (var contentType in ContentTypeRegistry.GetRegisteredContentTypes())
+                    foreach (var contentType in ContentTypeRegistry.LocalizedVersions.GetRegisteredTypes())
                         ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(contentType, contentType.Name));
                 }
-                if (ti.Type == typeof(SharedContentProperties))
+                if (ti.Type == typeof(InvariantVersion))
                 {
                     ti.PolymorphismOptions = new JsonPolymorphismOptions
                     {
                         TypeDiscriminatorPropertyName = _contentDiscriminator,
                         UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor
                     };
-                    foreach (var sharedPropertiesType in ContentTypeRegistry.GetRegisteredSharedContentProperties())
+                    foreach (var sharedPropertiesType in ContentTypeRegistry.InvariantVersions.GetRegisteredTypes())
                         ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(sharedPropertiesType, sharedPropertiesType.Name));
                 }
             });

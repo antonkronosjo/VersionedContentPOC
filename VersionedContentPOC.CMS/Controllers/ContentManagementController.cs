@@ -34,7 +34,7 @@ public class ContentManagementController : ControllerBase
     [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
     public ActionResult<List<string>> GetContentTypes()
     {
-        var contentTypes = ContentTypeRegistry.GetRegisteredContentTypes()
+        var contentTypes = ContentTypeRegistry.LocalizedVersions.GetRegisteredTypes()
             .Select(x => x.Name)
             .ToList();
 
@@ -48,7 +48,7 @@ public class ContentManagementController : ControllerBase
     {
         try
         {
-            var contentType = ContentTypeRegistry.GetRegisteredContentType(contentTypeName);
+            var contentType = ContentTypeRegistry.LocalizedVersions.GetRegisteredType(contentTypeName);
             var creationSchema = ContentMetadataProvider.GetCreationSchema(contentType, language);
             return Ok(creationSchema);
         }
@@ -60,27 +60,17 @@ public class ContentManagementController : ControllerBase
 
     [HttpPost]
     [Route("create")]
-    [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
-    public ActionResult<Content> CreateContent([FromBody] CreateContentRequest request)
+    [ProducesResponseType(typeof(LocalizableVersion), StatusCodes.Status200OK)]
+    public ActionResult<LocalizableVersion> CreateContent([FromBody] CreateContentRequest request)
     {
-        try
-        {
-            var contentType = ContentTypeRegistry.GetRegisteredContentType(request.Metadata.ContentTypeName);
-            var contentInstance = _contentFactory.CreateContentInstance(contentType, request.Metadata.Language, properties: request.PropertiesSchema);
+        var contentType = ContentTypeRegistry.LocalizedVersions.GetRegisteredType(request.Metadata.ContentTypeName);
+        var contentInstance = _contentFactory.CreateContentInstance(contentType, request.Metadata.Language, properties: request.PropertiesSchema);
 
-            var sharedPropertiesType = ContentTypeRegistry.GetSharedContentPropertiesForContentType(contentType);
-            var sharedProperties = _contentFactory.CreateSharedPropertiesInstance(sharedPropertiesType);
-            var createdContent = _contentRepository.Create(contentInstance, sharedProperties);
-            return CreatedAtAction(nameof(CreateContent), createdContent);
-        }
-        catch (ValidationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        var sharedPropertiesType = ContentTypeRegistry.InvariantVersions.GetRegisteredType(contentType);
+        var sharedProperties = _contentFactory.CreateSharedPropertiesInstance(sharedPropertiesType);
+
+        var createdContent = _contentRepository.Create(contentInstance, sharedProperties);
+        return CreatedAtAction(nameof(CreateContent), createdContent);
     }
 
     [HttpGet]
@@ -90,33 +80,43 @@ public class ContentManagementController : ControllerBase
     public ActionResult<UpdateContentRequest> GetContentUpdateSchema([FromQuery] int contentId, [FromQuery] Language language, [FromQuery] int? versionId = null)
     {
         var contentLanguages = _contentRepository.GetTranslatedLanguages(contentId);
-        if (contentLanguages.Contains(language))
+
+        if (language == Language.Invariant)
         {
-            var content = versionId == null
-                ? _contentRepository.Get<Content>(contentId, language)
-                : _contentVersionRepository.GetVersion<Content>(contentId, versionId.Value, language);
+            var version = _contentVersionRepository.QueryVersions<InvariantVersion>()
+                .Where(x => x.ContentId == contentId)
+                .OrderByDescending(x => x.VersionCreated)
+                .Single();
+
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(version, contentLanguages);
+            return Ok(updateSchema);
+        }
+        else if (contentLanguages.Contains(language))
+        {
+            var content = versionId.HasValue
+                ? _contentVersionRepository.GetVersion<LocalizableVersion>(versionId.Value)
+                : _contentRepository.Get<LocalizableVersion>(contentId, language);
 
             if (content == null)
                 return NotFound();
 
-            var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, content.ContentRoot, contentLanguages);
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(content, contentLanguages);
             return Ok(updateSchema);
         }
         else
         {
-            var contentRoot = _contentRepository.QueryRoots().Single(x => x.ContentId == contentId);
             var contentType = _contentRepository.GetContentRootType(contentId);
             var contentInstance = _contentFactory.CreateContentInstance(contentType, language, contentId: contentId);
 
-            var updateSchema = ContentMetadataProvider.GetUpdateSchema(contentInstance, contentRoot, contentLanguages);
+            var updateSchema = ContentMetadataProvider.GetUpdateSchema(contentInstance, contentLanguages);
             return Ok(updateSchema);
         }
     }
 
     [HttpPut]
     [Route("update")]
-    [ProducesResponseType(typeof(Content), StatusCodes.Status200OK)]
-    public ActionResult<Content> UpdateContent([FromBody] UpdateContentRequest request)
+    [ProducesResponseType(typeof(LocalizableVersion), StatusCodes.Status200OK)]
+    public ActionResult<LocalizableVersion> UpdateContent([FromBody] UpdateContentRequest request)
     {
         var contentExists = _contentRepository.Exists(request.Metadata.ContentId);
         if (!contentExists)
@@ -129,11 +129,7 @@ public class ContentManagementController : ControllerBase
 
         if (contentRoot.Versions.Any(x => x.Language == request.Metadata.Language))
         {
-            var contentVersion = _contentVersionRepository.GetVersion<Content>(
-                request.Metadata.ContentId,
-                request.Metadata.VersionId,
-                request.Metadata.Language
-);
+            var contentVersion = _contentVersionRepository.GetVersion<LocalizableVersion>(request.Metadata.VersionId);
             var updatedContent = _contentRepository.Update(contentVersion, request.PropertiesSchema, request.Metadata.ForceNewVersion);
             return Ok(updatedContent);
         }
@@ -148,13 +144,13 @@ public class ContentManagementController : ControllerBase
 
     [HttpGet]
     [Route("versions")]
-    [ProducesResponseType(typeof(List<Content>), StatusCodes.Status200OK)]
-    public ActionResult<List<Content>> Versions([FromQuery] int contentId, Language language)
+    [ProducesResponseType(typeof(List<LocalizableVersion>), StatusCodes.Status200OK)]
+    public ActionResult<List<LocalizableVersion>> Versions([FromQuery] int contentId, Language language)
     {
 
         var contentVersions = _contentVersionRepository
-            .QueryVersions<Content>(language)
-            .Where(x => x.ContentId == contentId)
+            .QueryVersions<LocalizableVersion>()
+            .Where(x => x.Language == language && x.ContentId == contentId)
             .OrderByDescending(x => x.VersionCreated)
             .ToList();
 
@@ -165,7 +161,7 @@ public class ContentManagementController : ControllerBase
     [Route("publish")]
     public IActionResult Publish([FromQuery] int versionId)
     {
-        var version = _contentVersionRepository.GetVersion<Content>(versionId);
+        var version = _contentVersionRepository.GetVersion<LocalizableVersion>(versionId);
         _contentPublishingService.Publish(version);
         return Ok();
     }
@@ -174,7 +170,7 @@ public class ContentManagementController : ControllerBase
     [Route("unpublish")]
     public IActionResult UnPublish([FromQuery] int versionId)
     {
-        var version = _contentVersionRepository.GetVersion<Content>(versionId);
+        var version = _contentVersionRepository.GetVersion<LocalizableVersion>(versionId);
         _contentPublishingService.Unpublish(version);
         return Ok();
     }
