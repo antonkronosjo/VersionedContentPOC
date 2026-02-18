@@ -21,4 +21,15 @@ public abstract class LocalizableVersion : ContentVersion, IPublishable, ILocali
     public DateTime? StartPublish { get; set; }
     public DateTime? StopPublish { get; set; }
 
+    public int InvariantVersionId { get; set; }
+    public InvariantVersion InvariantVersion { get; set; }
+}
+
+public abstract class LocalizableVersion<T> : LocalizableVersion where T : InvariantVersion
+{
+    protected LocalizableVersion(Language language): base(language)
+    {
+        
+    }
+
 }

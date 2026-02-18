@@ -8,10 +8,7 @@ namespace VersionedContentPOC.Server.Data.Models
     [ContentVersion]
     public class NewsContent : LocalizableVersion
     {
-        public NewsContent(Language language) : base(language)
-        {
-            
-        }
+        public NewsContent(Language language) : base(language) { }
 
         [ContentPropertyMetadata(editable: true)]
         [Required]
@@ -23,9 +20,6 @@ namespace VersionedContentPOC.Server.Data.Models
         [ContentPropertyMetadata(editable: true, inputType: InputType.TextArea)]
         [Required]
         public required string Text { get; set; }
-
-        [ContentPropertyMetadata(editable: true, inputType: InputType.ContentPicker)]
-        public ContentReference RelatedContent { get; set; }
     }
 
     [SharedContentProperties(typeof(NewsContent))]

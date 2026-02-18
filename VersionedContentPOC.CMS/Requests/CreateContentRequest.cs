@@ -11,7 +11,6 @@ public class CreateContentRequest
 
     [Required]
     public required Dictionary<string, ContentPropertyValueDto> PropertiesSchema { get; set; } = new();
-    public required Dictionary<string, ContentPropertyValueDto> SharedPropertiesSchema { get; set; } = new();
 }
 
 public class CreateContentRequestMetadata

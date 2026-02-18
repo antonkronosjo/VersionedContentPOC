@@ -18,6 +18,9 @@ namespace VersionedContentPOC.CMS.Data.Configurations
             builder.HasOne(x => x.ContentRoot)
                 .WithMany(x => x.Versions)
                 .HasForeignKey(x => x.ContentId);
+            builder.HasOne(x => x.InvariantVersion)
+                .WithMany(x => x.LocalizedVersions)
+                .HasForeignKey(l => new { l.VersionId });
             BuildContentDiscriminator(builder);
         }
 

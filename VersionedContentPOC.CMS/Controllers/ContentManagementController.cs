@@ -82,19 +82,7 @@ public class ContentManagementController : ControllerBase
     {
         var contentLanguages = _contentRepository.GetTranslatedLanguages(contentId);
 
-        if (language == Language.Invariant)
-        {
-            var version = versionId.HasValue
-                ? _contentVersionRepository.GetVersion<InvariantVersion>(versionId.Value)
-                : _contentVersionRepository.QueryVersions<InvariantVersion>()
-                    .Where(x => x.ContentId == contentId)
-                    .OrderByDescending(x => x.VersionCreated)
-                    .First();
-
-            var updateSchema = ContentMetadataProvider.GetUpdateSchema(version, contentLanguages);
-            return Ok(updateSchema);
-        }
-        else if (contentLanguages.Contains(language))
+        if (contentLanguages.Contains(language))
         {
             var content = versionId.HasValue
                 ? _contentVersionRepository.GetVersion<LocalizableVersion>(versionId.Value)

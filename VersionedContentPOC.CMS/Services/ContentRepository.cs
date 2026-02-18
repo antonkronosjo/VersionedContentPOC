@@ -148,6 +148,7 @@ internal class ContentRepository : IContentRepository
         return _context.Content.OfType<T>()
             .Where(x => x.Language == language)
             .ResolveContentVersions()
+            .Include(x => x.InvariantVersion)
             .Include(x => x.ContentRoot)
             .ThenInclude(x => x.SharedContentProperties);
     }

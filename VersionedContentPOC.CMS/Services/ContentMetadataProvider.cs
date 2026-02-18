@@ -22,13 +22,12 @@ public static class ContentMetadataProvider
                 ContentTypeName = contentType.Name,
                 Language = language,
             },
-            PropertiesSchema = GetPropertySchema(contentType),
-            SharedPropertiesSchema = GetPropertySchema(sharedPropertiesType)
+            PropertiesSchema = GetPropertySchema(contentType)
         };  
     }
 
     [ShouldBeRefactored("Would be good to not need to inject translated languages")]
-    public static UpdateContentRequest GetUpdateSchema(ContentVersion content, List<Language> contentLanguages)
+    public static UpdateContentRequest GetUpdateSchema(LocalizableVersion content, List<Language> contentLanguages)
     {
         var iPublishable = content as IPublishable;
         var iLocalizable = content as ILocalizable;
@@ -51,13 +50,22 @@ public static class ContentMetadataProvider
         };
     }
 
-    [ShouldBeRefactored("Guard should be re-added")]
     [ShouldBeRefactored("Maybe not use object as param?")]
-    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, object? instance = null)
+    public static Dictionary<string, ContentPropertyValueDto> GetPropertySchema(Type contentType, LocalizableVersion? instance = null)
     {
-        //ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
+        ContentTypeRegistry.Guards.IsRegiesteredContentType(contentType);
 
-        return contentType.GetContentProperties()
+        var localizedProps = contentType
+            .GetContentProperties()
+            .ToList();
+
+        var invariantProps = ContentTypeRegistry
+            .GetInvariantContentType(contentType)
+            .GetContentProperties();
+
+        localizedProps.AddRange(invariantProps);
+
+        return localizedProps
             .ToDictionary(
                 p => p.Name,
                 p => new ContentPropertyValueDto
@@ -67,7 +75,7 @@ public static class ContentMetadataProvider
                     Value = instance != null
                         ? p.GetValue(instance)
                         : null,
-                    ReadOnly = instance is LocalizableVersion content && content.Status != PublishStatus.Draft
+                    ReadOnly = instance != null && instance.Status != PublishStatus.Draft
                 }
             );
     }
